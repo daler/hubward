@@ -1,0 +1,8 @@
+Data were downloaded from https://www.encodeproject.org/comparative/chromatin
+as text files with chromosome and position.  BED3 files were created by
+extending the position by 1 bp, and BED3 files were converted to bigBed format.
+
+From the site::
+
+    Enhancers were identified using TSS-distal DHSs and p300 and CBP-1 binding sites. The positions listed in the files are a subset of TSS-distal DHSs (human, fly), p300 (human) and CBP-1 (worm) binding sites that are classified as enhancers...
+    ...The classification was optimized to obtain a high confidence set that is not necessarily very inclusive. For additional information please see the README file in the archive.

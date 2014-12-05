@@ -39,6 +39,48 @@ file is up-to-date.
 configured tracks in all the subdirectories and uploads everything to the host
 configured in ``~/.hubmasonry.yaml``.
 
+Run the example
+---------------
+
+This example downloads some enhancers and HiC domains from the ENCODE project,
+configures the metadata files and scripts to convert these files to formats
+usable by UCSC genome browser track hubs, and uploads them to a server you
+specify.
+
+The example creates a fresh template in a new ``encode`` directory, initializes
+a git repo there, copies over example files (which, in practice, need to be
+hand-edited), commits those changes so you can see what changes, and compiles
+and uploads a track hub.
+
+1. Clone the repo and get setup::
+
+    git clone https://github.com/daler/hubmasonry.git
+    cd hubmasonry
+    pip install -r requirements.txt
+    python setup.py develop
+
+Note, you will also need the UCSC tool ``bedToBigBed`` in your path for this
+example to work.
+
+2. You will also need a server you can upload to. You can disable this in the
+   example by commenting out the last ``hubmasonry build-trackhub`` line in the
+   ``run-example.bash`` script.  If you do want to upload the data, write the
+   details for your server in the file ``~/.hubmasonry.yaml``. It should have
+   the following fields; note that the first two fields have a ``%s``
+   placeholder that is filled in later by driver scripts::
+
+        # contents of ~/.hubmasonry.yaml; fill in with your own details
+        hub_url_pattern: 'http://example.com/webapps/%s/compiled/compiled.hub.txt'
+        hub_remote_pattern: '/home/me/apps/%s/compiled/compiled.hub.txt'
+        host: example.com
+        user: me
+        email: me@example.com
+
+3. Run the ``run-example.bash`` script (and read the comments in it for more
+   details).  The changes made from the default template 
+
+
+See the "Workflow" section below for more details.
 
 Design
 ------
@@ -101,9 +143,6 @@ Armed with this, the driver scripts will:
 Workflow
 --------
 
-.. note::
-
-    A working example will be added here.
 
 Here's the directory structure of a typical ChIP-seq experiment with called
 peaks and signal for two celltypes.  More info is provided below; this is just
@@ -185,18 +224,3 @@ to give you an overview for now::
     - combines composite tracks into a track hub
     - uploads the hub and syncs all processed data files to a server you
       specify
-
-``~/.hubmasonry.yaml``
-----------------------
-
-This file contains configuration information needed for uploading the track
-hub.  It is in YAML format, and needs the following fields:
-
-::
-
-    hub_url_pattern: 'http://example.com/webapps/%s/compiled/compiled.hub.txt'
-    hub_remote_pattern: '/home/me/apps/%s/compiled/compiled.hub.txt'
-    host: example.com
-    user: me
-    email: me@example.com
-
