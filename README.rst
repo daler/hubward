@@ -46,11 +46,11 @@ This example:
 
 - creates a fresh template in a new ``encode`` directory
 - initializes a git repo there
-- copies over example files (which, in pracice, need to be hand-edited)
-- commits those changes to the repo so you can study what changed if you'd like
+- copies over example files (which, in practice, need to be hand-edited)
+- commits those changes to the repo (so you can study what changed if you'd like)
 - downloads some enhancers and HiC domains from the ENCODE project
-- configures the metadata files and scripts to convert these files to formats
-  usable by UCSC genome browser track hubs
+- configures metadata files and scripts to convert these files to formats
+  usable by UCSC genome browser track hubs (here, bigBed)
 - runs `hubmasonry` on these config files to process and upload them to
   a server you specify.
 
