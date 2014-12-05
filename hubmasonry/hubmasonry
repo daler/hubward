@@ -214,7 +214,8 @@ def new(lab, label):
             '''),
         'metadata-builder.py': open(os.path.join(here, 'metadata-creator-template.py')).read(),
         'src/process.py': (
-    """#!/usr/bin/env python
+    """\
+    #!/usr/bin/env python
 
     import sys
     import os
@@ -222,8 +223,7 @@ def new(lab, label):
     from pybedtools.contrib.bigbed import bigbed
     from pybedtools.contrib.bigwig import bedgraph_to_bigwig
     from pybedtools import featurefuncs
-    from track_infrastructure import styles
-    from track_infrastructure import utils
+    from hubmasonry import utils
     import numpy as np
     import sh
 
