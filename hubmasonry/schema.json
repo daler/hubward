@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "definitions": {
+
+        "datasource": {
+            "type": "object",
+            "properties": {
+
+                "url": {
+                    "description": "URL that original data came from",
+                    "type": "string"},
+
+                "processed": {
+                    "description": "Key that is actually the filename of the processed file, relative to the metadata.json file.  When the script is passed `processed` as its only argument, the script should get the original data and process it as necessary.",
+                    "type": "string" },
+
+                "original": {
+                    "description": "original data file to be transformed, by 'script', into 'processed'.  Path is relative to the metadata filename.",
+                    "type": "string" },
+
+
+                "label": {
+                    "description": "brief description of the data, e.g., CP190 ChIP-seq in S2 cells",
+                    "type": "string" },
+
+                "script": {
+                    "description": "Script that, when executed using `processed` as its only argument, will re-create `processed` from the raw data.  Path is relative to this metadata.json file, so it should probably start with 'src/'.",
+                    "type": "string" },
+
+                "type": {
+                    "description": "Data type of `processed` -- bigBed or bigWig.",
+                    "type": "string",
+                    "enum": ["bigbed", "bigwig"]},
+
+                "genome": {
+                    "description": "assembly name",
+                    "type": "string",
+                    "enum": ["dm3", "mm9", "mm10", "hg19"]}
+            },
+            "required": ["url", "processed", "label", "script", "type", "genome"]
+        }
+    },
+
+    "properties": {
+
+        "study": {
+            "description": "keeps tracks of the references",
+            "type": "object",
+            "properties": {
+
+                "bibtex": {
+                    "description": "bibtex entry as one big text blob",
+                    "type": "string"},
+
+                "PMID": {
+                    "description": "pubmed ID"
+                },
+
+                "label": {
+                    "description": "unique label for this study",
+                    "type": "string"},
+
+                "description": {
+                    "description": "brief description of the study",
+                    "type": "string"}
+            }
+        },
+        "data": {
+            "description": "keeps track of individual files",
+            "type": "array",
+            "items": {"$ref": "#/definitions/datasource"}
+        }
+    },
+    "required": ["study"]
+}

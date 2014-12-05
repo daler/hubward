@@ -1,0 +1,11 @@
+argh
+colorama
+jsonschema
+PyYAML
+pybedtools
+bleach
+matplotlib
+numpy
+fabric
+trackhub
+wheel==0.23.0

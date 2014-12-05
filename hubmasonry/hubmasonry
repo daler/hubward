@@ -1,0 +1,248 @@
+#!/usr/bin/env python
+
+import glob
+from argh import arg
+import argh
+from colorama import init, Fore, Back, Style
+from hubmasonry import validation
+from hubmasonry import log
+from hubmasonry import utils
+import string
+from trackhub import Track, default_hub, CompositeTrack, ViewTrack
+from trackhub.track import SubGroupDefinition
+from fabric.colors import blue
+from trackhub.upload import upload_hub, upload_track, upload_file
+import logging
+import subprocess
+import os
+import json
+from textwrap import dedent
+import yaml
+
+
+def load_config(fn):
+    return yaml.load(open(fn))
+
+def build_trackhub(lab, genome, hub_only=False, study=None, config=os.path.expanduser('~/.hubmasonry.yaml')):
+    config = load_config(config)
+    hub, genomes_file, genome, trackdb = default_hub(
+        hub_name='%stracks' % lab,
+        genome=genome,
+        short_label='%s lab supplemental' % lab.title(),
+        long_label='%s lab additional tracks' % lab.title(),
+        email=config['email'])
+
+    hub.url = config['hub_url_pattern'] % lab
+    hub.remote_fn = config['hub_remote_pattern'] % lab
+
+    def sanitize(s, strict=False):
+        if strict:
+            allowed = string.letters + string.digits
+        else:
+            allowed = string.letters + string.digits + ' '
+
+        return ''.join([i for i in s if i in allowed]).replace(' ', '_')
+
+    def composite_from_study(s):
+        bigwigs = [i for i in s.data if i.type_ == 'bigwig']
+        bigbeds = [i for i in s.data if i.type_ == 'bigbed']
+
+        last_section = dedent(
+            """
+            Reference
+            ---------
+            %s
+
+            http://www.ncbi.nlm.nih.gov/pubmed/%s
+            """ % (s.reference, s.pmid))
+
+        html_string = utils.reSTify(s.processing + last_section)
+
+        composite = CompositeTrack(
+            name=sanitize(s.label, strict=True),
+            short_label=s.description,
+            long_label=s.description,
+            html_string=html_string,
+            tracktype='bigBed')
+
+        if len(bigwigs) > 0:
+            signal_view = ViewTrack(
+                name=sanitize(s.label, strict=True) + 'signalviewtrack',
+                view=sanitize(s.label, strict=True) + 'signalview',
+                short_label=s.label + ' signal view',
+                long_label=s.label + ' signal view',
+                visibility='full',
+                maxHeightPixels='100:25:8',
+                autoScale='off',
+                tracktype='bigWig',
+            )
+            composite.add_view(signal_view)
+            for bigwig in bigwigs:
+                try:
+                    kwargs = bigwig.trackinfo
+                except AttributeError:
+                    kwargs = {}
+                kwargs = dict((k, str(v)) for k, v in kwargs.items())
+                signal_view.add_tracks(
+                    Track(
+                        name=sanitize(s.label) + sanitize(bigwig.label),
+                        short_label=bigwig.label,
+                        long_label=bigwig.description,
+                        local_fn=bigwig.processed,
+                        tracktype='bigWig',
+                        **kwargs
+                    )
+                )
+
+        if len(bigbeds) > 0:
+            bed_view = ViewTrack(
+                name=sanitize(s.label, strict=True) + 'bedviewtrack',
+                view=sanitize(s.label, strict=False) + 'bed_view',
+                short_label=s.label + ' bed view',
+                long_label=s.label + ' bed view',
+                visibility='dense',
+            )
+            composite.add_view(bed_view)
+            for bigbed in bigbeds:
+                try:
+                    kwargs = bigbed.trackinfo
+                except AttributeError:
+                    kwargs = {}
+                track_kwargs = dict(
+                        name=sanitize(s.label) + sanitize(bigbed.label),
+                        short_label=bigbed.label,
+                        long_label=bigbed.description,
+                        local_fn=bigbed.processed,
+                        tracktype='bigBed 9'
+                )
+                track_kwargs.update(**kwargs)
+
+
+                bed_view.add_tracks(Track(**track_kwargs))
+        return composite
+
+
+    unique_names = set()
+    for metadata_filename in glob.glob('%s/*/metadata.yaml' % lab):
+        dirname = os.path.join(
+            os.path.dirname(metadata_filename))
+        cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
+        os.system(' '.join(cmds))
+
+        composite = composite_from_study(validation.Study(metadata_filename))
+        trackdb.add_tracks(composite)
+
+    hub.render()
+    kwargs = dict(host=config['host'], user=config['user'], rsync_options='-avrL --progress')
+    upload_hub(hub=hub, **kwargs)
+    if not hub_only:
+        for track, level in hub.leaves(Track):
+            upload_track(track=track, **kwargs)
+            pass
+
+
+    #upload_file(local_fn='tmp.html', remote_fn=track.html_fn, **kwargs)
+    print
+    print blue(hub.url)
+    print
+
+
+
+@arg('lab', help='Lab (or subdirectory) to process files from')
+@arg('--force', help='Force the re-generation of output files for this study.  Use the special string "ALL" to force re-running everything')
+@arg('--prioritize', help='Process this subdirectory first. Useful for when you are first developing a new study')
+def process(lab, force=False, prioritize=None):
+    def process_study(metadata_filename, force=False):
+        s = validation.Study(metadata_filename)
+        log('Study: {0.description}, in "{0.dirname}"'.format(s), style=Fore.BLUE)
+        for d in s.data:
+            if d.needs_update() or force:
+
+                log(
+                    'Converting "%s" -> "%s"' %
+                    (os.path.relpath(d.original, d.reldir),
+                     os.path.relpath(d.processed, d.reldir),
+                     ),
+                    indent=4)
+
+                d.process()
+            else:
+                log(
+                    'Up to date: "%s"' %
+                    os.path.relpath(d.processed, d.reldir), style=Style.DIM,
+                    indent=4)
+                continue
+
+    for filename in glob.glob('%s/*/metadata-builder.py' % lab):
+        dirname = os.path.dirname(filename)
+        cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
+        os.system(' '.join(cmds))
+
+        metadata_filename = os.path.join(dirname, 'metadata.yaml')
+        study = os.path.basename(os.path.dirname(metadata_filename))
+        force = False
+        if (study == force) or (force == 'ALL'):
+            force = True
+        process_study(metadata_filename, force=force)
+
+def new(lab, label):
+    here = os.path.dirname(__file__)
+
+    dirs = [
+        'raw-data',
+        'processed-data',
+        'processed-data/bed',
+        'processed-data/bam',
+        'processed-data/bigwig',
+        'processed-data/bigbed',
+        'src']
+
+    for d in dirs:
+        os.system('mkdir -p %s' % (os.path.join(lab, label, d)))
+
+    files = {
+        'README': 'Info about processing %s' % label,
+        'src/get-data.bash': dedent(
+            '''\
+            #!/bin/bash
+            HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+            (
+                cd $HERE/../raw-data
+                wget $URL
+                # process URL here....
+            )
+            '''),
+        'metadata-builder.py': open(os.path.join(here, 'metadata-creator-template.py')).read(),
+        'src/process.py': (
+    """#!/usr/bin/env python
+
+    import sys
+    import os
+    import pybedtools
+    from pybedtools.contrib.bigbed import bigbed
+    from pybedtools.contrib.bigwig import bedgraph_to_bigwig
+    from pybedtools import featurefuncs
+    from track_infrastructure import styles
+    from track_infrastructure import utils
+    import numpy as np
+    import sh
+
+    source = sys.argv[1]
+    target = sys.argv[2]
+    """),
+    }
+    for f, c in files.items():
+        if not os.path.exists(f):
+            with open(os.path.join(lab, label, f), 'w') as fout:
+                fout.write(c + '\n')
+            if f == 'src/process.py':
+                os.system('chmod +x %s' % os.path.join(lab, label, f))
+        else:
+            print f, 'exists, skipping'
+
+if __name__ == "__main__":
+    argh.dispatch_commands([
+        process,
+        new,
+        build_trackhub,
+    ])
