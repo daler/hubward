@@ -4,8 +4,8 @@ Hub Masonry
 Have you ever wished the UCSC Genome Browser had more tracks relevant to your
 work?
 
-Have you ever been asked "I read this great paper, but I can't get the BAM file
-I downloaded to open in Word.  So how do I look at their data?"
+Have you ever been asked "I read this great paper. I downloaded their BAM
+files, but I can't open them in Word. So how do I look at the data?"
 
 This package might help.  The goal is to manage genomic data (called peaks,
 RNA-seq signal, variants, microarray data, etc etc) from many published studies
@@ -26,31 +26,37 @@ The general idea
 
 The command-line tool ``hubmasonry`` handles each step.
 
-``hubmasonry new <study name>``:  Creates a new directory and populates it with
+``hubmasonry new <lab> <study name>``:  Creates a new directory and populates it with
 files you then need to edit. These files do things like download the raw data
 and perform processing steps to get the raw data into a usable form.
 
-``hubmasonry process <directory>``:  Looks for any ``metadata.yaml`` files in
+``hubmasonry process <lab>``:  Looks for any ``metadata.yaml`` files in
 the directory and reads the configuration. If an output file needs update, it
 will re-run the assigned processing script; otherwise it will report that the
 file is up-to-date.
 
-``hubmasonry build-trackhub <directory>``:  Builds a track hub of all the
+``hubmasonry build-trackhub <lab>``:  Builds a track hub of all the
 configured tracks in all the subdirectories and uploads everything to the host
 configured in ``~/.hubmasonry.yaml``.
 
 Run the example
 ---------------
 
-This example downloads some enhancers and HiC domains from the ENCODE project,
-configures the metadata files and scripts to convert these files to formats
-usable by UCSC genome browser track hubs, and uploads them to a server you
-specify.
+This example:
 
-The example creates a fresh template in a new ``encode`` directory, initializes
-a git repo there, copies over example files (which, in practice, need to be
-hand-edited), commits those changes so you can see what changes, and compiles
-and uploads a track hub.
+- creates a fresh template in a new ``encode`` directory
+- initializes a git repo there
+- copies over example files (which, in pracice, need to be hand-edited)
+- commits those changes to the repo so you can study what changed if you'd like
+- downloads some enhancers and HiC domains from the ENCODE project
+- configures the metadata files and scripts to convert these files to formats
+  usable by UCSC genome browser track hubs
+- runs `hubmasonry` on these config files to process and upload them to
+  a server you specify.
+
+
+Below you can find a link to a compiled version of the track hub to see what
+the final product looks like.
 
 1. Clone the repo and get setup::
 
@@ -205,12 +211,12 @@ If you were to run ``hubmasonry process encode`` again, the output files are
 already up-to-date so nothing further happens, and this is reported to stdout::
 
     > hubmasonry process encode
-    [2014-12-05 17:25:52,667] Study: Hi-C domains [embryo], in "/home/ryan/proj/hub-masonry/encode/encode-hic-domains"
+    [2014-12-05 17:25:52,667] Study: Hi-C domains [embryo], in "<DIR>/encode/encode-hic-domains"
     [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-Active.bigBed"
     [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-HP1_centromeric.bigBed"
     [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-Null.bigBed"
     [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-PcG.bigBed"
-    [2014-12-05 17:25:52,761] Study: ENCODE predicted enhancers, in "/home/ryan/proj/hub-masonry/encode/encode-enhancers"
+    [2014-12-05 17:25:52,761] Study: ENCODE predicted enhancers, in "<DIR>/encode/encode-enhancers"
     [2014-12-05 17:25:52,762]     Up to date: "processed-data/DHS_enhancers_S2.bigbed"
     [2014-12-05 17:25:52,762]     Up to date: "processed-data/DHS_enhancers_BG3.bigbed"
     [2014-12-05 17:25:52,762]     Up to date: "processed-data/DHS_enhancers_LE.bigbed"
