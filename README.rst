@@ -77,7 +77,145 @@ example to work.
         email: me@example.com
 
 3. Run the ``run-example.bash`` script (and read the comments in it for more
-   details).  The changes made from the default template 
+   details).
+
+The output will look something like this::
+
+    + LAB=encode
+    + for STUDY in encode-enhancers encode-hic-domains
+    + hubmasonry new encode encode-enhancers
+    + cd encode
+    + git init
+    Initialized empty Git repository in <DIR>/encode/.git/
+    + cd encode/encode-enhancers
+    + git add .
+    + git commit -m 'initial template for encode-enhancers'
+    [master (root-commit) fb4a1f5] initial template for encode-enhancers
+     4 files changed, 80 insertions(+)
+     create mode 100644 encode-enhancers/README
+     create mode 100644 encode-enhancers/metadata-builder.py
+     create mode 100644 encode-enhancers/src/get-data.bash
+     create mode 100755 encode-enhancers/src/process.py
+    + rsync -arv example/encode/encode-enhancers/ encode/encode-enhancers/
+    sending incremental file list
+    ./
+    README
+    metadata-builder.py
+    src/
+    src/get-data.bash
+    src/process.py
+
+    sent 3,386 bytes  received 107 bytes  6,986.00 bytes/sec
+    total size is 2,988  speedup is 0.86
+    + cd encode
+    + git commit -a -m 'changes made by the encode/encode-enhancers example'
+    [master fd1e5a7] changes made by the encode/encode-enhancers example
+     4 files changed, 90 insertions(+), 75 deletions(-)
+     rewrite encode-enhancers/README (100%)
+     rewrite encode-enhancers/metadata-builder.py (69%)
+     rewrite encode-enhancers/src/process.py (99%)
+    + bash encode/encode-enhancers/src/get-data.bash
+    --2014-12-05 17:22:56--  http://compbio.med.harvard.edu/modencode/webpage/enh_calls_final/comparative_enhancer_calls.tar.gz
+    Resolving compbio.med.harvard.edu (compbio.med.harvard.edu)... 134.174.150.124
+    Connecting to compbio.med.harvard.edu (compbio.med.harvard.edu)|134.174.150.124|:80... connected.
+    HTTP request sent, awaiting response... 200 OK
+    Length: 3442816 (3.3M) [application/x-gzip]
+    Saving to: ‘comparative_enhancer_calls.tar.gz’
+
+    100%[==========================================================================================>] 3,442,816   6.74MB/s   in 0.5s   
+
+    2014-12-05 17:22:56 (6.74 MB/s) - ‘comparative_enhancer_calls.tar.gz’ saved [3442816/3442816]
+
+    CBP_enhancers_wormEE.txt
+    CBP_enhancers_wormL3.txt
+    DHS_enhancers_BG3.txt
+    DHS_enhancers_Gm12878.txt
+    DHS_enhancers_H1.txt
+    DHS_enhancers_Hela.txt
+    DHS_enhancers_IMR90.txt
+    DHS_enhancers_K562.txt
+    DHS_enhancers_Kc.txt
+    DHS_enhancers_LE.txt
+    DHS_enhancers_S2.txt
+    p300_enhancers_Gm12878.txt
+    p300_enhancers_H1.txt
+    p300_enhancers_HeLa.txt
+    p300_enhancers_K562.txt
+    README.txt
+    + for STUDY in encode-enhancers encode-hic-domains
+    + hubmasonry new encode encode-hic-domains
+    + cd encode
+    + git init
+    Reinitialized existing Git repository in <DIR>/encode/.git/
+    + cd encode/encode-hic-domains
+    + git add .
+    + git commit -m 'initial template for encode-hic-domains'
+    [master 82c0299] initial template for encode-hic-domains
+     4 files changed, 80 insertions(+)
+     create mode 100644 encode-hic-domains/README
+     create mode 100644 encode-hic-domains/metadata-builder.py
+     create mode 100644 encode-hic-domains/src/get-data.bash
+     create mode 100755 encode-hic-domains/src/process.py
+    + rsync -arv example/encode/encode-hic-domains/ encode/encode-hic-domains/
+    sending incremental file list
+    ./
+    README
+    metadata-builder.py
+    src/
+    src/get-data.bash
+    src/process.py
+
+    sent 3,024 bytes  received 107 bytes  6,262.00 bytes/sec
+    total size is 2,629  speedup is 0.84
+    + cd encode
+    + git commit -a -m 'changes made by the encode/encode-hic-domains example'
+    [master 0d4b0f5] changes made by the encode/encode-hic-domains example
+     4 files changed, 81 insertions(+), 75 deletions(-)
+     rewrite encode-hic-domains/README (100%)
+     rewrite encode-hic-domains/metadata-builder.py (70%)
+     rewrite encode-hic-domains/src/process.py (99%)
+    + bash encode/encode-hic-domains/src/get-data.bash
+    --2014-12-05 17:22:58--  http://compbio.med.harvard.edu/modencode/webpage/hic/HiC_EL.bed
+    Resolving compbio.med.harvard.edu (compbio.med.harvard.edu)... 134.174.150.124
+    Connecting to compbio.med.harvard.edu (compbio.med.harvard.edu)|134.174.150.124|:80... connected.
+    HTTP request sent, awaiting response... 200 OK
+    Length: 33952 (33K) [text/plain]
+    Saving to: ‘HiC_EL.bed’
+
+    100%[==========================================================================================>] 33,952      --.-K/s   in 0.03s   
+
+    2014-12-05 17:22:58 (1.22 MB/s) - ‘HiC_EL.bed’ saved [33952/33952]
+
+    + hubmasonry process encode
+    [2014-12-05 17:22:59,750] Study: Hi-C domains [embryo], in "/home/ryan/proj/hub-masonry/encode/encode-hic-domains"
+    [2014-12-05 17:22:59,750]     Converting "raw-data/HiC_EL.bed" -> "processed-data/HiC-Active.bigBed"
+    [2014-12-05 17:23:01,006]     Converting "raw-data/HiC_EL.bed" -> "processed-data/HiC-HP1_centromeric.bigBed"
+    [2014-12-05 17:23:02,235]     Converting "raw-data/HiC_EL.bed" -> "processed-data/HiC-Null.bigBed"
+    [2014-12-05 17:23:03,693]     Converting "raw-data/HiC_EL.bed" -> "processed-data/HiC-PcG.bigBed"
+    [2014-12-05 17:23:05,016] Study: ENCODE predicted enhancers, in "/home/ryan/proj/hub-masonry/encode/encode-enhancers"
+    [2014-12-05 17:23:05,017]     Converting "raw-data/DHS_enhancers_S2.txt" -> "processed-data/DHS_enhancers_S2.bigbed"
+    [2014-12-05 17:23:06,220]     Converting "raw-data/DHS_enhancers_BG3.txt" -> "processed-data/DHS_enhancers_BG3.bigbed"
+    [2014-12-05 17:23:07,423]     Converting "raw-data/DHS_enhancers_LE.txt" -> "processed-data/DHS_enhancers_LE.bigbed"
+    [2014-12-05 17:23:08,662]     Converting "raw-data/DHS_enhancers_Kc.txt" -> "processed-data/DHS_enhancers_Kc.bigbed"
+    + hubmasonry build-trackhub encode dm3
+    ...
+    ... (lots of output from the rsync calls to the server...)
+
+If you were to run ``hubmasonry process encode`` again, the output files are
+already up-to-date so nothing further happens, and this is reported to stdout::
+
+    > hubmasonry process encode
+    [2014-12-05 17:25:52,667] Study: Hi-C domains [embryo], in "/home/ryan/proj/hub-masonry/encode/encode-hic-domains"
+    [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-Active.bigBed"
+    [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-HP1_centromeric.bigBed"
+    [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-Null.bigBed"
+    [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-PcG.bigBed"
+    [2014-12-05 17:25:52,761] Study: ENCODE predicted enhancers, in "/home/ryan/proj/hub-masonry/encode/encode-enhancers"
+    [2014-12-05 17:25:52,762]     Up to date: "processed-data/DHS_enhancers_S2.bigbed"
+    [2014-12-05 17:25:52,762]     Up to date: "processed-data/DHS_enhancers_BG3.bigbed"
+    [2014-12-05 17:25:52,762]     Up to date: "processed-data/DHS_enhancers_LE.bigbed"
+    [2014-12-05 17:25:52,762]     Up to date: "processed-data/DHS_enhancers_Kc.bigbed"
+
 
 
 See the "Workflow" section below for more details.
