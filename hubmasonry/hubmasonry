@@ -28,8 +28,8 @@ def build_trackhub(lab, genome, hub_only=False, study=None, config=os.path.expan
     hub, genomes_file, genome, trackdb = default_hub(
         hub_name='%stracks' % lab,
         genome=genome,
-        short_label='%s lab supplemental' % lab.title(),
-        long_label='%s lab additional tracks' % lab.title(),
+        short_label='%s' % lab.title(),
+        long_label='%s tracks' % lab.title(),
         email=config['email'])
 
     hub.url = config['hub_url_pattern'] % lab

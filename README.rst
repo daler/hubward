@@ -217,6 +217,13 @@ already up-to-date so nothing further happens, and this is reported to stdout::
     [2014-12-05 17:25:52,762]     Up to date: "processed-data/DHS_enhancers_Kc.bigbed"
 
 
+To see this example in action, you can follow this link, which will load the
+pre-compiled hub in the UCSC genome browser.  Once it loads, look for the
+"Encode" section.  It should have two composite tracks, "ENCODE predicted
+enhancers" and "Hi-C domains [embryo]".  Note that the README files have been
+converted to HTML and are visible on the configuration page for these tracks.
+
+URL: http://genome.ucsc.edu/cgi-bin/hgTracks?db=dm3&hubUrl=http://helix.nih.gov/~dalerr/encode/compiled/compiled.hub.txt
 
 See the "Workflow" section below for more details.
 
