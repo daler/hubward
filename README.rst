@@ -255,27 +255,27 @@ frequently get called by the driver script in order to refresh the data.
 
 In general, the workflow is the following:
 
-    - initialize a new study using the ``hubmasonry new`` command
-    - change to that new directory
-    - edit the ``src/get-data.bash`` script to download raw data
-    - write the ``src/process.py`` script to convert raw to processed data
-    - edit ``metadata-builder.py`` to build a ``metadata.yaml`` file specific
-      to the study
-    - edit the ``README`` file to record the details of what you did.
+- initialize a new study using the ``hubmasonry new`` command
+- change to that new directory
+- edit the ``src/get-data.bash`` script to download raw data
+- write the ``src/process.py`` script to convert raw to processed data
+- edit ``metadata-builder.py`` to build a ``metadata.yaml`` file specific
+  to the study
+- edit the ``README`` file to record the details of what you did.
 
 Armed with this, the driver scripts will:
 
-    - search for all ``metadata.yaml`` files
-    - re-generate any processed files defined in those ``metadata.yaml`` files
-      that are out-of-date by calling the defined script on the input file to
-      create the desired output file
-    - create a track hub with a composite track for each study
-    - create HTML documentation for each study based on the README file
-      (additionally including a link to the abstract on PubMed if a PMID is
-      supplied)
-    - upload the data and hub details to the server you specify
-    - print out the track hub URL that you can load into the UCSC genome
-      browser
+- search for all ``metadata.yaml`` files
+- re-generate any processed files defined in those ``metadata.yaml`` files
+  that are out-of-date by calling the defined script on the input file to
+  create the desired output file
+- create a track hub with a composite track for each study
+- create HTML documentation for each study based on the README file
+  (additionally including a link to the abstract on PubMed if a PMID is
+  supplied)
+- upload the data and hub details to the server you specify
+- print out the track hub URL that you can load into the UCSC genome
+  browser
 
 
 Workflow
