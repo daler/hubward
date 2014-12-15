@@ -4,9 +4,6 @@ Hub Masonry
 Have you ever wished the UCSC Genome Browser had more tracks relevant to your
 work?
 
-Have you ever been asked "I read this great paper. I downloaded their BAM
-files, but I can't open them in Word. So how do I look at the data?"
-
 This package might help.  The goal is to manage genomic data (called peaks,
 RNA-seq signal, variants, microarray data, etc etc) from many published studies
 and maintain them as a track hub on UCSC.  This package recognizes that
@@ -24,41 +21,54 @@ systems.
 The general idea
 ----------------
 
-The command-line tool ``hubmasonry`` handles each step.
+hubmasonry helps convert raw data to formats that can be used in UCSC track
+hubs (bigBed, bigWig, VCF, BAM), and then creates and uploads a track hub.
 
-``hubmasonry new <lab> <study name>``:  Creates a new directory and populates it with
-files you then need to edit. These files do things like download the raw data
-and perform processing steps to get the raw data into a usable form.
+There are 3 stages:
 
-``hubmasonry process <lab>``:  Looks for any ``metadata.yaml`` files in
-the directory and reads the configuration. If an output file needs update, it
-will re-run the assigned processing script; otherwise it will report that the
-file is up-to-date.
+1. Configure a new data set. Typically one dataset will represent a single study
+   and/or one GEO GSEXXXX accession. The ``hubmasonry new`` command populates
+   a directory with a skeleton of files needed.  These files are then edited
+   to reflect the specific needs of processing the data set.
+2. Process the raw data into files ready for upload to UCSC. This is done
+   across all configured data sets, but only for those that need updating. Use
+   the ``hubmasonry process`` command for this.
+3. Build a UCSC track hub, including the automatic uploading of processed
+   files. This is done across all configured data sets. Use the ``hubmasonry
+   build-trackhub`` command.
 
-``hubmasonry build-trackhub <lab>``:  Builds a track hub of all the
-configured tracks in all the subdirectories and uploads everything to the host
-configured in ``~/.hubmasonry.yaml``.
+Example
+-------
+In practice, using ``hubmasonry`` means editing config files and
+writing scripts to process the particular raw data that you want to look at.
+This is difficult to illustrate in a README format.  Instead, there is an
+example script ``run-example.bash`` which will show the process of creating
+a track hub showing enhancers and Hi-C data from the ENCODE project.
 
-Run the example
----------------
-
-This example:
-
-- creates a fresh template in a new ``encode`` directory
-- initializes a git repo there
-- copies over example files (which, in practice, need to be hand-edited)
-- commits those changes to the repo (so you can study what changed if you'd like)
-- downloads some enhancers and HiC domains from the ENCODE project
-- configures metadata files and scripts to convert these files to formats
-  usable by UCSC genome browser track hubs (here, bigBed)
-- runs `hubmasonry` on these config files to process and upload them to
-  a server you specify.
+Data are available at https://www.encodeproject.org/comparative/chromatin/.
+Since the files provided there are not bigBed or bigWig format, they cannot be
+directly used in a track hub.  This example illustrates how to configure the
+conversion and upload of these data. The files that were edited for this
+example can be found in the ``examples`` directory.  Most of the work is done
+in the ``process.py`` files and the ``metadata-builder.py`` files.
 
 
-Below you can find a link to a compiled version of the track hub to see what
-the final product looks like.
+For the impatient: follow `this link
+<http://genome.ucsc.edu/cgi-bin/hgTracks?db=dm3&hubUrl=http://helix.nih.gov/~dalerr/encode/compiled/compiled.hub.txt>`_
+to load the created hub in the UCSC Genome Browser; look for the "Encode"
+section with two composite tracks, "ENCODE predicted enhancers" and "Hi-C
+domains [embryo]".
 
-1. Clone the repo and get setup::
+To clarify the exact changes made relative to the skeleton template, this
+example script makes a git repo of the skeleton template, copies over the
+edited example files, then commits all the changes that were made for this
+example.  Then you can look at the git log (say, using ``gitk``) to see what
+changed.  See the code in ``run-example.bash`` for details.
+
+
+To get started from scratch:
+
+1. Clone this repo and get setup::
 
     git clone https://github.com/daler/hubmasonry.git
     cd hubmasonry
@@ -68,8 +78,9 @@ the final product looks like.
 Note, you will also need the UCSC tool ``bedToBigBed`` in your path for this
 example to work.
 
-2. You will also need a server you can upload to. You can disable this in the
-   example by commenting out the last ``hubmasonry build-trackhub`` line in the
+2. Configure your server information. Because of the way track hubs work, you
+   will need a server you can upload to. You can disable this in the example by
+   commenting out the last ``hubmasonry build-trackhub`` line in the
    ``run-example.bash`` script.  If you do want to upload the data, write the
    details for your server in the file ``~/.hubmasonry.yaml``. It should have
    the following fields; note that the first two fields have a ``%s``
@@ -242,14 +253,18 @@ multiple data sets (uploading, organizing, generating HTML files).
 Each study will have one or more raw data files.  These need to be converted
 into a format suitable for uploading into a track hub on UCSC, which currently
 is bigBed, bigWig, VCF, or BAM formats.  This conversion is highly dependent on
-the particular study.  The schema is that each raw data filename is mapped to
+the particular study.
+
+I've settled on the strategy that each raw data filename is mapped to
 a conversion script that is called with the input file as the first argument
-and the output file as the second argument.  It's up to the script to do all
-the custom work. For example, the easiest case is if the raw data is a bigBed
-file -- then all the script has to do is copy the input to the output.  Usually
-though, lots of conversion and manipulation has to happen in the script.
-Luckily, this is all hidden at the configuration level -- at this level, all we
-need to know is the name of the script and the input and output filenames.
+and the output file as the second argument (e.g., ``script.py infile
+outfile``).  It's up to the script to do all the custom work.
+
+For example, the easiest case is if the raw data is a bigBed file -- then all
+the script has to do is copy the input to the output.  Usually though, lots of
+conversion and manipulation has to happen in the script.  Luckily, this is all
+hidden at the configuration level -- at this level, all we need to know is the
+name of the script and the input and output filenames.
 
 To keep things organized, flexible, and manageable, each study has
 a ``metadata.yaml`` file.  This file contains lots of information about the
@@ -261,16 +276,17 @@ searches for files called ``metadata.yaml``, reads their data section, and
 simply calls the script with the original and processed files as its only
 arguments.  This gets you files ready for uploading to UCSC.
 
-Since the ``metadata.yaml`` file can get repetitive, there's
-a ``metadata-builder.py`` script to help build it.  In fact, **you shouldn't
-edit the metadata.yaml file by hand** because ``metadata-builder.py`` will
-frequently get called by the driver script in order to refresh the data.
+As you can imagine, the ``metadata.yaml`` file can get quite repetitive. So
+there's a template ``metadata-builder.py`` script to help build it.  In fact,
+**you shouldn't edit the metadata.yaml file by hand** because
+``metadata-builder.py`` will frequently get called by the driver script in
+order to refresh the data.
 
 In general, the workflow is the following:
 
 - initialize a new study using the ``hubmasonry new`` command
 - change to that new directory
-- edit the ``src/get-data.bash`` script to download raw data
+- edit the ``src/get-data.bash`` script, and then run it, to download raw data
 - write the ``src/process.py`` script to convert raw to processed data
 - edit ``metadata-builder.py`` to build a ``metadata.yaml`` file specific
   to the study
@@ -289,89 +305,3 @@ Armed with this, the driver scripts will:
 - upload the data and hub details to the server you specify
 - print out the track hub URL that you can load into the UCSC genome
   browser
-
-
-Workflow
---------
-
-
-Here's the directory structure of a typical ChIP-seq experiment with called
-peaks and signal for two celltypes.  More info is provided below; this is just
-to give you an overview for now::
-
-    lab/
-      study_1/
-
-        README
-        metadata-builder.py  # script to programmatically build metadata.yaml
-        metadata.yaml        # authoritative description of all data;
-                             #   created by metadata-builder.py
-
-        processed-data/      # contains final data ready for uploading
-                             #   to a trackhub
-          bigbed/
-            peaks-celltype1.bigbed
-            peaks-celltype2.bigbed
-          bigwig/
-            signal-celltype1.bigwig
-            signal-celltype2.bigwig
-
-          raw-data/         # raw data as downloaded from journal, author's
-                            # website, GEO, etc
-            Supplemental_Table_S1.xlsx
-            signal1.bedgraph
-            signal2.bedgraph
-
-          src/
-            get-data.bash   # downloads and unpacks data
-            process.py      # converts raw data to processed data
-
-#. Run ``hubmasonry new lab/study_1``.  This will create a skeleton directory
-   structure as well as some template files, particularly
-   ``metadata-builder.py``, ``process.py``, and ``get-data.bash``.
-
-#. Figure out how to get the raw data for the new study, and write this into
-   ``src/get-data.bash``.  The goal is to get unpacked data into the
-   ``raw-data`` directory.  Run this script to get the data.
-
-#. Start editing ``metadata-builder.py`` (which was created from a template to
-   help get you started) with relevant information from the study like
-   citation, description, PMID, etc.  When you get to the section that
-   populates the ``data`` array, you'll need to decide what script will be
-   called to convert raw data to processed data.  The template is set up to use
-   the ``src/process.py`` script, but it can be anything you want.  I'll assume
-   you'll be using ``src/process.py``.
-
-#. Start working on the ``src/process.py`` script.  In general:
-
-    - it should accept exactly two positional arguments: original data file,
-      and processed data file
-    - it should do any manipulation needed -- this might include running
-      external R scripts and lots of reformatting and manipulation, or if
-      you're lucky enough to have bigBed files as raw input, it can just copy
-      the raw file to the processed filename.
-
-#. Run ``hubmasonry process lab/study_1``.  This script:
-
-    - searches for ``metadata-builder.py`` files
-    - runs the ``metadata-builder.py`` script to get a fresh ``metadata.yaml``
-      file (this is why you don't want to edit ``metadata.yaml`` by hand!)
-    - iterates through the list of defined data files, checking for anything
-      that needs updates
-    - for anything that needs an update, calls ``$script $original $processed`` to
-      generate the processed data file
-
-   Now you have processed data files for all configured studies, ready for
-   upload to UCSC.
-
-
-#. Run ``hubmasonry build-trackhub``.  This script:
-
-    - reads the ``metadata.yaml`` files, and builds a composite track for each
-    - creates bigbed and/or bigwig views on the composite track that point to
-      the processed data files
-    - creates HTML documentation based on the README for the study, adding
-      citation info and PubMed link
-    - combines composite tracks into a track hub
-    - uploads the hub and syncs all processed data files to a server you
-      specify
