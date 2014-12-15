@@ -213,7 +213,7 @@ def new(lab, label):
             )
             '''),
         'metadata-builder.py': open(os.path.join(here, 'metadata-creator-template.py')).read(),
-        'src/process.py': (
+        'src/process.py': dedent(
     """\
     #!/usr/bin/env python
 
