@@ -172,8 +172,14 @@ def process(lab, force=False, prioritize=None):
                     os.path.relpath(d.processed, d.reldir), style=Style.DIM,
                     indent=4)
                 continue
-
-    for filename in glob.glob('%s/*/metadata-builder.py' % lab):
+    studies = glob.glob('%s/*/metadata-builder.py' % lab)
+    if prioritize:
+        def priority(fn):
+            if fn.startswith(prioritize):
+                return 0
+            return 1
+        studies = sorted(studies, key=priority)
+    for filename in studies:
         dirname = os.path.dirname(filename)
         cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
         os.system(' '.join(cmds))
