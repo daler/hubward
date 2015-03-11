@@ -13,7 +13,8 @@ def colored_bigbed(x, color, genome, target, autosql=None, bedtype=None):
 
     otherwise, use singlecolormap.
 
-    assumes that you have scores in BedTool x; this will zero all scores in the final bigbed
+    assumes that you have scores in BedTool x; this will zero all scores in the
+    final bigbed
     """
     norm = x.colormap_normalize()
     if color == 'smart':
@@ -31,7 +32,6 @@ def colored_bigbed(x, color, genome, target, autosql=None, bedtype=None):
         .each(func)\
         .saveas()
     bigbed(x, genome=genome, output=target, _as=autosql, bedtype=bedtype)
-
 
 
 def singlecolormap(color, func=None, n=64):
@@ -89,10 +89,10 @@ def reSTify(s):
 
     return bleach.clean(html, tags=safe, strip=True, attributes=attributes)
 
+
 def add_chr(f):
     f.chrom = 'chr' + f.chrom
     return f
-
 
 
 if __name__ == "__main__":
