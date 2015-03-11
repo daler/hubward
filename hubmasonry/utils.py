@@ -1,3 +1,4 @@
+import gzip
 import numpy as np
 import matplotlib
 import pybedtools
@@ -6,6 +7,63 @@ from pybedtools.contrib.bigbed import bigbed
 from pybedtools.featurefuncs import add_color
 import bleach
 from metaseq.colormap_adjust import smart_colormap
+
+
+def fix_macs_wig(fn, genome, output=None, add_chr=False, to_ignore=None):
+    """
+    wig files created by MACS often are extended outside the chromsome ranges.
+    This function edits an input WIG file to fit within the chromosome
+    boundaries defined by `genome`.
+
+    If `add_chr` is True, then prefix each chromosome name with "chr".
+
+    Also gets rid of any track lines.
+
+    Returns the output filename.
+
+    fn : str
+        Input WIG filename. Can be gzipped, if extension ends in .gz.
+
+    genome : str or dict
+
+    output : str or None
+        If None, writes to temp file
+
+    to_ignore : list
+        List of chromosomes to ignore.
+    """
+
+    if output is None:
+        output = pybedtools.BedTool._tmp()
+    if to_ignore is None:
+        to_ignore = []
+    genome = pybedtools.chromsizes(genome)
+    with open(output, 'w') as fout:
+        if fn.endswith('.gz'):
+            f = gzip.open(fn)
+        else:
+            f = open(fn)
+        for line in f:
+            if line.startswith('track'):
+                continue
+            if line.startswith('variableStep'):
+                a, b, c = line.strip().split()
+                prefix, chrom = b.split('=')
+                if add_chr:
+                    chrom = 'chr' + chrom
+                if chrom in to_ignore:
+                    continue
+                fout.write(' '.join([a, prefix + '=' + chrom, c]) + '\n')
+                span = int(c.split('=')[1])
+                continue
+            pos, val = line.strip().split()
+            if chrom in to_ignore:
+                continue
+            if (int(pos) + span) >= genome[chrom][1]:
+                continue
+            fout.write(line)
+    return output
+
 
 def colored_bigbed(x, color, genome, target, autosql=None, bedtype=None):
     """
