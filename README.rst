@@ -6,17 +6,24 @@ work?
 
 This package might help.  The goal is to manage genomic data (called peaks,
 RNA-seq signal, variants, microarray data, etc etc) from many published studies
-and maintain them as a track hub on UCSC.  This package recognizes that
-`working with other people's data can get messy
-<http://nsaunders.wordpress.com/2014/07/30/hell-is-other-peoples-data/>`_.
-It allows lots of flexibility at a low level for doing the
-custom manipulation and conversion of raw data for each study, but also
-provides high-level tools for managing many studies at once to make maintenance
-and keeping track of data provenance as painless as possible.
+and maintain them as a track hub on UCSC. Despite the existence of standard
+data formats for genomics data (e.g. BAM, BED, bigWig), in practice we find
+many arbitrary file formats in the supplemental material from published papers
+and in GEO.  Sure, the raw data might be available, but often we want to avoid
+re-constructing the entire analysis from scratch just to check our favorite
+genomic locus.
+
+This package recognizes that `working with other people's data can get messy
+<http://nsaunders.wordpress.com/2014/07/30/hell-is-other-peoples-data/>`_. It
+allows lots of flexibility at a low level for doing the custom manipulation and
+conversion of raw data for each study, but also provides high-level tools for
+managing many studies at once to make maintenance and keeping track of data
+provenance as painless as possible.
 
 It is currently used in practice to manage hundreds of tracks across dozens of
 experiments of interest to multiple lab groups working in different model
-systems.
+systems. So it scales well while providing the flexibility needed to data-munge
+on a case-by-case basis.
 
 The general idea
 ----------------
@@ -26,19 +33,24 @@ hubs (bigBed, bigWig, VCF, BAM), and then creates and uploads a track hub.
 
 There are 3 stages:
 
-1. Configure a new data set. Typically one dataset will represent a single study
-   and/or one GEO GSEXXXX accession. The ``hubmasonry new`` command populates
-   a directory with a skeleton of files needed.  These files are then edited
-   to reflect the specific needs of processing the data set.
-2. Process the raw data into files ready for upload to UCSC. This is done
-   across all configured data sets, but only for those that need updating. Use
-   the ``hubmasonry process`` command for this.
-3. Build a UCSC track hub, including the automatic uploading of processed
-   files. This is done across all configured data sets. Use the ``hubmasonry
-   build-trackhub`` command.
+1. Run the ``hubmasonry new`` command to populate a directory with a skeleton
+   of files needed.
+
+2. Edit these files (details below) and then run ``hubmasonry process``
+   to convert raw data into files ready for upload to UCSC.
+
+3. Run ``hubmasonry build-trackhub`` to build and upload a UCSC track hub,
+   including the automatic uploading of processed files and documentation.
 
 Example
 -------
+
+For the impatient: follow `this link
+<http://genome.ucsc.edu/cgi-bin/hgTracks?db=dm3&hubUrl=http://helix.nih.gov/~dalerr/encode/compiled/compiled.hub.txt>`_
+to load the created hub in the UCSC Genome Browser; look for the "Encode"
+section with two composite tracks, "ENCODE predicted enhancers" and "Hi-C
+domains [embryo]".
+
 In practice, using ``hubmasonry`` means editing config files and
 writing scripts to process the particular raw data that you want to look at.
 This is difficult to illustrate in a README format.  Instead, there is an
@@ -53,18 +65,11 @@ example can be found in the ``examples`` directory.  Most of the work is done
 in the ``process.py`` files and the ``metadata-builder.py`` files.
 
 
-For the impatient: follow `this link
-<http://genome.ucsc.edu/cgi-bin/hgTracks?db=dm3&hubUrl=http://helix.nih.gov/~dalerr/encode/compiled/compiled.hub.txt>`_
-to load the created hub in the UCSC Genome Browser; look for the "Encode"
-section with two composite tracks, "ENCODE predicted enhancers" and "Hi-C
-domains [embryo]".
-
 To clarify the exact changes made relative to the skeleton template, this
 example script makes a git repo of the skeleton template, copies over the
 edited example files, then commits all the changes that were made for this
 example.  Then you can look at the git log (say, using ``gitk``) to see what
 changed.  See the code in ``run-example.bash`` for details.
-
 
 To get started from scratch:
 
