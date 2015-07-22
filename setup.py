@@ -12,7 +12,9 @@ readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 requirements = [
-    # TODO: put package requirements here
+    'bleach',
+    'pyaml',
+    'sh',
 ]
 
 test_requirements = [
@@ -20,26 +22,26 @@ test_requirements = [
 ]
 
 setup(
-    name='hubmasonry',
+    name='hubward',
     version='0.1.0',
     description='Manage the visualization of large amounts of other people\'s [often messy] genomics data',
     long_description=readme + '\n\n' + history,
     author='Ryan Dale',
     author_email='dalerr@niddk.nih.gov',
-    url='https://github.com/daler/hubmasonry',
+    url='https://github.com/daler/hubward',
     packages=[
-        'hubmasonry',
+        'hubward',
     ],
-    package_dir={'hubmasonry':
-                 'hubmasonry'},
+    package_dir={'hubward':
+                 'hubward'},
     include_package_data=True,
     scripts=[
-        'hubmasonry/hubmasonry',
+        'hubward/hubward',
     ],
     install_requires=requirements,
     license="BSD",
     zip_safe=False,
-    keywords='hubmasonry',
+    keywords='hubward',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
