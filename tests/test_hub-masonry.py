@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-test_hubmasonry
+test_hubward
 ----------------------------------
 
-Tests for `hubmasonry` module.
+Tests for `hubward` module.
 """
 
 import unittest
 
-from hubmasonry import hubmasonry
+from hubward import hubward
 
 
 class TestHub-masonry(unittest.TestCase):

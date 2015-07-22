@@ -1,4 +1,4 @@
-hubmasonry package
+hubward package
 ==================
 
 Subpackages
@@ -6,55 +6,55 @@ Subpackages
 
 .. toctree::
 
-    hubmasonry.scripts
+    hubward.scripts
 
 Submodules
 ----------
 
-hubmasonry.log module
+hubward.log module
 ---------------------
 
-.. automodule:: hubmasonry.log
+.. automodule:: hubward.log
     :members:
     :undoc-members:
     :show-inheritance:
 
-hubmasonry.metadata-creator-template module
+hubward.metadata-creator-template module
 -------------------------------------------
 
-.. automodule:: hubmasonry.metadata-creator-template
+.. automodule:: hubward.metadata-creator-template
     :members:
     :undoc-members:
     :show-inheritance:
 
-hubmasonry.styles module
+hubward.styles module
 ------------------------
 
-.. automodule:: hubmasonry.styles
+.. automodule:: hubward.styles
     :members:
     :undoc-members:
     :show-inheritance:
 
-hubmasonry.utils module
+hubward.utils module
 -----------------------
 
-.. automodule:: hubmasonry.utils
+.. automodule:: hubward.utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-hubmasonry.validation module
+hubward.validation module
 ----------------------------
 
-.. automodule:: hubmasonry.validation
+.. automodule:: hubward.validation
     :members:
     :undoc-members:
     :show-inheritance:
 
-hubmasonry.version module
+hubward.version module
 -------------------------
 
-.. automodule:: hubmasonry.version
+.. automodule:: hubward.version
     :members:
     :undoc-members:
     :show-inheritance:
@@ -63,7 +63,7 @@ hubmasonry.version module
 Module contents
 ---------------
 
-.. automodule:: hubmasonry
+.. automodule:: hubward
     :members:
     :undoc-members:
     :show-inheritance:

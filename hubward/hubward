@@ -4,9 +4,9 @@ import glob
 from argh import arg
 import argh
 from colorama import init, Fore, Back, Style
-from hubmasonry import validation
-from hubmasonry import log
-from hubmasonry import utils
+from hubward import validation
+from hubward import log
+from hubward import utils
 import string
 from trackhub import Track, default_hub, CompositeTrack, ViewTrack
 from trackhub.track import SubGroupDefinition
@@ -23,7 +23,7 @@ import yaml
 def load_config(fn):
     return yaml.load(open(fn))
 
-def build_trackhub(lab, genome, hub_only=False, study=None, config=os.path.expanduser('~/.hubmasonry.yaml')):
+def build_trackhub(lab, genome, hub_only=False, study=None, config=os.path.expanduser('~/.hubward.yaml')):
     config = load_config(config)
     hub, genomes_file, genome, trackdb = default_hub(
         hub_name='%stracks' % lab,
@@ -229,7 +229,7 @@ def new(lab, label):
     from pybedtools.contrib.bigbed import bigbed
     from pybedtools.contrib.bigwig import bedgraph_to_bigwig
     from pybedtools import featurefuncs
-    from hubmasonry import utils
+    from hubward import utils
     import numpy as np
     import sh
 

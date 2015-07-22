@@ -2,6 +2,6 @@
 Usage
 ========
 
-To use hubmasonry in a project::
+To use hubward in a project::
 
-    import hubmasonry
+    import hubward

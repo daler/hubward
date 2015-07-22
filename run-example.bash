@@ -6,7 +6,7 @@ LAB=encode
 for STUDY in encode-enhancers encode-hic-domains; do
 
     # create a new template directory
-    hubmasonry new $LAB $STUDY
+    hubward new $LAB $STUDY
 
     # Create a git repo to illustrate the changes.
     (cd $LAB && git init)
@@ -24,11 +24,11 @@ for STUDY in encode-enhancers encode-hic-domains; do
 done
 
 # this reads the metadata.yaml files and processes files as needed
-hubmasonry process $LAB
+hubward process $LAB
 
 # upload to track hub.
 #
-# This requires a ~/.hubmasonry.yaml config file, e.g.,
+# This requires a ~/.hubward.yaml config file, e.g.,
 #
 #   hub_url_pattern: 'http://example.com/webapps/%s/compiled/compiled.hub.txt'
 #   hub_remote_pattern: '/home/me/apps/%s/compiled/compiled.hub.txt'
@@ -36,4 +36,4 @@ hubmasonry process $LAB
 #   user: me
 #   email: me@example.com
 #
-hubmasonry build-trackhub $LAB dm3
+hubward build-trackhub $LAB dm3

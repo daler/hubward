@@ -4,9 +4,9 @@ Installation
 
 At the command line::
 
-    $ easy_install hubmasonry
+    $ easy_install hubward
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv hubmasonry
-    $ pip install hubmasonry
+    $ mkvirtualenv hubward
+    $ pip install hubward

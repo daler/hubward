@@ -32,7 +32,7 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 hubmasonry tests
+	flake8 hubward tests
 
 test:
 	python setup.py test
@@ -41,15 +41,15 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source hubmasonry setup.py test
+	coverage run --source hubward setup.py test
 	coverage report -m
 	coverage html
 	open htmlcov/index.html
 
 docs:
-	rm -f docs/hubmasonry.rst
+	rm -f docs/hubward.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ hubmasonry
+	sphinx-apidoc -o docs/ hubward
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html

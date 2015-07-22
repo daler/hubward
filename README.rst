@@ -28,18 +28,18 @@ on a case-by-case basis.
 The general idea
 ----------------
 
-hubmasonry helps convert raw data to formats that can be used in UCSC track
+hubward helps convert raw data to formats that can be used in UCSC track
 hubs (bigBed, bigWig, VCF, BAM), and then creates and uploads a track hub.
 
 There are 3 stages:
 
-1. Run the ``hubmasonry new`` command to populate a directory with a skeleton
+1. Run the ``hubward new`` command to populate a directory with a skeleton
    of files needed.
 
-2. Edit these files (details below) and then run ``hubmasonry process``
+2. Edit these files (details below) and then run ``hubward process``
    to convert raw data into files ready for upload to UCSC.
 
-3. Run ``hubmasonry build-trackhub`` to build and upload a UCSC track hub,
+3. Run ``hubward build-trackhub`` to build and upload a UCSC track hub,
    including the automatic uploading of processed files and documentation.
 
 Example
@@ -51,7 +51,7 @@ to load the created hub in the UCSC Genome Browser; look for the "Encode"
 section with two composite tracks, "ENCODE predicted enhancers" and "Hi-C
 domains [embryo]".
 
-In practice, using ``hubmasonry`` means editing config files and
+In practice, using ``hubward`` means editing config files and
 writing scripts to process the particular raw data that you want to look at.
 This is difficult to illustrate in a README format.  Instead, there is an
 example script ``run-example.bash`` which will show the process of creating
@@ -75,8 +75,8 @@ To get started from scratch:
 
 1. Clone this repo and get setup::
 
-    git clone https://github.com/daler/hubmasonry.git
-    cd hubmasonry
+    git clone https://github.com/daler/hubward.git
+    cd hubward
     pip install -r requirements.txt
     python setup.py develop
 
@@ -85,13 +85,13 @@ example to work.
 
 2. Configure your server information. Because of the way track hubs work, you
    will need a server you can upload to. You can disable this in the example by
-   commenting out the last ``hubmasonry build-trackhub`` line in the
+   commenting out the last ``hubward build-trackhub`` line in the
    ``run-example.bash`` script.  If you do want to upload the data, write the
-   details for your server in the file ``~/.hubmasonry.yaml``. It should have
+   details for your server in the file ``~/.hubward.yaml``. It should have
    the following fields; note that the first two fields have a ``%s``
    placeholder that is filled in later by driver scripts::
 
-        # contents of ~/.hubmasonry.yaml; fill in with your own details
+        # contents of ~/.hubward.yaml; fill in with your own details
         hub_url_pattern: 'http://example.com/webapps/%s/compiled/compiled.hub.txt'
         hub_remote_pattern: '/home/me/apps/%s/compiled/compiled.hub.txt'
         host: example.com
@@ -105,7 +105,7 @@ The output will look something like this::
 
     + LAB=encode
     + for STUDY in encode-enhancers encode-hic-domains
-    + hubmasonry new encode encode-enhancers
+    + hubward new encode encode-enhancers
     + cd encode
     + git init
     Initialized empty Git repository in <DIR>/encode/.git/
@@ -165,7 +165,7 @@ The output will look something like this::
     p300_enhancers_K562.txt
     README.txt
     + for STUDY in encode-enhancers encode-hic-domains
-    + hubmasonry new encode encode-hic-domains
+    + hubward new encode encode-hic-domains
     + cd encode
     + git init
     Reinitialized existing Git repository in <DIR>/encode/.git/
@@ -208,7 +208,7 @@ The output will look something like this::
 
     2014-12-05 17:22:58 (1.22 MB/s) - ‘HiC_EL.bed’ saved [33952/33952]
 
-    + hubmasonry process encode
+    + hubward process encode
     [2014-12-05 17:22:59,750] Study: Hi-C domains [embryo], in "/home/ryan/proj/hub-masonry/encode/encode-hic-domains"
     [2014-12-05 17:22:59,750]     Converting "raw-data/HiC_EL.bed" -> "processed-data/HiC-Active.bigBed"
     [2014-12-05 17:23:01,006]     Converting "raw-data/HiC_EL.bed" -> "processed-data/HiC-HP1_centromeric.bigBed"
@@ -219,14 +219,14 @@ The output will look something like this::
     [2014-12-05 17:23:06,220]     Converting "raw-data/DHS_enhancers_BG3.txt" -> "processed-data/DHS_enhancers_BG3.bigbed"
     [2014-12-05 17:23:07,423]     Converting "raw-data/DHS_enhancers_LE.txt" -> "processed-data/DHS_enhancers_LE.bigbed"
     [2014-12-05 17:23:08,662]     Converting "raw-data/DHS_enhancers_Kc.txt" -> "processed-data/DHS_enhancers_Kc.bigbed"
-    + hubmasonry build-trackhub encode dm3
+    + hubward build-trackhub encode dm3
     ...
     ... (lots of output from the rsync calls to the server...)
 
-If you were to run ``hubmasonry process encode`` again, the output files are
+If you were to run ``hubward process encode`` again, the output files are
 already up-to-date so nothing further happens, and this is reported to stdout::
 
-    > hubmasonry process encode
+    > hubward process encode
     [2014-12-05 17:25:52,667] Study: Hi-C domains [embryo], in "<DIR>/encode/encode-hic-domains"
     [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-Active.bigBed"
     [2014-12-05 17:25:52,668]     Up to date: "processed-data/HiC-HP1_centromeric.bigBed"
@@ -276,7 +276,7 @@ a ``metadata.yaml`` file.  This file contains lots of information about the
 study, but in particular it defines how to go from raw data to processed files
 ready for upload. In ``metadata.yaml`` there is a block for each desired output
 file.  At its core, this block has three fields: "original", "processed", and
-"script".  The high-level driver script (``hubmasonry process`` command)
+"script".  The high-level driver script (``hubward process`` command)
 searches for files called ``metadata.yaml``, reads their data section, and
 simply calls the script with the original and processed files as its only
 arguments.  This gets you files ready for uploading to UCSC.
@@ -289,7 +289,7 @@ order to refresh the data.
 
 In general, the workflow is the following:
 
-- initialize a new study using the ``hubmasonry new`` command
+- initialize a new study using the ``hubward new`` command
 - change to that new directory
 - edit the ``src/get-data.bash`` script, and then run it, to download raw data
 - write the ``src/process.py`` script to convert raw to processed data

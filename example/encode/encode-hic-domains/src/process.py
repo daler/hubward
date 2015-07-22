@@ -6,7 +6,7 @@ import pybedtools
 from pybedtools.contrib.bigbed import bigbed
 from pybedtools.contrib.bigwig import bedgraph_to_bigwig
 from pybedtools import featurefuncs
-from hubmasonry import utils
+from hubward import utils
 import numpy as np
 import sh
 
