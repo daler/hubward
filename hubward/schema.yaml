@@ -1,0 +1,73 @@
+schema: http://json-schema.org/draft-04/schema#
+type: object
+definitions:
+  datasource:
+    properties:
+      genome:
+        type: string
+        description: assembly name
+        enum:
+            - dm3
+            - dm6
+            - mm9
+            - mm10
+            - hg19
+      label:
+        type: string
+        description: brief description of the data, e.g., CP190 ChIP-seq in S2 cells
+      original:
+        type: string
+        description: original data file to be transformed, by 'script', into 'processed'.  Path
+          is relative to the metadata filename.
+      processed:
+        type: string
+        description: Key that is actually the filename of the processed file, relative
+          to the metadata.json file.  When the script is passed `processed` as its
+          only argument, the script should get the original data and process it as
+          necessary.
+      script:
+        description: Script that, when executed using `processed` as its only argument,
+          will re-create `processed` from the raw data.  Path is relative to this
+          metadata.json file, so it should probably start with 'src/'.
+        type: string
+      type:
+        type: string
+        description: Data type of `processed` -- bigBed or bigWig.
+        enum:
+            - bigbed
+            - bigwig
+      url:
+        type: string
+        description: URL that original data came from
+    required:
+        type: object
+        - url
+        - processed
+        - label
+        - script
+        - type
+        - genome
+properties:
+  data:
+    description: keeps track of individual files
+    items:
+      $ref: '#/definitions/datasource'
+    type: array
+  study:
+    description: keeps tracks of the references
+    properties:
+      PMID:
+        description: pubmed ID
+      bibtex:
+        description: bibtex entry as one big text blob
+        type: string
+      description:
+        description: brief description of the study
+        type: string
+      label:
+        description: unique label for this study
+        type: string
+    type: object
+required:
+    - study
+

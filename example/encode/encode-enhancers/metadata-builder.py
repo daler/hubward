@@ -1,48 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-import json
-import pyaml
-from collections import OrderedDict
-import os
-d = OrderedDict(study=OrderedDict(), data=[])
 
-d['study']['reference'] = "Ho, J. W. K. et al. Comparative analysis of metazoan chromatin organization. Nature 512, 449-452 (2014)."
-d['study']['PMID'] = '25164756'
-d['study']['description'] = 'ENCODE predicted enhancers'
-d['study']['label'] = 'encode-enhancers'
-d['study']['processing'] = open('README').read()
+import pyaml                                                                 # [1]
+from collections import OrderedDict                                          # [1]
+import os                                                                    # [1]
 
-d['data'] = []
+d = OrderedDict(study=OrderedDict(), data=[])                                # [2]
 
-def raw(s):
-    return os.path.join('raw-data', s)
-def proc(s):
-    return os.path.join('processed-data', s)
+d['study']['reference'] = "Ho, J. W. K. et al. Nature 512, 449-452 (2014)."  # [3]
+d['study']['PMID'] = '25164756'                                              # [3]
+d['study']['description'] = 'ENCODE predicted enhancers'                     # [3]
+d['study']['label'] = 'encode-enhancers'                                     # [3]
 
+d['study']['processing'] = open('README').read()                             # [4]
 
-enhancer_template = """
-
-"""
-script = 'src/process.py'
-
-enhancer_celltypes = ['S2', 'BG3', 'LE', 'Kc']
-for celltype in enhancer_celltypes:
+for celltype in ['S2', 'BG3', 'LE', 'Kc']:                                   # [5]
     d['data'].append(
         dict(
-            original=raw('DHS_enhancers_%s.txt' % celltype),
-            processed=proc('DHS_enhancers_%s.bigbed' % celltype),
-            script=script,
-            description='%s enhancers' % celltype,
-            label='enhancers [%s]' % celltype,
-            genome='dm3',
-            url='url to supplemental data',
-            type='bigbed',
-            trackinfo={
-                'visibility': 'dense',
-                'tracktype': 'bigBed 3',
+            original=os.path.join(                                           # [6]
+                'raw-data', 'DHS_enhancers_%s.txt' % celltype),              # [6]
+            processed=os.path.join(                                          # [6]
+                'processed-data', 'DHS_enhancers_%s.bigbed' % celltype),     # [6]
+            script='src/process.py',                                         # [6]
+            description='%s enhancers' % celltype,                           # [6]
+            label='enhancers [%s]' % celltype,                               # [6]
+            genome='dm3',                                                    # [6]
+            url='url to supplemental data',                                  # [6]
+            type='bigbed',                                                   # [6]
+            trackinfo={                                                      # [6]
+                'visibility': 'dense',                                       # [6]
+                'tracktype': 'bigBed 3',                                     # [6]
             },
         )
     )
 
-
-pyaml.dump(d, open('metadata.yaml', 'w'), vspacing=[1,1])
+pyaml.dump(d, open('metadata.yaml', 'w'), vspacing=[1,1])                    # [7]
