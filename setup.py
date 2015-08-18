@@ -13,6 +13,10 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 requirements = [
     'bleach',
+    'pybedtools',
+    'fabric',
+    'colorama',
+    'trackhub',
     'pyaml',
     'sh',
 ]
