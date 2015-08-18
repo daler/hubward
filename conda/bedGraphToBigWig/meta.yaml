@@ -1,0 +1,7 @@
+package:
+    name: bedgraphtobigwig
+    version: "0.0"
+
+source:
+    fn: bedGraphToBigWig
+    url: http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/bedGraphToBigWig
