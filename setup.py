@@ -17,6 +17,7 @@ requirements = [
     'fabric',
     'colorama',
     'trackhub',
+    'jsonschema',
     'pyaml',
     'sh',
 ]
