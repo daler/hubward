@@ -6,7 +6,55 @@ from docutils.core import publish_string
 from pybedtools.contrib.bigbed import bigbed
 from pybedtools.featurefuncs import add_color
 import bleach
-from metaseq.colormap_adjust import smart_colormap
+
+
+# copied over from metaseq.colormap_adjust to avoid pulling in all of
+# metaseq...
+def smart_colormap(vmin, vmax, color_high='#b11902', hue_low=0.6):
+    """
+    Creates a "smart" colormap that is centered on zero, and accounts for
+    asymmetrical vmin and vmax by matching saturation/value of high and low
+    colors.
+
+    It works by first creating a colormap from white to `color_high`.  Setting
+    this color to the max(abs([vmin, vmax])), it then determines what the color
+    of min(abs([vmin, vmax])) should be on that scale.  Then it shifts the
+    color to the new hue `hue_low`, and finally creates a new colormap with the
+    new hue-shifted as the low, `color_high` as the max, and centered on zero.
+
+    :param color_high: a matplotlib color -- try "#b11902" for a nice red
+    :param hue_low: float in [0, 1] -- try 0.6 for a nice blue
+    :param vmin: lowest value in data you'll be plotting
+    :param vmax: highest value in data you'll be plotting
+    """
+    # first go from white to color_high
+    orig_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+        'test', ['#FFFFFF', color_high], N=2048)
+
+    # For example, say vmin=-3 and vmax=9.  If vmin were positive, what would
+    # its color be?
+    vmin = float(vmin)
+    vmax = float(vmax)
+    mx = max([vmin, vmax])
+    mn = min([vmin, vmax])
+    frac = abs(mn / mx)
+    rgb = orig_cmap(frac)[:-1]
+
+    # Convert to HSV and shift the hue
+    hsv = list(colorsys.rgb_to_hsv(*rgb))
+    hsv[0] = hue_low
+    new_rgb = colorsys.hsv_to_rgb(*hsv)
+    new_hex = matplotlib.colors.rgb2hex(new_rgb)
+
+    zeropoint = -vmin / (vmax - vmin)
+
+    # Create a new colormap using the new hue-shifted color as the low end
+    new_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+        'test', [(0, new_rgb), (zeropoint, '#FFFFFF'), (1, color_high)],
+        N=2048)
+
+    return new_cmap
+
 
 
 def fix_macs_wig(fn, genome, output=None, add_chr=False, to_ignore=None):
