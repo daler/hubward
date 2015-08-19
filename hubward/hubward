@@ -18,6 +18,7 @@ import os
 import json
 from textwrap import dedent
 import yaml
+import pkg_resources
 
 
 def load_config(fn):
@@ -218,7 +219,7 @@ def new(lab, label):
                 # process URL here....
             )
             '''),
-        'metadata-builder.py': open(os.path.join(here, 'metadata-creator-template.py')).read(),
+        'metadata-builder.py': pkg_resources.resource_string('hubward', 'metadata-creator-template.py'),
         'src/process.py': dedent(
     """\
     #!/usr/bin/env python

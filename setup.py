@@ -19,6 +19,8 @@ requirements = [
     'trackhub',
     'jsonschema',
     'pyaml',
+    'argh',
+    'docutils',
     'sh',
 ]
 
@@ -40,6 +42,7 @@ setup(
     package_dir={'hubward':
                  'hubward'},
     include_package_data=True,
+    data_files=[('', ['hubward/metadata-creator-template.py'])],
     scripts=[
         'hubward/hubward',
     ],
