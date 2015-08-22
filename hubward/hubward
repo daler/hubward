@@ -19,22 +19,48 @@ import json
 from textwrap import dedent
 import yaml
 import pkg_resources
+import argparse
+
+
 config_help = '''
 This file should be a YAML-format file with the following entries (edited to
 reflect your servers). Available place holders are [genome, lab].
 
-hub_url_pattern: 'http://example.com/webapps/{{genome}}/compiled/compiled.hub.txt'
+hub_url_pattern: 'http://example.com/apps/{{genome}}/compiled/compiled.hub.txt'
 hub_remote_pattern: '/home/me/apps/{{genome}}/compiled/compiled.hub.txt'
 host: example.com
 user: me
 email: me@example.com
 
+'''
 
 
 def load_config(fn):
     return yaml.load(open(fn))
 
-def build_trackhub(lab, genome, hub_only=False, study=None, config=os.path.expanduser('~/.hubward.yaml')):
+
+@arg('lab', help='Lab (or subdirectory) to build trackhub from')
+@arg('genome', help='Genome assembly name to use')
+@arg('--hub_only', help='Do not upload all tracks, just the hub text files')
+@arg('--study', help='Only prepare a hub for the specified study')
+@arg('--config', help=config_help)
+@arg('--hub_url_pattern',
+     help="Override 'hub_url_pattern' specified in config")
+@arg('--hub_remote_pattern',
+     help="Override 'hub_remote_pattern' specified in config")
+@arg('--user', help="Override 'user' specified in config")
+@arg('--host', help="Override 'host' specified in config")
+@arg('--email', help="Override 'email' specified in config")
+def build_trackhub(lab, genome, hub_only=False, study=None,
+                   config=os.path.expanduser('~/.hubward.yaml'),
+                   hub_url_pattern=None, hub_remote_pattern=None, user=None,
+                   host=None, email=None):
+    if not os.path.exists(config):
+        raise ValueError('''Config file "{config}" does not exist.
+
+                         {config_help}
+                         '''.format(config=config, config_help=config_help))
+
     config = load_config(config)
     hub, genomes_file, genome_, trackdb = default_hub(
         hub_name='%stracks' % lab,
@@ -128,10 +154,8 @@ def build_trackhub(lab, genome, hub_only=False, study=None, config=os.path.expan
                 )
                 track_kwargs.update(**kwargs)
 
-
                 bed_view.add_tracks(Track(**track_kwargs))
         return composite
-
 
     unique_names = set()
     for metadata_filename in glob.glob('%s/*/metadata.yaml' % lab):
@@ -144,28 +168,32 @@ def build_trackhub(lab, genome, hub_only=False, study=None, config=os.path.expan
         trackdb.add_tracks(composite)
 
     hub.render()
-    kwargs = dict(host=config['host'], user=config['user'], rsync_options='-avrL --progress')
+    kwargs = dict(host=config['host'], user=config['user'],
+                  rsync_options='-avrL --progress')
     upload_hub(hub=hub, **kwargs)
     if not hub_only:
         for track, level in hub.leaves(Track):
             upload_track(track=track, **kwargs)
             pass
 
-
-    #upload_file(local_fn='tmp.html', remote_fn=track.html_fn, **kwargs)
+    # upload_file(local_fn='tmp.html', remote_fn=track.html_fn, **kwargs)
     print
     print blue(hub.url)
     print
 
 
-
 @arg('lab', help='Lab (or subdirectory) to process files from')
-@arg('--force', help='Force the re-generation of output files for this study.  Use the special string "ALL" to force re-running everything')
-@arg('--prioritize', help='Process this subdirectory first. Useful for when you are first developing a new study')
+@arg('--force',
+     help='Force the re-generation of output files for this study. '
+     'Use the special string "ALL" to force re-running everything')
+@arg('--prioritize',
+     help='Process this subdirectory first. Useful for when you are '
+     'first developing a new study')
 def process(lab, force=False, prioritize=None):
     def process_study(metadata_filename, force=False):
         s = validation.Study(metadata_filename)
-        log('Study: {0.description}, in "{0.dirname}"'.format(s), style=Fore.BLUE)
+        log('Study: {0.description}, in "{0.dirname}"'.format(s),
+            style=Fore.BLUE)
         for d in s.data:
             if d.needs_update() or force:
 
@@ -202,6 +230,7 @@ def process(lab, force=False, prioritize=None):
             force = True
         process_study(metadata_filename, force=force)
 
+
 def new(lab, label):
     here = os.path.dirname(__file__)
 
@@ -220,7 +249,8 @@ def new(lab, label):
     files = {
         'README': 'Info about processing %s' % label,
         'src/get-data.bash': utils.get_resource('get-data.bash'),
-        'metadata-builder.py': utils.get_resource('metadata_builder_template.py'),
+        'metadata-builder.py': utils.get_resource(
+            'metadata_builder_template.py'),
         'src/process.py': utils.get_resource('process_template.py'),
       }
     for f, c in files.items():
@@ -233,6 +263,7 @@ def new(lab, label):
             print f, 'exists, skipping'
 
 if __name__ == "__main__":
+    import argparse
     argh.dispatch_commands([
         process,
         new,

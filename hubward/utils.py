@@ -9,11 +9,14 @@ from pybedtools.featurefuncs import add_color
 import bleach
 import pkg_resources
 
+
 def get_resource(fn):
     try:
         return pkg_resources.resource_string('hubward', fn)
     except IOError:
-        return open(os.path.join(os.path.dirname(__file__), '..', 'resources', fn)).read()
+        return open(os.path.join(
+            os.path.dirname(__file__), '..', 'resources', fn)).read()
+
 
 # copied over from metaseq.colormap_adjust to avoid pulling in all of
 # metaseq...
@@ -29,10 +32,17 @@ def smart_colormap(vmin, vmax, color_high='#b11902', hue_low=0.6):
     color to the new hue `hue_low`, and finally creates a new colormap with the
     new hue-shifted as the low, `color_high` as the max, and centered on zero.
 
-    :param color_high: a matplotlib color -- try "#b11902" for a nice red
-    :param hue_low: float in [0, 1] -- try 0.6 for a nice blue
-    :param vmin: lowest value in data you'll be plotting
-    :param vmax: highest value in data you'll be plotting
+    Parameters
+    ----------
+    color_high : color
+        Can be any format supported by matplotlib. Try "#b11902" for a nice
+        red.
+    hue_low : float in [0, 1]
+        Try 0.6 for a nice blue
+    vmin : float
+        Lowest value in data you'll be plotting
+    vmax : float
+        Highest value in data you'll be plotting
     """
     # first go from white to color_high
     orig_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
@@ -63,7 +73,6 @@ def smart_colormap(vmin, vmax, color_high='#b11902', hue_low=0.6):
     return new_cmap
 
 
-
 def fix_macs_wig(fn, genome, output=None, add_chr=False, to_ignore=None):
     """
     wig files created by MACS often are extended outside the chromsome ranges.
@@ -72,7 +81,8 @@ def fix_macs_wig(fn, genome, output=None, add_chr=False, to_ignore=None):
 
     If `add_chr` is True, then prefix each chromosome name with "chr".
 
-    Also gets rid of any track lines.
+    Also gets rid of any track lines so the file is ready for conversion to
+    bigWig.
 
     Returns the output filename.
 
@@ -170,30 +180,31 @@ def singlecolormap(color, func=None, n=64):
 
 
 def colortuple(col):
+    """
+    Given a color in any format supported by matplotlib, return
+    a comma-separated string of R,G,B uint8 values.
+    """
     rgb = np.array(matplotlib.colors.colorConverter.to_rgb(col))
     rgb = [int(i * 255) for i in rgb]
     return ','.join(map(str, rgb))
 
 
 def reSTify(s):
+    """
+    Convert ReST-formatted string `s` into HTML.
+
+    Intended for uploading to UCSC configuration pages, so uses a whitelist
+    approach for HTML tags.
+    """
     html = publish_string(
         source=s,
         writer_name='html',
         settings=None,
         settings_overrides={'embed_stylesheet': False},
     )
-    safe = bleach.ALLOWED_TAGS[:]
-    for i in range(1, 5):
-        safe.append('h%s' % i)
-
-    safe.extend([
-        'p',
-        'img',
-        'pre',
-        'tt',
-        'a',
+    safe = bleach.ALLOWED_TAGS + [
+        'p', 'img', 'pre', 'tt', 'a', 'h1', 'h2', 'h3', 'h4'
     ]
-    )
 
     attributes = {
         'img': ['alt', 'src'],
@@ -204,6 +215,11 @@ def reSTify(s):
 
 
 def add_chr(f):
+    """
+    Prepend "chr" to the beginning of chromosome names.
+
+    Useful when passed to pybedtool.BedTool.each().
+    """
     f.chrom = 'chr' + f.chrom
     return f
 

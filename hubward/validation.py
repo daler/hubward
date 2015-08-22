@@ -16,8 +16,10 @@ SCHEMA = json.loads(utils.get_resource('schema.json'))
 def link_is_newer(x, y):
     return os.lstat(x).st_mtime > os.lstat(y).st_mtime
 
+
 def is_newer(x, y):
     return os.stat(x).st_mtime > os.stat(y).st_mtime
+
 
 class Data(object):
     def __init__(self, obj, reldir):
@@ -57,10 +59,10 @@ class Data(object):
         if (
 
             # if processed is a link, then check the LINK time
-            link_is_newer(self.script, self.processed)
+            link_is_newer(self.script, self.processed) or
 
             # but for the original data, we want to FOLLOW the link
-            or is_newer(self.original, self.processed)
+            is_newer(self.original, self.processed)
         ):
             return True
 
@@ -98,8 +100,8 @@ class Data(object):
         if self.needs_update():
             print(
                 Fore.RED + 'The following command did not update '
-                '{1}:\n\n{0}\n'.format(' \\\n'.join(cmds), self.processed)
-                + Fore.RESET
+                '{1}:\n\n{0}\n'.format(' \\\n'.join(cmds), self.processed) +
+                Fore.RESET
             )
 
 
