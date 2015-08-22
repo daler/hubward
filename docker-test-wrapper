@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# - Ensures the latest docker container is built
+# - Runs the docker container, exporting the current directory into the
+#   /opt/hubward dir in the container
+# - Runs docker-test.sh inside the container
+
+set -e
+docker build -t hubward docker
+docker run -it -v $(pwd):/opt/hubward hubward /bin/bash docker-test.sh

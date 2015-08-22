@@ -36,4 +36,4 @@ hubward process $LAB
 #   user: me
 #   email: me@example.com
 #
-hubward build-trackhub $LAB dm3
+hubward build-trackhub $LAB dm3 --config /tmp/test-hubward.yaml
