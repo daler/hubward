@@ -1,3 +1,4 @@
 #!/bin/bash
+set -e
 docker build -t hubward docker
 docker run -it -v $(pwd):/opt/hubward hubward /bin/bash test.sh
