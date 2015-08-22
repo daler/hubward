@@ -6,9 +6,11 @@ import os
 import glob
 import subprocess
 from colorama import init, Fore, Back, Style
+import pkg_resources
+from hubward import utils
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-SCHEMA = json.load(open(os.path.join(HERE, 'schema.json')))
+SCHEMA = json.loads(utils.get_resource('schema.json'))
 
 
 def link_is_newer(x, y):

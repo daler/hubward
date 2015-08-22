@@ -209,35 +209,10 @@ def new(lab, label):
 
     files = {
         'README': 'Info about processing %s' % label,
-        'src/get-data.bash': dedent(
-            '''\
-            #!/bin/bash
-            HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-            (
-                cd $HERE/../raw-data
-                wget $URL
-                # process URL here....
-            )
-            '''),
-        'metadata-builder.py': pkg_resources.resource_string('hubward', 'metadata-creator-template.py'),
-        'src/process.py': dedent(
-    """\
-    #!/usr/bin/env python
-
-    import sys
-    import os
-    import pybedtools
-    from pybedtools.contrib.bigbed import bigbed
-    from pybedtools.contrib.bigwig import bedgraph_to_bigwig
-    from pybedtools import featurefuncs
-    from hubward import utils
-    import numpy as np
-    import sh
-
-    source = sys.argv[1]
-    target = sys.argv[2]
-    """),
-    }
+        'src/get-data.bash': utils.get_resource('get-data.bash'),
+        'metadata-builder.py': utils.get_resource('metadata_builder_template.py'),
+        'src/process.py': utils.get_resource('process_template.py'),
+      }
     for f, c in files.items():
         if not os.path.exists(f):
             with open(os.path.join(lab, label, f), 'w') as fout:

@@ -1,3 +1,4 @@
+import os
 import gzip
 import numpy as np
 import matplotlib
@@ -6,7 +7,13 @@ from docutils.core import publish_string
 from pybedtools.contrib.bigbed import bigbed
 from pybedtools.featurefuncs import add_color
 import bleach
+import pkg_resources
 
+def get_resource(fn):
+    try:
+        return pkg_resources.resource_string('hubward', fn)
+    except IOError:
+        return open(os.path.join(os.path.dirname(__file__), '..', 'resources', fn)).read()
 
 # copied over from metaseq.colormap_adjust to avoid pulling in all of
 # metaseq...

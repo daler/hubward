@@ -42,7 +42,17 @@ setup(
     package_dir={'hubward':
                  'hubward'},
     include_package_data=True,
-    data_files=[('', ['hubward/metadata-creator-template.py'])],
+    data_files=[
+        (
+            'hubward',
+            [
+                'resources/metadata_builder_template.py',
+                'resources/schema.json',
+                'resources/process_template.py',
+                'resources/get-data.bash',
+            ]
+        ),
+    ],
     scripts=[
         'hubward/hubward',
     ],
