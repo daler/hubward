@@ -19,6 +19,16 @@ import json
 from textwrap import dedent
 import yaml
 import pkg_resources
+config_help = '''
+This file should be a YAML-format file with the following entries (edited to
+reflect your servers). Available place holders are [genome, lab].
+
+hub_url_pattern: 'http://example.com/webapps/{{genome}}/compiled/compiled.hub.txt'
+hub_remote_pattern: '/home/me/apps/{{genome}}/compiled/compiled.hub.txt'
+host: example.com
+user: me
+email: me@example.com
+
 
 
 def load_config(fn):
@@ -26,15 +36,15 @@ def load_config(fn):
 
 def build_trackhub(lab, genome, hub_only=False, study=None, config=os.path.expanduser('~/.hubward.yaml')):
     config = load_config(config)
-    hub, genomes_file, genome, trackdb = default_hub(
+    hub, genomes_file, genome_, trackdb = default_hub(
         hub_name='%stracks' % lab,
         genome=genome,
         short_label='%s' % lab.title(),
         long_label='%s tracks' % lab.title(),
         email=config['email'])
 
-    hub.url = config['hub_url_pattern'] % lab
-    hub.remote_fn = config['hub_remote_pattern'] % lab
+    hub.url = config['hub_url_pattern'].format(lab=lab, genome=genome)
+    hub.remote_fn = config['hub_remote_pattern'].format(lab=lab, genome=genome)
 
     def sanitize(s, strict=False):
         if strict:
