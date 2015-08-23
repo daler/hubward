@@ -3,9 +3,18 @@
 
 
 import unittest
+from textwrap import dedent
 import os
 import hubward
 
+def copy_case(lab, label, case):
+    here = os.path.abspath(os.path.dirname(__file__))
+    cmds = [
+        'cp',
+        os.path.join(here, 'cases', case, '*'),
+        os.path.join(lab, label)
+    ]
+    os.system(' '.join(cmds))
 
 class TestNewStudy(unittest.TestCase):
     lab = '/tmp/lab'
@@ -51,6 +60,15 @@ class TestNewStudy(unittest.TestCase):
 
     def tearDown(self):
         #os.system('rm -r %s' % self.lab)
+        pass
+
+class TestNewStudyEdited(unittest.TestCase):
+    lab = '/tmp/lab'
+    label = 'edited'
+    def setUp(self):
+        hubward.utils.new_study(self.lab, self.label)
+        copy_case(self.lab, self.label, 'simple')
+    def test_tmp(self):
         pass
 
 
