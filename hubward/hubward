@@ -148,35 +148,7 @@ def new(lab, label):
     """
     Initializes a new study.
     """
-    here = os.path.dirname(__file__)
-
-    dirs = [
-        'raw-data',
-        'processed-data',
-        'processed-data/bed',
-        'processed-data/bam',
-        'processed-data/bigwig',
-        'processed-data/bigbed',
-        'src']
-
-    for d in dirs:
-        os.system('mkdir -p %s' % (os.path.join(lab, label, d)))
-
-    files = {
-        'README': 'Info about processing %s' % label,
-        'src/get-data.bash': utils.get_resource('get-data.bash'),
-        'metadata-builder.py': utils.get_resource(
-            'metadata_builder_template.py'),
-        'src/process.py': utils.get_resource('process_template.py'),
-      }
-    for f, c in files.items():
-        if not os.path.exists(f):
-            with open(os.path.join(lab, label, f), 'w') as fout:
-                fout.write(c + '\n')
-            if f == 'src/process.py':
-                os.system('chmod +x %s' % os.path.join(lab, label, f))
-        else:
-            print f, 'exists, skipping'
+    utils.new_study(lab, label)
 
 if __name__ == "__main__":
     import argparse

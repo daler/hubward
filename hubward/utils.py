@@ -7,7 +7,38 @@ from docutils.core import publish_string
 from pybedtools.contrib.bigbed import bigbed
 from pybedtools.featurefuncs import add_color
 import bleach
+import yaml
 import pkg_resources
+
+
+def new_study(lab, label):
+    dirs = [
+        'raw-data',
+        'processed-data',
+        'processed-data/bed',
+        'processed-data/bam',
+        'processed-data/bigwig',
+        'processed-data/bigbed',
+        'src']
+
+    for d in dirs:
+        os.system('mkdir -p %s' % (os.path.join(lab, label, d)))
+
+    files = {
+        'README': 'Info about processing %s' % label,
+        'src/get-data.bash': get_resource('get-data.bash'),
+        'metadata-builder.py': get_resource(
+            'metadata_builder_template.py'),
+        'src/process.py': get_resource('process_template.py'),
+      }
+    for f, c in files.items():
+        if not os.path.exists(f):
+            with open(os.path.join(lab, label, f), 'w') as fout:
+                fout.write(c)
+            if f == 'src/process.py':
+                os.system('chmod +x %s' % os.path.join(lab, label, f))
+        else:
+            print f, 'exists, skipping'
 
 def link_is_newer(x, y):
     return os.lstat(x).st_mtime > os.lstat(y).st_mtime
@@ -27,7 +58,7 @@ def get_resource(fn):
 
 def load_config(fn):
     if not os.path.exists(fn):
-        raise ValueError('Config file "{0}" does not exist.'.format(fn)
+        raise ValueError('Config file "{0}" does not exist.'.format(fn))
     return yaml.load(open(fn))
 
 
