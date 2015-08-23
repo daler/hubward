@@ -88,13 +88,9 @@ def build_trackhub(lab, genome, hub_only=False, study=None,
     #
     # See the validation.Study class for details on this processing.
     unique_names = set()
-    for metadata_filename in glob.glob('%s/*/metadata.yaml' % lab):
-        dirname = os.path.join(
-            os.path.dirname(metadata_filename))
-        cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
-        os.system(' '.join(cmds))
-
-        composite = composite_from_study(validation.Study(metadata_filename))
+    lab = validation.Lab(lab)
+    for study in lab.studies:
+        composite = study.composite_track()
         trackdb.add_tracks(composite)
 
     # Render and upload the hub to the server specified in the config.
@@ -120,12 +116,6 @@ def build_trackhub(lab, genome, hub_only=False, study=None,
      help='Process this subdirectory first. Useful for when you are '
      'first developing a new study')
 def process(lab, force=False, prioritize=None):
-    def process_study(metadata_filename, force=False):
-        s = validation.Study(metadata_filename)
-        log('Study: {0.description}, in "{0.dirname}"'.format(s),
-            style=Fore.BLUE)
-        for d in s.data:
-            if d.needs_update() or force:
     """
     Process raw data files into files ready to be uploaded as a track hub.
 
@@ -137,25 +127,23 @@ def process(lab, force=False, prioritize=None):
     doesn't exist). If so, calls the configured script with the configured
     input and output file arguments.
     """
+    lab = validation.Lab(lab)
     if prioritize:
         def priority(fn):
             if fn.startswith(prioritize):
                 return 0
             return 1
-        studies = sorted(studies, key=priority)
-    for filename in studies:
-        dirname = os.path.dirname(filename)
-        cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
-        os.system(' '.join(cmds))
-
-        metadata_filename = os.path.join(dirname, 'metadata.yaml')
-        study = os.path.basename(os.path.dirname(metadata_filename))
+        lab.studies = sorted(lab.studies, key=priority)
+    for study in lab.studies:
+        study.build_metadata()
         force = False
         if (study == force) or (force == 'ALL'):
             force = True
-        process_study(metadata_filename, force=force)
+        study.process(force=force)
 
 
+@arg('lab', help='Lab (or subdirectory)')
+@arg('label', help='Label to use for study')
 def new(lab, label):
     """
     Initializes a new study.

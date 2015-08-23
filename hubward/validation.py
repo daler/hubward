@@ -1,4 +1,5 @@
 import yaml
+from textwrap import dedent
 from jsonschema import validate, ValidationError
 import pyaml
 import json
@@ -119,11 +120,12 @@ class Study(object):
 
         # validation happens here...
         validate(self.metadata, SCHEMA)
-
+        self.filename = fn
         self.pmid = self.metadata['study']['PMID']
         self.description = self.metadata['study']['description']
         self.reference = self.metadata['study']['reference']
         self.label = self.metadata['study']['label']
+        self.sanitized_label = utils.sanitize(self.label, strict=True)
         self.dirname = os.path.abspath(os.path.dirname(fn))
         self.processing = self.metadata['study']['processing']
 
@@ -132,6 +134,31 @@ class Study(object):
 
     def __str__(self):
         return pyaml.dumps(self.json)
+
+    def build_metadata(self):
+        dirname = os.path.dirname(self.filename)
+        cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
+        os.system(' '.join(cmds))
+
+    def process(self, force=False):
+        log('Study: {0.description}, in "{0.dirname}"'.format(self),
+            style=Fore.BLUE)
+        for d in self.data:
+            if d.needs_update() or force:
+                log(
+                    'Converting "%s" -> "%s"' %
+                    (os.path.relpath(d.original, d.reldir),
+                     os.path.relpath(d.processed, d.reldir),
+                     ),
+                    indent=4)
+
+                d.process()
+            else:
+                log(
+                    'Up to date: "%s"' %
+                    os.path.relpath(d.processed, d.reldir), style=Style.DIM,
+                    indent=4)
+                continue
 
     def reference_section(self):
         if not (self.reference or self.pmid):
@@ -235,3 +262,8 @@ class Study(object):
         return composite
 
 
+class Lab(object):
+    def __init__(self, directory):
+        self.studies = []
+        for metadata in glob.glob(os.path.join(directory, '*', 'metadata.yaml')):
+            self.studies.append(Study(metadata))
