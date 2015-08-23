@@ -13,14 +13,6 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 SCHEMA = json.loads(utils.get_resource('schema.json'))
 
 
-def link_is_newer(x, y):
-    return os.lstat(x).st_mtime > os.lstat(y).st_mtime
-
-
-def is_newer(x, y):
-    return os.stat(x).st_mtime > os.stat(y).st_mtime
-
-
 class Data(object):
     def __init__(self, obj, reldir):
         """
@@ -59,10 +51,10 @@ class Data(object):
         if (
 
             # if processed is a link, then check the LINK time
-            link_is_newer(self.script, self.processed) or
+            utils.link_is_newer(self.script, self.processed) or
 
             # but for the original data, we want to FOLLOW the link
-            is_newer(self.original, self.processed)
+            utils.is_newer(self.original, self.processed)
         ):
             return True
 

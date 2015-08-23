@@ -34,11 +34,6 @@ email: me@example.com
 
 '''
 
-
-def load_config(fn):
-    return yaml.load(open(fn))
-
-
 @arg('lab', help='Lab (or subdirectory) to build trackhub from')
 @arg('genome', help='Genome assembly name to use')
 @arg('--hub_only', help='Do not upload all tracks, just the hub text files')
@@ -58,10 +53,8 @@ def build_trackhub(lab, genome, hub_only=False, study=None,
     if not os.path.exists(config):
         raise ValueError('''Config file "{config}" does not exist.
 
-                         {config_help}
-                         '''.format(config=config, config_help=config_help))
 
-    config = load_config(config)
+    config = utils.load_config(config)
     hub, genomes_file, genome_, trackdb = default_hub(
         hub_name='%stracks' % lab,
         genome=genome,
@@ -71,14 +64,6 @@ def build_trackhub(lab, genome, hub_only=False, study=None,
 
     hub.url = config['hub_url_pattern'].format(lab=lab, genome=genome)
     hub.remote_fn = config['hub_remote_pattern'].format(lab=lab, genome=genome)
-
-    def sanitize(s, strict=False):
-        if strict:
-            allowed = string.letters + string.digits
-        else:
-            allowed = string.letters + string.digits + ' '
-
-        return ''.join([i for i in s if i in allowed]).replace(' ', '_')
 
     def composite_from_study(s):
         bigwigs = [i for i in s.data if i.type_ == 'bigwig']

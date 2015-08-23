@@ -9,6 +9,13 @@ from pybedtools.featurefuncs import add_color
 import bleach
 import pkg_resources
 
+def link_is_newer(x, y):
+    return os.lstat(x).st_mtime > os.lstat(y).st_mtime
+
+
+def is_newer(x, y):
+    return os.stat(x).st_mtime > os.stat(y).st_mtime
+
 
 def get_resource(fn):
     try:
@@ -16,6 +23,24 @@ def get_resource(fn):
     except IOError:
         return open(os.path.join(
             os.path.dirname(__file__), '..', 'resources', fn)).read()
+
+
+def load_config(fn):
+    if not os.path.exists(fn):
+        raise ValueError('Config file "{0}" does not exist.'.format(fn)
+    return yaml.load(open(fn))
+
+
+def sanitize(s, strict=False):
+    """
+    If strict, only allow letters and digits; otherwise allow spaces as
+    well.
+    """
+    if strict:
+        allowed = string.letters + string.digits
+    else:
+        allowed = string.letters + string.digits + ' '
+    return ''.join([i for i in s if i in allowed]).replace(' ', '_')
 
 
 # copied over from metaseq.colormap_adjust to avoid pulling in all of
