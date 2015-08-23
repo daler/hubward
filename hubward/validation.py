@@ -132,3 +132,106 @@ class Study(object):
 
     def __str__(self):
         return pyaml.dumps(self.json)
+
+    def reference_section(self):
+        if not (self.reference or self.pmid):
+            return ""
+        if not self.reference:
+            reference = ""
+        if not self.pmid:
+            pmid = ""
+        else:
+            pmid = 'http://www.ncbi.nlm.nih.gov/pubmed/{0}'.format(self.pmid)
+        return dedent(
+            """
+            Reference
+            ---------
+            {0}
+
+            {1}
+            """).format(reference, pmid)
+
+    def composite_track(self):
+        """
+        Create a composite track ready to be added to a trackhub.TrackDb
+        instance.
+        """
+        bigwigs = [i for i in self.data if i.type_ == 'bigwig']
+        bigbeds = [i for i in self.data if i.type_ == 'bigbed']
+
+        # Build the HTML docs
+        last_section = self.reference_section()
+        html_string = utils.reSTify(self.processing + last_section)
+
+        composite = CompositeTrack(
+            name=utils.sanitize(self.label, strict=True),
+            short_label=self.description,
+            long_label=self.description,
+            html_string=html_string,
+            tracktype='bigBed')
+
+        # If there are any bigWigs defined for this study, make a new "signal"
+        # subtrack in the composite and then add the bigWigs to it.
+        if len(bigwigs) > 0:
+            signal_view = ViewTrack(
+                name=self.sanitized_label + 'signalviewtrack',
+                view=self.sanitized_label + 'signalview',
+                short_label=self.label + ' signal view',
+                long_label=self.label + ' signal view',
+                visibility='full',
+                maxHeightPixels='100:25:8',
+                autoScale='off',
+                tracktype='bigWig',
+            )
+            composite.add_view(signal_view)
+            for bigwig in bigwigs:
+
+                # See if the config defined a trackinfo section which we
+                # interpret as kwargs to trackhub.Track
+                try:
+                    kwargs = bigwig.trackinfo
+                except AttributeError:
+                    kwargs = {}
+                kwargs = dict((k, str(v)) for k, v in kwargs.items())
+                signal_view.add_tracks(
+                    Track(
+                        # tracks are named after the study and the label to hopefull
+                        # ensure uniqueness across the entire hub
+                        name=self.sanitized_label + utils.sanitize(bigwig.label),
+                        short_label=bigwig.label,
+                        long_label=bigwig.description,
+                        local_fn=bigwig.processed,
+                        tracktype='bigWig',
+                        **kwargs
+                    )
+                )
+
+        # Same thing with bigBeds
+        if len(bigbeds) > 0:
+            bed_view = ViewTrack(
+                name=self.sanitized_label + 'bedviewtrack',
+                view=self.sanitized_label + 'bed_view',
+                short_label=self.label + ' bed view',
+                long_label=self.label + ' bed view',
+                visibility='dense',
+            )
+            composite.add_view(bed_view)
+            for bigbed in bigbeds:
+                try:
+                    kwargs = bigbed.trackinfo
+                except AttributeError:
+                    kwargs = {}
+                track_kwargs = dict(
+                        name=self.sanitized_label + utils.sanitize(bigbed.label),
+                        short_label=bigbed.label,
+                        long_label=bigbed.description,
+                        local_fn=bigbed.processed,
+                        tracktype='bigBed 9'
+                )
+                track_kwargs.update(**kwargs)
+
+                bed_view.add_tracks(Track(**track_kwargs))
+
+        return composite
+
+

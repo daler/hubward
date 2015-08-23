@@ -38,8 +38,6 @@ def build_trackhub(lab, genome, hub_only=False, study=None,
                    config=os.path.expanduser('~/.hubward.yaml'),
                    hub_url_pattern=None, hub_remote_pattern=None, user=None,
                    host=None, email=None):
-    if not os.path.exists(config):
-        raise ValueError('''Config file "{config}" does not exist.
     """
     Build a UCSC track hub out of all subdirectories in `lab` directory that
     have a created `metadata.yaml` file and uploads the hub text files and all
@@ -80,83 +78,6 @@ def build_trackhub(lab, genome, hub_only=False, study=None,
     # Specify hub's url and remote_fn based on config file
     hub.url = config['hub_url_pattern'].format(lab=lab, genome=genome)
     hub.remote_fn = config['hub_remote_pattern'].format(lab=lab, genome=genome)
-
-    def composite_from_study(s):
-        bigwigs = [i for i in s.data if i.type_ == 'bigwig']
-        bigbeds = [i for i in s.data if i.type_ == 'bigbed']
-
-        last_section = dedent(
-            """
-            Reference
-            ---------
-            %s
-
-            http://www.ncbi.nlm.nih.gov/pubmed/%s
-            """ % (s.reference, s.pmid))
-
-        html_string = utils.reSTify(s.processing + last_section)
-
-        composite = CompositeTrack(
-            name=sanitize(s.label, strict=True),
-            short_label=s.description,
-            long_label=s.description,
-            html_string=html_string,
-            tracktype='bigBed')
-
-        if len(bigwigs) > 0:
-            signal_view = ViewTrack(
-                name=sanitize(s.label, strict=True) + 'signalviewtrack',
-                view=sanitize(s.label, strict=True) + 'signalview',
-                short_label=s.label + ' signal view',
-                long_label=s.label + ' signal view',
-                visibility='full',
-                maxHeightPixels='100:25:8',
-                autoScale='off',
-                tracktype='bigWig',
-            )
-            composite.add_view(signal_view)
-            for bigwig in bigwigs:
-                try:
-                    kwargs = bigwig.trackinfo
-                except AttributeError:
-                    kwargs = {}
-                kwargs = dict((k, str(v)) for k, v in kwargs.items())
-                signal_view.add_tracks(
-                    Track(
-                        name=sanitize(s.label) + sanitize(bigwig.label),
-                        short_label=bigwig.label,
-                        long_label=bigwig.description,
-                        local_fn=bigwig.processed,
-                        tracktype='bigWig',
-                        **kwargs
-                    )
-                )
-
-        if len(bigbeds) > 0:
-            bed_view = ViewTrack(
-                name=sanitize(s.label, strict=True) + 'bedviewtrack',
-                view=sanitize(s.label, strict=False) + 'bed_view',
-                short_label=s.label + ' bed view',
-                long_label=s.label + ' bed view',
-                visibility='dense',
-            )
-            composite.add_view(bed_view)
-            for bigbed in bigbeds:
-                try:
-                    kwargs = bigbed.trackinfo
-                except AttributeError:
-                    kwargs = {}
-                track_kwargs = dict(
-                        name=sanitize(s.label) + sanitize(bigbed.label),
-                        short_label=bigbed.label,
-                        long_label=bigbed.description,
-                        local_fn=bigbed.processed,
-                        tracktype='bigBed 9'
-                )
-                track_kwargs.update(**kwargs)
-
-                bed_view.add_tracks(Track(**track_kwargs))
-        return composite
 
     # Look for all studies that have an existing metadata.yaml file. For each
     # of those,
