@@ -7,8 +7,10 @@ import os
 import glob
 import subprocess
 from colorama import init, Fore, Back, Style
+from trackhub import Track, default_hub, CompositeTrack, ViewTrack
 import pkg_resources
 from hubward import utils
+from hubward.log import log
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 SCHEMA = json.loads(utils.get_resource('schema.json'))
@@ -165,6 +167,8 @@ class Study(object):
             return ""
         if not self.reference:
             reference = ""
+        else:
+            reference = self.reference
         if not self.pmid:
             pmid = ""
         else:

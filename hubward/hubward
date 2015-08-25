@@ -8,8 +8,7 @@ from hubward import validation
 from hubward import log
 from hubward import utils
 import string
-from trackhub import Track, default_hub, CompositeTrack, ViewTrack
-from trackhub.track import SubGroupDefinition
+from trackhub import default_hub, Track
 from fabric.colors import blue
 from trackhub.upload import upload_hub, upload_track, upload_file
 import logging
