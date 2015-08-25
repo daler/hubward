@@ -7,7 +7,8 @@ Hubward
 =======
 The goal of `hubward` is to manage genomic data (called peaks, RNA-seq signal,
 variants, microarray data, etc etc) from many published studies and maintain
-them as track hubs on UCSC.
+them as `track hubs on UCSC
+<https://genome.ucsc.edu/goldenPath/help/hubQuickStart.html>`_.
 
 Despite the existence of standard data formats for genomics data (e.g. BAM,
 BED, bigWig), in practice we find many arbitrary file formats in the
