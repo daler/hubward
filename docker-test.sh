@@ -32,4 +32,4 @@ cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 ./run-example.bash
 
 # Clean up
-rm -r encode encodetracks.hub.txt encodetracks.genomes.txt dm3 /tmp/test-hubward.yaml
+#rm -r encode encodetracks.hub.txt encodetracks.genomes.txt dm3 /tmp/test-hubward.yaml

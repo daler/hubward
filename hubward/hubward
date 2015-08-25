@@ -4,7 +4,7 @@ import glob
 from argh import arg
 import argh
 from colorama import init, Fore, Back, Style
-from hubward import validation
+from hubward import models
 from hubward import log
 from hubward import utils
 import string
@@ -85,9 +85,9 @@ def build_trackhub(lab, genome, hub_only=False, study=None,
     # - validate the YAML file
     # - create a composite track, and attach all configured tracks to it.
     #
-    # See the validation.Study class for details on this processing.
+    # See the models.Study class for details on this processing.
     unique_names = set()
-    lab = validation.Lab(lab)
+    lab = models.Lab(lab)
     for study in lab.studies:
         composite = study.composite_track()
         trackdb.add_tracks(composite)
@@ -126,7 +126,7 @@ def process(lab, force=False, prioritize=None):
     doesn't exist). If so, calls the configured script with the configured
     input and output file arguments.
     """
-    lab = validation.Lab(lab)
+    lab = models.Lab(lab)
     if prioritize:
         def priority(fn):
             if fn.startswith(prioritize):
