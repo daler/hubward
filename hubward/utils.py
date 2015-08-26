@@ -10,6 +10,29 @@ from pybedtools.featurefuncs import add_color
 import bleach
 import yaml
 import pkg_resources
+import urllib
+
+def download(url, dest):
+    """
+    Platform-agnostic downloader.
+    """
+    u = urllib.FancyURLopener()
+    logger.info("Downloading %s..." % url)
+    u.retrieve(url, dest)
+    logger.info('Done, see %s' % dest)
+    return dest
+
+
+def get_config(path=os.path.expanduser("~/.hubward.yaml")):
+    if not os.path.exists(path):
+        raise ValueError('Config file "%s" does not exist' % path)
+    return yaml.load(open(path))
+
+
+def cache_dir(path=os.path.expanduser("~/.hubward.yaml")):
+    cfg = utils.get_config(config_path)
+    cfg_dir = os.path.dirname(config_path)
+    return os.path.relpath(cfg['ucsc_cache_dir'], cfg_dir)
 
 
 def new_study(lab, label):
@@ -281,6 +304,63 @@ def add_chr(f):
     return f
 
 
+def chromsizes(assembly):
+    url = "http://hgdownload.cse.ucsc.edu/goldenPath/{0}/bigZips/{0}.chrom.sizes"
+    dest = tempdir.NamedTemporaryFile(delete=False).name
+    return download(url, dest)
+
+
+
+def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512, bedtype=None, _as=None, unc=False, tab=False):
+    """
+    Parameters
+    ----------
+    :filename:
+        BED-like file to convert
+
+
+    :genome:
+        Assembly string (e.g., "mm10" or "hg19")
+
+    :output:
+        Path to bigBed file to create.
+
+    Other args are passed to bedToBigBed.  In particular, `bedtype` (which
+    becomes the "-type=" argument) is automatically handled for you if it is
+    kept as the default None.
+
+    Assumes that a recent version of bedToBigBed from UCSC is on the path.
+    """
+    chromsizes_file = chromsizes(assembly)
+    if bedtype is None:
+        bedtype = 'bed%s' % x.field_count()
+    cmds = [
+        'bedToBigBed',
+        filename,
+        chromsizes_file,
+        output,
+        '-blockSize=%s' % blockSize,
+        '-itemsPerSlot=%s' % itemsPerSlot,
+        '-type=%s' % bedtype
+    ]
+    if unc:
+        cmds.append('-unc')
+    if tab:
+        cmds.append('-tab')
+    if _as:
+        cmds.append('-as=%s' % _as)
+    p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    if p.returncode:
+        raise ValueError("cmds: %s\nstderr:%s\nstdout:%s"
+                         % (" ".join(cmds), stderr, stdout))
+
+    return output
+
+
+
+
+
 if __name__ == "__main__":
     text = """
 
@@ -302,3 +382,5 @@ original scores, with black being the highest.
 """
     html = reST_to_html(text)
     print html
+
+

@@ -19,6 +19,7 @@ hub_remote_pattern: "/root/{genome}/compiled/compiled.hub.txt"
 host: localhost
 user: root
 email: root@localhost
+ucsc_cache_dir: .
 EOF
 
 # SSH (to localhost) setup

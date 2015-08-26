@@ -26,6 +26,8 @@ done
 # this reads the metadata.yaml files and processes files as needed
 hubward process $LAB
 
+hubward liftover $LAB dm3 dm6
+
 # upload to track hub.
 #
 # This requires a ~/.hubward.yaml config file, e.g.,
