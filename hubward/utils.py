@@ -246,12 +246,12 @@ def colortuple(col):
     return ','.join(map(str, rgb))
 
 
-def reSTify(s):
+def reST_to_html(s):
     """
     Convert ReST-formatted string `s` into HTML.
 
-    Intended for uploading to UCSC configuration pages, so uses a whitelist
-    approach for HTML tags.
+    Output is intended for uploading to UCSC configuration pages, so this uses
+    a whitelist approach for HTML tags.
     """
     html = publish_string(
         source=s,
@@ -300,5 +300,5 @@ Features were converted to BED format, and converted from the dm2 to the dm3
 assembly using UCSC's liftOver.  Grayscale colors were assigned based on the
 original scores, with black being the highest.
 """
-    html = reSTify(text)
+    html = reST_to_html(text)
     print html

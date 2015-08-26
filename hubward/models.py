@@ -192,7 +192,7 @@ class Study(object):
 
         # Build the HTML docs
         last_section = self.reference_section()
-        html_string = utils.reSTify(self.processing + last_section)
+        html_string = utils.reST_to_html(self.processing + last_section)
 
         composite = CompositeTrack(
             name=utils.sanitize(self.label, strict=True),
