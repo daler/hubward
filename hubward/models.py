@@ -21,6 +21,8 @@ class Data(object):
         """
         Represents a single track destined for upload to UCSC as a track hub.
 
+        In the metadata.yaml file, this is a single entry in the `data` list.
+
         Parameters
         ----------
         obj : dict
@@ -92,6 +94,7 @@ class Data(object):
             msg += 'STDERR: %s' % stderr
             raise ValueError(msg)
 
+        # Check again to make sure we updated the file we thought we did...
         if self.needs_update():
             print(
                 Fore.RED + 'The following command did not update '
@@ -122,6 +125,8 @@ class Study(object):
 
         # validation happens here...
         validate(self.metadata, SCHEMA)
+
+        # Create easier-to-access attributes from the dict sub-keys.
         self.filename = fn
         self.pmid = self.metadata['study']['PMID']
         self.description = self.metadata['study']['description']
@@ -138,11 +143,18 @@ class Study(object):
         return pyaml.dumps(self.json)
 
     def build_metadata(self):
+        """
+        Call the metadata-builder.py script to reconstruct the metadata.
+        """
         dirname = os.path.dirname(self.filename)
         cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
         os.system(' '.join(cmds))
 
     def process(self, force=False):
+        """
+        Process all tracks in the study, calling their assigned conversion
+        script if data needs update. Report either way.
+        """
         log('Study: {0.description}, in "{0.dirname}"'.format(self),
             style=Fore.BLUE)
         for d in self.data:
@@ -163,6 +175,10 @@ class Study(object):
                 continue
 
     def reference_section(self):
+        """
+        Creates a ReST-formatted reference section to be appended to the end of
+        the documentation for the composite track config page.
+        """
         if not (self.reference or self.pmid):
             return ""
         if not self.reference:
@@ -203,6 +219,9 @@ class Study(object):
 
         # If there are any bigWigs defined for this study, make a new "signal"
         # subtrack in the composite and then add the bigWigs to it.
+        #
+        # Use the sanitized label for the study to ensure uniqueness among
+        # tracks.
         if len(bigwigs) > 0:
             signal_view = ViewTrack(
                 name=self.sanitized_label + 'signalviewtrack',
@@ -215,10 +234,11 @@ class Study(object):
                 tracktype='bigWig',
             )
             composite.add_view(signal_view)
+
             for bigwig in bigwigs:
 
-                # See if the config defined a trackinfo section which we
-                # interpret as kwargs to trackhub.Track
+                # If the metadata for this track defined a trackinfo section,
+                # interpret it as kwargs to trackhub.Track
                 try:
                     kwargs = bigwig.trackinfo
                 except AttributeError:
@@ -226,8 +246,8 @@ class Study(object):
                 kwargs = dict((k, str(v)) for k, v in kwargs.items())
                 signal_view.add_tracks(
                     Track(
-                        # tracks are named after the study and the label to hopefull
-                        # ensure uniqueness across the entire hub
+                        # Tracks are named after both study and label to
+                        # hopefully ensure uniqueness across the entire hub
                         name=self.sanitized_label + utils.sanitize(bigwig.label),
                         short_label=bigwig.label,
                         long_label=bigwig.description,
@@ -268,6 +288,10 @@ class Study(object):
 
 class Lab(object):
     def __init__(self, directory):
+        """
+        Represents a group of studies, each of which is in a subdirectory of
+        provided `directory`.
+        """
         self.studies = []
         for metadata in glob.glob(os.path.join(directory, '*', 'metadata.yaml')):
             self.studies.append(Study(metadata))
