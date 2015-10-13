@@ -149,6 +149,9 @@ def new(lab, label):
     """
     utils.new_study(lab, label)
 
+def liftover():
+    raise NotImplementedError("liftover not yet implemented")
+
 if __name__ == "__main__":
     import argparse
     argh.dispatch_commands([
