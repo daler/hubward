@@ -286,7 +286,7 @@ class Study(object):
         return composite
 
 
-class Lab(object):
+class Group(object):
     def __init__(self, directory):
         """
         Represents a group of studies, each of which is in a subdirectory of

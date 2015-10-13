@@ -2,31 +2,31 @@
 set -e
 set -x
 
-LAB=encode
+GROUP=encode
 for STUDY in encode-enhancers encode-hic-domains; do
 
     # create a new template directory
-    hubward new $LAB $STUDY
+    hubward new $GROUP $STUDY
 
     # Create a git repo to illustrate the changes.
-    (cd $LAB && git init)
-    (cd $LAB/$STUDY && git add . && git commit -m "initial template for $STUDY")
+    (cd $GROUP && git init)
+    (cd $GROUP/$STUDY && git add . && git commit -m "initial template for $STUDY")
 
     # copy over the edited example data.
-    rsync -arv example/$LAB/$STUDY/ $LAB/$STUDY/
+    rsync -arv example/$GROUP/$STUDY/ $GROUP/$STUDY/
 
     # then make a commit that shows these changes
-    (cd $LAB && git commit -a -m "changes made by the $LAB/$STUDY example")
+    (cd $GROUP && git commit -a -m "changes made by the $GROUP/$STUDY example")
 
     # call the script to get data
-    bash $LAB/$STUDY/src/get-data.bash
+    bash $GROUP/$STUDY/src/get-data.bash
 
 done
 
 # this reads the metadata.yaml files and processes files as needed
-hubward process $LAB
+hubward process $GROUP
 
-hubward liftover $LAB dm3 dm6
+#hubward liftover $GROUP dm3 dm6
 
 # upload to track hub.
 #
@@ -38,4 +38,4 @@ hubward liftover $LAB dm3 dm6
 #   user: me
 #   email: me@example.com
 #
-hubward build-trackhub $LAB dm3 --config /tmp/test-hubward.yaml
+hubward build-trackhub $GROUP dm3 --config /tmp/test-hubward.yaml
