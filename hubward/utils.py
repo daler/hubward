@@ -27,6 +27,13 @@ def get_config(path=os.path.expanduser("~/.hubward.yaml")):
     return yaml.load(open(path))
 
 
+def unpack(filename, dest):
+     if filename.lower().endswith(('.tar.gz', '.tar.bz2', '.tgz', '.tar.xz', '.tar', 'tar.z')):
+         conda_build.utils.tar_xf(filename, dest)
+     elif filename.lower().endswith('.zip'):
+         conda_build.utils.unzip(filename, dest)
+
+
 def cache_dir(path=os.path.expanduser("~/.hubward.yaml")):
     cfg = utils.get_config(config_path)
     cfg_dir = os.path.dirname(config_path)
