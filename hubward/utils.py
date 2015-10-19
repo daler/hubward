@@ -40,7 +40,7 @@ def cache_dir(path=os.path.expanduser("~/.hubward.yaml")):
     return os.path.relpath(cfg['ucsc_cache_dir'], cfg_dir)
 
 
-def new_study(group, label):
+def new_study(group, assembly, label):
     dirs = [
         'raw-data',
         'processed-data',
@@ -51,7 +51,7 @@ def new_study(group, label):
         'src']
 
     for d in dirs:
-        os.system('mkdir -p %s' % (os.path.join(group, label, d)))
+        os.system('mkdir -p %s' % (os.path.join(group, assembly, label, d)))
 
     files = {
         'README': 'Info about processing %s' % label,
@@ -62,10 +62,10 @@ def new_study(group, label):
       }
     for f, c in files.items():
         if not os.path.exists(f):
-            with open(os.path.join(group, label, f), 'w') as fout:
+            with open(os.path.join(group, assembly, label, f), 'w') as fout:
                 fout.write(c)
             if f == 'src/process.py':
-                os.system('chmod +x %s' % os.path.join(group, label, f))
+                os.system('chmod +x %s' % os.path.join(group, assembly, label, f))
         else:
             print f, 'exists, skipping'
 

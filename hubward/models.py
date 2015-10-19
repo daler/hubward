@@ -287,11 +287,11 @@ class Study(object):
 
 
 class Group(object):
-    def __init__(self, directory):
+    def __init__(self, directory, assembly):
         """
         Represents a group of studies, each of which is in a subdirectory of
         provided `directory`.
         """
         self.studies = []
-        for metadata in glob.glob(os.path.join(directory, '*', 'metadata.yaml')):
+        for metadata in glob.glob(os.path.join(directory, assembly, '*', 'metadata.yaml')):
             self.studies.append(Study(metadata))

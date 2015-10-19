@@ -22,7 +22,7 @@ import argparse
 
 
 @arg('group', help='Group (subdirectory) to build trackhub from')
-@arg('genome', help='Genome assembly name to use')
+@arg('assembly', help='Genome assembly name to use')
 @arg('--hub_only', help='Do not upload all tracks, just the hub text files')
 @arg('--study', help='Only prepare a hub for the specified study.')
 @arg('--config', help='Path to config file')
@@ -33,7 +33,7 @@ import argparse
 @arg('--user', help="Override 'user' specified in config")
 @arg('--host', help="Override 'host' specified in config")
 @arg('--email', help="Override 'email' specified in config")
-def build_trackhub(group, genome, hub_only=False, study=None,
+def build_trackhub(group, assembly, hub_only=False, study=None,
                    config=os.path.expanduser('~/.hubward.yaml'),
                    hub_url_pattern=None, hub_remote_pattern=None, user=None,
                    host=None, email=None):
@@ -46,7 +46,7 @@ def build_trackhub(group, genome, hub_only=False, study=None,
     Config file
     -----------
     The config file should be in YAML format file with the following entries
-    (edited to reflect your servers). Available place holders are [genome,
+    (edited to reflect your servers). Available place holders are [assembly,
     group].
 
         # Contents of config file (default location: ~/.hubward.yaml)
@@ -54,10 +54,10 @@ def build_trackhub(group, genome, hub_only=False, study=None,
         user: me
 
         # Externally visible URL to hub when served by host
-        hub_url_pattern: http://example.com/apps/{group}/{genome}/compiled/compiled.hub.txt
+        hub_url_pattern: http://example.com/apps/{group}/{assembly}/compiled/compiled.hub.txt
 
         # Absolute path on host, as used by rsync
-        hub_remote_pattern: /home/me/apps/{group}/{genome}/compiled/compiled.hub.txt
+        hub_remote_pattern: /home/me/apps/{group}/{assembly}/compiled/compiled.hub.txt
 
         # UCSC asks that you provide email so they can track usage
         email: me@example.com
@@ -69,14 +69,14 @@ def build_trackhub(group, genome, hub_only=False, study=None,
     # Build a connected hub using trackhub package
     hub, genomes_file, genome_, trackdb = default_hub(
         hub_name='%stracks' % group,
-        genome=genome,
+        genome=assembly,
         short_label='%s' % group.title(),
         long_label='%s tracks' % group.title(),
         email=config['email'])
 
     # Specify hub's url and remote_fn based on config file
-    hub.url = config['hub_url_pattern'].format(group=group, genome=genome)
-    hub.remote_fn = config['hub_remote_pattern'].format(group=group, genome=genome)
+    hub.url = config['hub_url_pattern'].format(group=group, assembly=assembly)
+    hub.remote_fn = config['hub_remote_pattern'].format(group=group, assembly=assembly)
 
     # Look for all studies that have an existing metadata.yaml file. For each
     # of those,
@@ -87,7 +87,7 @@ def build_trackhub(group, genome, hub_only=False, study=None,
     #
     # See the models.Study class for details on this processing.
     unique_names = set()
-    group = models.Group(group)
+    group = models.Group(group, assembly)
     for study in group.studies:
         composite = study.composite_track()
         trackdb.add_tracks(composite)
@@ -111,10 +111,11 @@ def build_trackhub(group, genome, hub_only=False, study=None,
 @arg('--force',
      help='Force the re-generation of output files for this study. '
      'Use the special string "ALL" to force re-running everything')
+@arg('assembly', help='Process data for this assembly')
 @arg('--prioritize',
      help='Process this subdirectory first. Useful for when you are '
      'first developing a new study')
-def process(group, force=False, prioritize=None):
+def process(group, assembly, force=False, prioritize=None):
     """
     Process raw data files into files ready to be uploaded as a track hub.
 
@@ -126,7 +127,7 @@ def process(group, force=False, prioritize=None):
     doesn't exist). If so, calls the configured script with the configured
     input and output file arguments.
     """
-    group = models.Group(group)
+    group = models.Group(group, assembly)
     if prioritize:
         def priority(fn):
             if fn.startswith(prioritize):
@@ -142,12 +143,13 @@ def process(group, force=False, prioritize=None):
 
 
 @arg('group', help='Group (or subdirectory)')
+@arg('assembly', help='Target assembly to use for study')
 @arg('label', help='Label to use for study')
-def new(group, label):
+def new(group, assembly, label):
     """
     Initializes a new study.
     """
-    utils.new_study(group, label)
+    utils.new_study(group, assembly, label)
 
 
 def liftover():

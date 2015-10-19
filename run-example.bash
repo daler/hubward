@@ -3,28 +3,32 @@ set -e
 set -x
 
 GROUP=encode
-for STUDY in encode-enhancers encode-hic-domains; do
+ASSEMBLY=dm3
+for STUDY in encode-enhancers; do #encode-hic-domains; do
+
+    rm -rf $GROUP/$ASSEMBLY/$STUDY
 
     # create a new template directory
-    hubward new $GROUP $STUDY
+    hubward new $GROUP $ASSEMBLY $STUDY
 
     # Create a git repo to illustrate the changes.
     (cd $GROUP && git init)
-    (cd $GROUP/$STUDY && git add . && git commit -m "initial template for $STUDY")
+    (cd $GROUP/$ASSEMBLY/$STUDY && git add . && git commit -m "initial template for $STUDY")
 
     # copy over the edited example data.
-    rsync -arv example/$GROUP/$STUDY/ $GROUP/$STUDY/
+    rsync -arv example/$GROUP/$ASSEMBLY/$STUDY/ $GROUP/$ASSEMBLY/$STUDY/
+
+    rm -f $GROUP/$ASSEMBLY/$STUDY/raw-data/*
 
     # then make a commit that shows these changes
-    (cd $GROUP && git commit -a -m "changes made by the $GROUP/$STUDY example")
+    (cd $GROUP/$ASSEMBLY && git commit -a -m "changes made by the $GROUP/$ASSEMBLY/$STUDY example")
 
-    # call the script to get data
-    bash $GROUP/$STUDY/src/get-data.bash
+    (cd $GROUP/$ASSEMBLY/$STUDY && python metadata-builder.py)
 
 done
 
 # this reads the metadata.yaml files and processes files as needed
-hubward process $GROUP
+hubward process $GROUP $ASSEMBLY
 
 #hubward liftover $GROUP dm3 dm6
 
