@@ -20,7 +20,6 @@ import logging
 logging.getLogger('fetch.start').setLevel(logging.ERROR)
 
 
-
 def get_config(path=os.path.expanduser("~/.hubward.yaml")):
     if not os.path.exists(path):
         raise ValueError('Config file "%s" does not exist' % path)
@@ -28,10 +27,12 @@ def get_config(path=os.path.expanduser("~/.hubward.yaml")):
 
 
 def unpack(filename, dest):
-     if filename.lower().endswith(('.tar.gz', '.tar.bz2', '.tgz', '.tar.xz', '.tar', 'tar.z')):
-         conda_build.utils.tar_xf(filename, dest)
-     elif filename.lower().endswith('.zip'):
-         conda_build.utils.unzip(filename, dest)
+    if filename.lower().endswith(
+        ('.tar.gz', '.tar.bz2', '.tgz', '.tar.xz', '.tar', 'tar.z')
+    ):
+        conda_build.utils.tar_xf(filename, dest)
+    elif filename.lower().endswith('.zip'):
+        conda_build.utils.unzip(filename, dest)
 
 
 def cache_dir(path=os.path.expanduser("~/.hubward.yaml")):
@@ -68,6 +69,7 @@ def new_study(group, assembly, label):
                 os.system('chmod +x %s' % os.path.join(group, assembly, label, f))
         else:
             print f, 'exists, skipping'
+
 
 def link_is_newer(x, y):
     return os.lstat(x).st_mtime > os.lstat(y).st_mtime
@@ -310,13 +312,14 @@ def add_chr(f):
 
 
 def chromsizes(assembly):
-    url = "http://hgdownload.cse.ucsc.edu/goldenPath/{0}/bigZips/{0}.chrom.sizes"
+    url = ("http://hgdownload.cse.ucsc.edu/goldenPath/"
+           "{0}/bigZips/{0}.chrom.sizes")
     dest = tempdir.NamedTemporaryFile(delete=False).name
     return download(url, dest)
 
 
-
-def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512, bedtype=None, _as=None, unc=False, tab=False):
+def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512,
+           bedtype=None, _as=None, unc=False, tab=False):
     """
     Parameters
     ----------
@@ -363,9 +366,6 @@ def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512, bedtype=No
     return output
 
 
-
-
-
 if __name__ == "__main__":
     text = """
 
@@ -387,5 +387,3 @@ original scores, with black being the highest.
 """
     html = reST_to_html(text)
     print html
-
-
