@@ -45,10 +45,6 @@ def new_study(group, assembly, label):
     dirs = [
         'raw-data',
         'processed-data',
-        'processed-data/bed',
-        'processed-data/bam',
-        'processed-data/bigwig',
-        'processed-data/bigbed',
         'src']
 
     for d in dirs:
@@ -56,17 +52,20 @@ def new_study(group, assembly, label):
 
     files = {
         'README': 'Info about processing %s' % label,
-        'src/get-data.bash': get_resource('get-data.bash'),
         'metadata-builder.py': get_resource(
             'metadata_builder_template.py'),
         'src/process.py': get_resource('process_template.py'),
+        'src/process.sh': get_resource('process_template.sh'),
       }
     for f, c in files.items():
         if not os.path.exists(f):
             with open(os.path.join(group, assembly, label, f), 'w') as fout:
                 fout.write(c)
-            if f == 'src/process.py':
-                os.system('chmod +x %s' % os.path.join(group, assembly, label, f))
+            if f in [
+                'src/process.py', 'src/process.sh', 'metadata-builder.py'
+            ]:
+                os.system(
+                    'chmod +x %s' % os.path.join(group, assembly, label, f))
         else:
             print f, 'exists, skipping'
 
