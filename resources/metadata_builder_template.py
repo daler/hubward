@@ -1,23 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-import json
-import pyaml
-from collections import OrderedDict
+import yaml
 import os
-d = OrderedDict(study=OrderedDict(), data=[])
 
-d['study']['reference'] = "CHANGE ME (copy from citation manager)"
-d['study']['PMID'] = 'CHANGE ME (format is "00000")'
-d['study']['description'] = 'CHANGE ME (study description'
-d['study']['label'] = 'CHANGE ME (unique label here)'
-d['study']['processing'] = open('README').read()
+# Study configuration
+d = {
+    'study':
 
-FILENAMES = """
-suhw_kc.bed
-shep_bg3.bed
-"""
+        # This will be included in HTML documentation
+        'reference': "CHANGE ME (copy from citation manager)",
 
-fns = [i for i in FILENAMES.splitlines(False) if len(i) > 0]
+        # If provided, HTML documentation will link to this PubMed entry
+        'PMID': None,
+
+        # 
+        'description': "CHANGE ME (brief study description)",
+
+        # Label 
+        'label': "CHANGE ME (unique label)",
+        'processing': open('README').read()
+}
+
+FILENAMES = [
+    'suhw_kc.bed',
+    'shep_bg3.bed',
+]
 
 d['data'] = []
 for fn in fns:
