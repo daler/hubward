@@ -163,8 +163,9 @@ class Study(object):
         Call the metadata-builder.py script to reconstruct the metadata.
         """
         dirname = os.path.dirname(self.filename)
-        cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
-        os.system(' '.join(cmds))
+        if os.path.exists(os.path.join(dirname, 'metadata-builder.py')):
+            cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
+            os.system(' '.join(cmds))
 
     def process(self, force=False):
         """
