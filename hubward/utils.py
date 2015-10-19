@@ -11,16 +11,14 @@ import bleach
 import yaml
 import pkg_resources
 import urllib
+import conda.fetch
+from conda.fetch import download
+import conda_build.utils
+import logging
 
-def download(url, dest):
-    """
-    Platform-agnostic downloader.
-    """
-    u = urllib.FancyURLopener()
-    logger.info("Downloading %s..." % url)
-    u.retrieve(url, dest)
-    logger.info('Done, see %s' % dest)
-    return dest
+
+logging.getLogger('fetch.start').setLevel(logging.ERROR)
+
 
 
 def get_config(path=os.path.expanduser("~/.hubward.yaml")):
