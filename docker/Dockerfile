@@ -29,7 +29,10 @@ RUN conda install -y -c daler \
     bedtools \
     bedtobigbed \
     bedgraphtobigwig \
-    trackhub
+    trackhub \
+    conda \
+    conda-build
+
 
 RUN pip install \
     argh \
@@ -39,6 +42,7 @@ RUN pip install \
     fabric \
     jsonschema \
     pyaml \
+    unidecode \
     sh
 
 RUN git config --global user.email "none@example.com"
@@ -53,6 +57,7 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 RUN echo "export PATH=/opt/conda/bin:$PATH" >> /etc/profile
+
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
 WORKDIR /opt/hubward

@@ -14,8 +14,8 @@ git config --global user.name "hubward-example"
 
 # Write an example config file
 cat >> /tmp/test-hubward.yaml <<EOF
-hub_url_pattern: "http://localhost/{genome}/compiled/compiled.hub.txt"
-hub_remote_pattern: "/root/{genome}/compiled/compiled.hub.txt"
+hub_url_pattern: "http://localhost/{group}/{assembly}/compiled/compiled.hub.txt"
+hub_remote_pattern: "/root/{group}/{assembly}/compiled/compiled.hub.txt"
 host: localhost
 user: root
 email: root@localhost
