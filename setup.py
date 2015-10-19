@@ -49,6 +49,7 @@ setup(
                 'resources/metadata_builder_template.py',
                 'resources/schema.json',
                 'resources/process_template.py',
+                'resources/process_template.sh',
                 'resources/get-data.bash',
             ]
         ),
