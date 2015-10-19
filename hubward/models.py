@@ -11,6 +11,7 @@ from trackhub import Track, default_hub, CompositeTrack, ViewTrack
 import pkg_resources
 from hubward import utils
 from hubward.log import log
+import conda.fetch
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 SCHEMA = json.loads(utils.get_resource('schema.json'))
@@ -36,6 +37,7 @@ class Data(object):
         self.obj = obj
         self.reldir = reldir
         self.original = os.path.join(reldir, obj['original'])
+        self.source = obj['source']
         self.processed = os.path.join(reldir, obj['processed'])
         self.description = obj['description']
         self.label = obj['label']
@@ -50,6 +52,10 @@ class Data(object):
     def __str__(self):
         return pyaml.dumps(self.obj)
 
+    def needs_download(self):
+        if not os.path.exists(self.original):
+            return True
+
     def needs_update(self):
         if not os.path.exists(self.processed):
             return True
@@ -58,8 +64,9 @@ class Data(object):
             # if processed is a link, then check the LINK time
             utils.link_is_newer(self.script, self.processed) or
 
-            # but for the original data, we want to FOLLOW the link
-            utils.is_newer(self.original, self.processed)
+            (os.path.exists(self.original) and
+                # but for the original data, we want to FOLLOW the link
+                utils.is_newer(self.original, self.processed))
         ):
             return True
 
@@ -74,6 +81,15 @@ class Data(object):
             self.script,
             self.original,
             self.processed]
+        if not os.path.exists(self.original):
+            url = self.source['url']
+            log(
+                'Downloading "%s" -> "%s"' %
+                (url, self.reldir), indent=4)
+            fn = os.path.join(self.reldir, 'raw-data', self.source['fn'])
+            utils.download(url, fn)
+            utils.unpack(fn, os.path.join(self.reldir, 'raw-data'))
+
         if not os.path.exists(self.original):
             raise ValueError(
                 "Original data file %s does not exist" % self.original)
