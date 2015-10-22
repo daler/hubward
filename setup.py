@@ -22,6 +22,8 @@ requirements = [
     'argh',
     'docutils',
     'sh',
+    'conda',
+    'conda-build',
 ]
 
 test_requirements = [
@@ -50,7 +52,6 @@ setup(
                 'resources/schema.json',
                 'resources/process_template.py',
                 'resources/process_template.sh',
-                'resources/get-data.bash',
             ]
         ),
     ],
