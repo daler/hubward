@@ -318,7 +318,7 @@ class Study(object):
         # Build the HTML docs
         last_section = self.reference_section()
         html_string = utils.reST_to_html(
-            self.metadata.get('description', '') + last_section)
+            self.metadata['study'].get('description', '') + '\n' + last_section)
 
         sanitized_label = utils.sanitize(self.label, strict=True)
 
