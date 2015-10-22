@@ -1,5 +1,7 @@
 import os
 import stat
+import shutil
+import tempfile
 from colorama import init, Fore, Back, Style
 from textwrap import dedent
 import yaml
@@ -7,7 +9,7 @@ import jsonschema
 import subprocess
 from trackhub import Track, default_hub, CompositeTrack, ViewTrack
 from trackhub.upload import upload_hub, upload_track, upload_file
-from hubward import utils
+from hubward import utils, liftover
 from hubward.log import log
 
 
@@ -43,14 +45,13 @@ class Data(object):
     def __str__(self):
         return yaml.dump(self.obj)
 
-    def _was_lifted_over(self):
-        if os.path.exists(os.path.join(self.reldir, 'ORIGINAL-STUDY')):
-            return True
-
     def _needs_download(self):
         if not os.path.exists(self.original):
             return True
 
+    def _was_lifted_over(self):
+        if os.path.exists(os.path.join(self.reldir, 'ORIGINAL-STUDY')):
+            return True
 
     def _download(self):
         """
@@ -76,7 +77,8 @@ class Data(object):
         """
         do_update = False
         if self._was_lifted_over():
-            log("This study appears to have been lifted over from another "
+            log(
+                "This file appears to have been lifted over from another "
                 "study, in which case we assume it does not need updating",
                 style=Fore.YELLOW
             )
@@ -146,6 +148,68 @@ class Data(object):
                 '{1}:\n\n{0}\n'.format(' \\\n'.join(cmds), self.processed) +
                 Fore.RESET
             )
+
+    def _needs_liftover(self, from_assembly, to_assembly, newfile):
+
+        # Sentinel file encodes
+        sentinel = self._liftover_sentinel(from_assembly, to_assembly, newfile)
+        if not os.path.exists(sentinel):
+            return True
+        elif utils.is_newer(self.processed, newfile):
+            return True
+        return False
+
+    def _liftover_sentinel(self, from_assembly, to_assembly, newfile):
+        return os.path.join(
+            os.path.dirname(newfile),
+            '.{0}-to-{1}.' +
+            os.path.basename(newfile)
+        ).format(from_assembly, to_assembly)
+
+    def liftover(self, from_assembly, to_assembly, newfile):
+        """
+        Lifts over the processed file to a new file, but only if needed.
+
+        Uses a hidden sentinel file to indicate whether it's been lifted over.
+
+        Parameters
+        ----------
+
+        from_assembly : str
+            Existing data are in this assembly's coordinates
+
+        to_assembly : str
+            Lift over existing data to this assembly's coordinates
+
+        newfile : str
+            Target filename of the lifted-over data
+        """
+
+        if not from_assembly == self.genome:
+            log(
+                "{0} not from assembly {1}. Skipping liftover from {1} to {2} "
+                "and simply copying the file as-is to {3}"
+                .format(self.label, from_assembly, to_assembly, newfile)
+            )
+            shutil.copy(self.processed, newfile)
+
+        if not self._needs_liftover(from_assembly, to_assembly, newfile):
+            log("{0} is already lifted over and up-to-date. Skipping."
+                .format(newfile))
+            return
+
+        tmp = tempfile.NamedTemporaryFile(delete=False).name
+        log("Lift over {0} to {1}".format(self.processed, tmp))
+        liftover.liftover(
+            from_assembly, to_assembly, self.processed, tmp, self.type_)
+        utils.makedirs(os.path.dirname(newfile))
+        log("Moving {0} to {1}".format(tmp, newfile))
+        shutil.move(tmp, newfile)
+
+        # Write the sentinel file to indicate genome we lifted over to.
+        sentinel = self._liftover_sentinel(from_assembly, to_assembly, newfile)
+        with open(sentinel, 'w') as fout:
+            pass
 
 
 class Study(object):
