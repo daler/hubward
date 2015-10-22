@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+type: object
+description: |
+    Group together [possibly many] studies.
+properties:
+    name:
+        type: string
+        description: |
+            Group name. Will appear as a new section (blue bars) in the genome browser.
+
+    genome:
+        type: string
+        description: |
+            Genome assembly
+
+    short_label:
+        type: string
+        description: |
+            Short label for this group. This text will be found in the blue
+            section headers in the UCSC Genome Browser.
+
+    long_label:
+        type: string
+        description: |
+            Long label for hub. This will be seen in the Description column
+            when adding a track hub.
+
+    hub_url:
+        type: string
+        description: |
+            Upon being uploaded to the server, this is the URL by which the hub
+            can be accessed. It is the URL to be pasted into the text box when
+            adding a new track hub in the UCSC Genome Browser.
+    email:
+        type: string
+        description: |
+            UCSC requests that email is included on track hubs so they can
+            track usage.
+
+    server:
+        type: object
+        description: |
+            Configuration for uploading tracks and track hub to a server over
+            rsync, called as `rsync <locally-prepared track hub>
+            <user>@<host>:<hub_remote>`
+        properties:
+
+            host:
+                type: string
+                description: |
+                    Host name where tracks will be rsynced
+
+            user:
+                type: string
+                description: |
+                    User on `host`
+
+            hub_remote:
+                type: string
+                description: |
+                    Path on `host` to rsync the track hub `hub.txt` file. This
+                    file is expected to be served and accessible via the
+                    `hub_url` configured above.
+        required:
+            - host
+            - user
+            - hub_remote
+
+    studies:
+        type: array
+        items:
+            type: string
+            description: |
+                Path to a study, relative to this config file's directory.
+
+required:
+    - name
+    - hub_url
+    - server

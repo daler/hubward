@@ -1,0 +1,132 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+type: object
+description: |
+    Configure a study with (possibly many) tracks.
+definitions:
+    track:
+        properties:
+            genome:
+                type: string
+                description: assembly name
+            short_label:
+                type: string
+                description: Label for track
+            long_label:
+                type: string
+                description: Optional long label for track
+            original:
+                type: string
+                description: Original data file
+            processed:
+                type: string
+                description: |
+                    Path to the desired processed data file, relative to this
+                    file. Output is expected to be in one of the formats
+                    supported by UCSC
+            script:
+                type: string
+                description: Path to the conversion script, relative to this file
+
+            source:
+                type: object
+                properties:
+                    url:
+                        type: string
+                        description: |
+                            URL to the source data. If the path specified in
+                            `original` does not exist, this URL will be downloaded
+                            and extracted.
+                    fn:
+                        type: string
+                        description: The filename to save URL to.
+            trackinfo:
+                type: object
+                description: |
+                    Track-specific configuration items that are interpreted as
+                    keyword arguments to the trackhub.Track constructor.
+            type:
+                type: string
+                description: |
+                    Data type of `processed`. Must be one of the formats
+                    supported by UCSC.
+                enum:
+                    - bigbed
+                    - bigwig
+                    - bam
+                    - vcf
+        required:
+            - genome
+            - short_label
+            - original
+            - processed
+            - script
+            - source
+            - trackinfo
+            - type
+
+properties:
+
+    data:
+        type: array
+        description: List of tracks
+        items:
+            $ref: "#/definitions/track"
+
+    study:
+        type: object
+        description: Bibliographic information about the study
+
+        properties:
+
+            reference:
+                type: string
+                description: Reference to study
+
+            PMID:
+                type: string
+                description: |
+                    PubMed ID, e.g. "0001110" or "PMID:001110". HTML
+                    documentation will create a link to this PubMed entry.
+
+            description:
+                type: string
+                description: |
+                    Brief descripion of the study to be included in the HTML
+                    documentation. ReST format.
+
+            label:
+                type: string
+                description: |
+                    Label for this study. The sanitized version of this
+                    (non-alphanumeric characters stripped) should be unique
+                    among a group.
+
+            short_label:
+                type: string
+                description: |
+                    Label for this study. The sanitized version of this
+                    (non-alphanumeric characters stripped) should be unique
+                    among a group.
+
+            long_label:
+                type: string
+                description: |
+                    Long-form label for this study.
+
+            description:
+                type: string
+                description: |
+                    Detailed processing information in ReStructuredText format,
+                    to be converted and used as HTML documentation
+        required:
+            - label
+
+
+required:
+    - study
+    - data
+
+
+
+
