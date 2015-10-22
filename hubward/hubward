@@ -1,164 +1,70 @@
 #!/usr/bin/env python
 
-import glob
-from argh import arg
-import argh
-from colorama import init, Fore, Back, Style
-from hubward import models
-from hubward import log
-from hubward import utils
-import string
-from trackhub import default_hub, Track
-from fabric.colors import blue
-from trackhub.upload import upload_hub, upload_track, upload_file
-import logging
-import subprocess
 import os
-import json
-from textwrap import dedent
-import yaml
-import pkg_resources
 import argparse
+import tempfile
+import shutil
+import yaml
+import argh
+from argh import arg
+import hubward
 
 
-@arg('group', help='Group (subdirectory) to build trackhub from')
-@arg('assembly', help='Genome assembly name to use')
-@arg('--hub_only', help='Do not upload all tracks, just the hub text files')
-@arg('--study', help='Only prepare a hub for the specified study.')
-@arg('--config', help='Path to config file')
-@arg('--hub_url_pattern',
-     help="Override 'hub_url_pattern' specified in config")
-@arg('--hub_remote_pattern',
-     help="Override 'hub_remote_pattern' specified in config")
-@arg('--user', help="Override 'user' specified in config")
-@arg('--host', help="Override 'host' specified in config")
-@arg('--email', help="Override 'email' specified in config")
-def build_trackhub(group, assembly, hub_only=False, study=None,
-                   config=os.path.expanduser('~/.hubward.yaml'),
-                   hub_url_pattern=None, hub_remote_pattern=None, user=None,
-                   host=None, email=None):
-    """
-    Build a UCSC track hub out of all subdirectories in `group` directory that
-    have a created `metadata.yaml` file and uploads the hub text files and all
-    corresponding data and documentation files to the server specified in the
-    config file.
-
-    Config file
-    -----------
-    The config file should be in YAML format file with the following entries
-    (edited to reflect your servers). Available place holders are [assembly,
-    group].
-
-        # Contents of config file (default location: ~/.hubward.yaml)
-        host: example.com
-        user: me
-
-        # Externally visible URL to hub when served by host
-        hub_url_pattern: http://example.com/apps/{group}/{assembly}/compiled/compiled.hub.txt
-
-        # Absolute path on host, as used by rsync
-        hub_remote_pattern: /home/me/apps/{group}/{assembly}/compiled/compiled.hub.txt
-
-        # UCSC asks that you provide email so they can track usage
-        email: me@example.com
-
-    """
-
-    config = utils.load_config(config)
-
-    # Build a connected hub using trackhub package
-    hub, genomes_file, genome_, trackdb = default_hub(
-        hub_name='%stracks' % group,
-        genome=assembly,
-        short_label='%s' % group.title(),
-        long_label='%s tracks' % group.title(),
-        email=config['email'])
-
-    # Specify hub's url and remote_fn based on config file
-    hub.url = config['hub_url_pattern'].format(group=group, assembly=assembly)
-    hub.remote_fn = config['hub_remote_pattern'].format(group=group, assembly=assembly)
-
-    # Look for all studies that have an existing metadata.yaml file. For each
-    # of those,
-    # - re-generate the metadata.yaml file by calling the metadata-builder.py
-    #    script
-    # - validate the YAML file
-    # - create a composite track, and attach all configured tracks to it.
-    #
-    # See the models.Study class for details on this processing.
-    unique_names = set()
-    group = models.Group(group, assembly)
-    for study in group.studies:
-        composite = study.composite_track()
-        trackdb.add_tracks(composite)
-
-    # Render and upload the hub to the server specified in the config.
-    hub.render()
-    kwargs = dict(host=config['host'], user=config['user'],
-                  rsync_options='-avrL --progress')
-    upload_hub(hub=hub, **kwargs)
-    if not hub_only:
-        for track, level in hub.leaves(Track):
-            upload_track(track=track, **kwargs)
-            pass
-
-    print
-    print blue(hub.url)
-    print
+@arg('dirname', help='Directory (or directories) containing '
+     'a metadata.yaml file or a metadata-builder.yaml file',
+     nargs="+")
+def study(dirname):
+    if isinstance(dirname, str):
+        dirnames = [dirname]
+    else:
+        dirnames = dirname
+    for dirname in dirnames:
+        _study = hubward.models.Study(dirname)
+        _study.process()
 
 
-@arg('group', help='Group (or subdirectory) to process files from')
-@arg('--force',
-     help='Force the re-generation of output files for this study. '
-     'Use the special string "ALL" to force re-running everything')
-@arg('assembly', help='Process data for this assembly')
-@arg('--prioritize',
-     help='Process this subdirectory first. Useful for when you are '
-     'first developing a new study')
-def process(group, assembly, force=False, prioritize=None):
-    """
-    Process raw data files into files ready to be uploaded as a track hub.
-
-    For each subdirectory in `group` that contains a `metadata.yaml` file, it is
-    re-generated by calling the respective `metadata-builder.py` script.
-
-    For each of the configured "data" items in the metadata, checks to see if
-    an update is needed (i.e., if input is newer than output or if output
-    doesn't exist). If so, calls the configured script with the configured
-    input and output file arguments.
-    """
-    group = models.Group(group, assembly)
-    if prioritize:
-        def priority(fn):
-            if fn.startswith(prioritize):
-                return 0
-            return 1
-        group.studies = sorted(group.studies, key=priority)
-    for study in group.studies:
-        study.build_metadata()
-        force = False
-        if (study == force) or (force == 'ALL'):
-            force = True
-        study.process(force=force)
+@arg('filename', help='Group config file')
+def group(filename):
+    _group = hubward.models.Group(filename)
+    _group.process()
 
 
-@arg('group', help='Group (or subdirectory)')
-@arg('assembly', help='Target assembly to use for study')
-@arg('label', help='Label to use for study')
-def new(group, assembly, label):
-    """
-    Initializes a new study.
-    """
-    utils.new_study(group, assembly, label)
+@arg('filename', help='Group config file')
+@arg('--hub-only', help='Just update the hub text files, not data files')
+def upload(filename, hub_only=False):
+    _group = hubward.models.Group(filename)
+    _group.upload(hub_only=hub_only)
 
 
-def liftover():
-    raise NotImplementedError("liftover not yet implemented")
+@arg('dirname', help='Single study to liftover')
+@arg('newdir', help='Destination directory')
+@arg('--from_assembly', help='Source assembly')
+@arg('--to_assembly', help='Destination assembly')
+def liftover(dirname, newdir, from_assembly=None, to_assembly=None):
+    _study = hubward.models.Study(dirname)
+    dirname = dirname.rstrip(os.path.sep)
+    newdir = newdir.rstrip(os.path.sep)
+    # First process everything into a temporary directory
+    tmpdir = tempfile.mkdtemp()
+    for d in _study.data:
+        infile = d.processed
+        outfile = d.processed.replace(dirname, newdir)
+        d.liftover(from_assembly, to_assembly, outfile)
+
+    with open(os.path.join(newdir, 'metadata.yaml'), 'w') as fout:
+        hubward.log('Writing new metadata to {0}'.format(fout.name))
+        yaml.dump(_study.metadata, fout)
+
+    symlink = os.path.join(newdir, 'ORIGINAL-STUDY')
+    if os.path.exists(symlink):
+        os.unlink(symlink)
+    os.symlink(os.path.abspath(dirname), symlink)
+
+
+parser = argparse.ArgumentParser()
+argh.add_commands(parser, [study, group], namespace='process')
+argh.add_commands(parser, [upload])
+argh.add_commands(parser, [liftover])
 
 if __name__ == "__main__":
-    import argparse
-    argh.dispatch_commands([
-        process,
-        new,
-        build_trackhub,
-    ])
+    argh.dispatch(parser)
