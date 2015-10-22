@@ -208,6 +208,10 @@ class Data(object):
         log("Moving {0} to {1}".format(tmp, newfile))
         shutil.move(tmp, newfile)
 
+        # CrossMap.py seems to `chmod go-rw` on lifted-over file. So we copy
+        # permissions from the original one.
+        shutil.copymode(self.processed, newfile)
+
         # Write the sentinel file to indicate genome we lifted over to.
         sentinel = self._liftover_sentinel(from_assembly, to_assembly, newfile)
         with open(sentinel, 'w') as fout:
