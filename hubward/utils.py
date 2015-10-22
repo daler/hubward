@@ -9,6 +9,7 @@ import bleach
 from conda.fetch import download
 import string
 
+
 def makedirs(dirnames):
     """
     Recursively create the given directory or directories without reporting
@@ -21,7 +22,6 @@ def makedirs(dirnames):
             os.makedirs(dirname)
 
 
-
 def unpack(filename, dest):
     if filename.lower().endswith(
         ('.tar.gz', '.tar.bz2', '.tgz', '.tar.xz', '.tar', 'tar.z')
@@ -29,7 +29,6 @@ def unpack(filename, dest):
         conda_build.utils.tar_xf(filename, dest)
     elif filename.lower().endswith('.zip'):
         conda_build.utils.unzip(filename, dest)
-
 
 
 def link_is_newer(x, y):
@@ -198,6 +197,8 @@ def fix_macs_wig(fn, genome, output=None, add_chr=False, to_ignore=None):
                 continue
             fout.write(line)
     return output
+
+
 def colored_bigbed(x, color, genome, target, autosql=None, bedtype=None):
     """
     if color is "smart", then use metaseq's smart colormap centered on zero.
@@ -316,8 +317,8 @@ def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512,
     if _as:
         cmds.append('-as=%s' % _as)
     p = subprocess.check_call(cmds, stderr=subprocess.STDOUT)
-
     return output
+
 
 def bigwig(filename, genome, output, blockSize=256, itemsPerSlot=512,
            bedtype=None, _as=None, unc=False, tab=False):
@@ -345,4 +346,3 @@ def bigwig(filename, genome, output, blockSize=256, itemsPerSlot=512,
     ]
     p = subprocess.check_call(cmds, stderr=subprocess.STDOUT)
     return output
-

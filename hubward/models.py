@@ -132,7 +132,9 @@ class Data(object):
 
         if not (stat.S_IXUSR & os.stat(self.script)[stat.ST_MODE]):
             raise ValueError(
-                Fore.RED + "Processing script {0.script} not executable".format(self) + Fore.RESET)
+                Fore.RED +
+                "Processing script {0.script} not executable".format(self) +
+                Fore.RESET)
 
         utils.makedirs(os.path.dirname(self.processed))
 
@@ -243,6 +245,10 @@ class Study(object):
     def __str__(self):
         return yaml.dump(self.metadata)
 
+    def _was_lifted_over(self):
+        if os.path.exists(os.path.join(self.dirname, 'ORIGINAL-STUDY')):
+            return True
+
     def _build_metadata(self):
         """
         If metadata-builder.py exists, always run it.
@@ -307,7 +313,8 @@ class Study(object):
 
         # Build the HTML docs
         last_section = self.reference_section()
-        html_string = utils.reST_to_html(self.metadata.get('processing', '') + last_section)
+        html_string = utils.reST_to_html(
+            self.metadata.get('description', '') + last_section)
 
         sanitized_label = utils.sanitize(self.label, strict=True)
 
@@ -354,7 +361,6 @@ class Study(object):
             composite.add_view(signal_view)
 
             _add_tracks(bigwigs, signal_view, 'bigWig')
-
 
         # Same thing with bigBeds
         if len(bigbeds) > 0:
