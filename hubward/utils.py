@@ -1,29 +1,25 @@
-import os
-import string
-import gzip
-import numpy as np
-import matplotlib
+import subprocess
 import pybedtools
-from docutils.core import publish_string
-from pybedtools.contrib.bigbed import bigbed
-from pybedtools.featurefuncs import add_color
-import bleach
-import yaml
+import os
 import pkg_resources
-import urllib
-import conda.fetch
-from conda.fetch import download
+import tempfile
 import conda_build.utils
-import logging
+from docutils.core import publish_string
+import bleach
+from conda.fetch import download
+import string
 
+def makedirs(dirnames):
+    """
+    Recursively create the given directory or directories without reporting
+    errors if they are present.
+    """
+    if isinstance(dirnames, str):
+        dirnames = [dirnames]
+    for dirname in dirnames:
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
 
-logging.getLogger('fetch.start').setLevel(logging.ERROR)
-
-
-def get_config(path=os.path.expanduser("~/.hubward.yaml")):
-    if not os.path.exists(path):
-        raise ValueError('Config file "%s" does not exist' % path)
-    return yaml.load(open(path))
 
 
 def unpack(filename, dest):
@@ -34,40 +30,6 @@ def unpack(filename, dest):
     elif filename.lower().endswith('.zip'):
         conda_build.utils.unzip(filename, dest)
 
-
-def cache_dir(path=os.path.expanduser("~/.hubward.yaml")):
-    cfg = utils.get_config(config_path)
-    cfg_dir = os.path.dirname(config_path)
-    return os.path.relpath(cfg['ucsc_cache_dir'], cfg_dir)
-
-
-def new_study(group, assembly, label):
-    dirs = [
-        'raw-data',
-        'processed-data',
-        'src']
-
-    for d in dirs:
-        os.system('mkdir -p %s' % (os.path.join(group, assembly, label, d)))
-
-    files = {
-        'README': 'Info about processing %s' % label,
-        'metadata-builder.py': get_resource(
-            'metadata_builder_template.py'),
-        'src/process.py': get_resource('process_template.py'),
-        'src/process.sh': get_resource('process_template.sh'),
-      }
-    for f, c in files.items():
-        if not os.path.exists(f):
-            with open(os.path.join(group, assembly, label, f), 'w') as fout:
-                fout.write(c)
-            if f in [
-                'src/process.py', 'src/process.sh', 'metadata-builder.py'
-            ]:
-                os.system(
-                    'chmod +x %s' % os.path.join(group, assembly, label, f))
-        else:
-            print f, 'exists, skipping'
 
 
 def link_is_newer(x, y):
@@ -86,16 +48,36 @@ def get_resource(fn):
             os.path.dirname(__file__), '..', 'resources', fn)).read()
 
 
-def load_config(fn):
-    if not os.path.exists(fn):
-        raise ValueError('Config file "{0}" does not exist.'.format(fn))
-    return yaml.load(open(fn))
+def reST_to_html(s):
+    """
+    Convert ReST-formatted string `s` into HTML.
+
+    Output is intended for uploading to UCSC configuration pages, so this uses
+    a whitelist approach for HTML tags.
+    """
+    html = publish_string(
+        source=s,
+        writer_name='html',
+        settings=None,
+        settings_overrides={'embed_stylesheet': False},
+    )
+    safe = bleach.ALLOWED_TAGS + [
+        'p', 'img', 'pre', 'tt', 'a', 'h1', 'h2', 'h3', 'h4'
+    ]
+
+    attributes = {
+        'img': ['alt', 'src'],
+        'a': ['href'],
+    }
+
+    return bleach.clean(html, tags=safe, strip=True, attributes=attributes)
 
 
 def sanitize(s, strict=False):
     """
-    If strict, only allow letters and digits; otherwise allow spaces as
-    well.
+    If strict, only allow letters and digits -- spaces will be stripped.
+
+    Otherwise, convert spaces to underscores.
     """
     if strict:
         allowed = string.letters + string.digits
@@ -130,6 +112,8 @@ def smart_colormap(vmin, vmax, color_high='#b11902', hue_low=0.6):
     vmax : float
         Highest value in data you'll be plotting
     """
+    import matplotlib
+    import colorsys
     # first go from white to color_high
     orig_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
         'test', ['#FFFFFF', color_high], N=2048)
@@ -214,8 +198,6 @@ def fix_macs_wig(fn, genome, output=None, add_chr=False, to_ignore=None):
                 continue
             fout.write(line)
     return output
-
-
 def colored_bigbed(x, color, genome, target, autosql=None, bedtype=None):
     """
     if color is "smart", then use metaseq's smart colormap centered on zero.
@@ -275,31 +257,6 @@ def colortuple(col):
     return ','.join(map(str, rgb))
 
 
-def reST_to_html(s):
-    """
-    Convert ReST-formatted string `s` into HTML.
-
-    Output is intended for uploading to UCSC configuration pages, so this uses
-    a whitelist approach for HTML tags.
-    """
-    html = publish_string(
-        source=s,
-        writer_name='html',
-        settings=None,
-        settings_overrides={'embed_stylesheet': False},
-    )
-    safe = bleach.ALLOWED_TAGS + [
-        'p', 'img', 'pre', 'tt', 'a', 'h1', 'h2', 'h3', 'h4'
-    ]
-
-    attributes = {
-        'img': ['alt', 'src'],
-        'a': ['href'],
-    }
-
-    return bleach.clean(html, tags=safe, strip=True, attributes=attributes)
-
-
 def add_chr(f):
     """
     Prepend "chr" to the beginning of chromosome names.
@@ -313,8 +270,9 @@ def add_chr(f):
 def chromsizes(assembly):
     url = ("http://hgdownload.cse.ucsc.edu/goldenPath/"
            "{0}/bigZips/{0}.chrom.sizes")
-    dest = tempdir.NamedTemporaryFile(delete=False).name
-    return download(url, dest)
+    dest = tempfile.NamedTemporaryFile(delete=False).name
+    download(url.format(assembly), dest)
+    return dest
 
 
 def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512,
@@ -338,7 +296,8 @@ def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512,
 
     Assumes that a recent version of bedToBigBed from UCSC is on the path.
     """
-    chromsizes_file = chromsizes(assembly)
+    x = pybedtools.BedTool(filename)
+    chromsizes_file = chromsizes(genome)
     if bedtype is None:
         bedtype = 'bed%s' % x.field_count()
     cmds = [
@@ -356,33 +315,34 @@ def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512,
         cmds.append('-tab')
     if _as:
         cmds.append('-as=%s' % _as)
-    p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = p.communicate()
-    if p.returncode:
-        raise ValueError("cmds: %s\nstderr:%s\nstdout:%s"
-                         % (" ".join(cmds), stderr, stdout))
+    p = subprocess.check_call(cmds, stderr=subprocess.STDOUT)
 
     return output
 
+def bigwig(filename, genome, output, blockSize=256, itemsPerSlot=512,
+           bedtype=None, _as=None, unc=False, tab=False):
+    """
+    Parameters
+    ----------
+    :filename:
+        BEDGRAPH-like file to convert
 
-if __name__ == "__main__":
-    text = """
+    :genome:
+        Assembly string (e.g., "mm10" or "hg19")
 
-Raw data
---------
-The original data is a flat text file in GFF format
-(http://www.sanger.ac.uk/Software/formats/GFF) listing the positions of all 412
-LADs (Drosophila melanogaster genome sequence release 4.3).
+    :output:
+        Path to bigWig file to create.
 
-Score (column 6) indicates the fraction of array probes inside the LAD with
-a positive LAM DamID logratio, after applying a running median filter with
-window size 5.
+    Other args are passed to bedGraphToBigWig.
 
-Processing
-----------
-Features were converted to BED format, and converted from the dm2 to the dm3
-assembly using UCSC's liftOver.  Grayscale colors were assigned based on the
-original scores, with black being the highest.
-"""
-    html = reST_to_html(text)
-    print html
+    """
+    chromsizes_file = chromsizes(genome)
+    cmds = [
+        'bedGraphToBigWig',
+        filename,
+        chromsizes_file,
+        output,
+    ]
+    p = subprocess.check_call(cmds, stderr=subprocess.STDOUT)
+    return output
+
