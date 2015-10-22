@@ -11,8 +11,6 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-
-
 def log(msg, indent=0, style=None):
     """
     Generic module-level logging.

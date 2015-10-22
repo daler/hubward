@@ -1,118 +1,147 @@
-import yaml
-from textwrap import dedent
-from jsonschema import validate, ValidationError
-import pyaml
-import json
 import os
-import glob
-import subprocess
+import stat
 from colorama import init, Fore, Back, Style
+from textwrap import dedent
+import yaml
+import jsonschema
+import subprocess
 from trackhub import Track, default_hub, CompositeTrack, ViewTrack
-import pkg_resources
+from trackhub.upload import upload_hub, upload_track, upload_file
 from hubward import utils
 from hubward.log import log
-import conda.fetch
-
-HERE = os.path.abspath(os.path.dirname(__file__))
-SCHEMA = json.loads(utils.get_resource('schema.json'))
 
 
 class Data(object):
     def __init__(self, obj, reldir):
         """
-        Represents a single track destined for upload to UCSC as a track hub.
-
-        In the metadata.yaml file, this is a single entry in the `data` list.
+        Represents a single track destined for upload to UCSC as part of
+        a track hub.
 
         Parameters
         ----------
         obj : dict
-            One entry from the `data` list in a metadata file.
+            One entry from the `data` list in the metadata.yaml file
 
         reldir : str
-            The dirname of the metadata file.  All paths (specifically,
-            "original", "processed", and "script", are assumed to be relative
-            to to `reldir`.
+            The directory name of the metadata file. All paths within the
+            metadata file are assumed to be relative to `reldir`.
         """
         self.obj = obj
         self.reldir = reldir
         self.original = os.path.join(reldir, obj['original'])
-        self.source = obj['source']
+        self.source_url = obj['source']['url']
+        self.source_fn = os.path.join(reldir, 'raw-data', obj['source']['fn'])
         self.processed = os.path.join(reldir, obj['processed'])
-        self.description = obj['description']
-        self.label = obj['label']
+        self.description = obj.get('description', "")
+        self.label = obj['short_label']
+        self.obj.setdefault('long_label', self.label)
         self.type_ = obj['type']
         self.genome = obj['genome']
         self.script = os.path.join(reldir, obj['script'])
-        try:
-            self.trackinfo = obj['trackinfo']
-        except KeyError:
-            self.trackinfo = {}
+        self.trackinfo = obj.get('trackinfo', {})
 
     def __str__(self):
-        return pyaml.dumps(self.obj)
+        return yaml.dump(self.obj)
 
-    def needs_download(self):
+    def _was_lifted_over(self):
+        if os.path.exists(os.path.join(self.reldir, 'ORIGINAL-STUDY')):
+            return True
+
+    def _needs_download(self):
         if not os.path.exists(self.original):
             return True
 
-    def needs_update(self):
+
+    def _download(self):
+        """
+        Downloads and unpacks the source to `raw-data`.
+
+        After doing so, if self.original still does not exist, then raises
+        a ValueError.
+        """
+        log(
+            "Downloading '%s' -> '%s'" %
+            (self.source_url, self.source_fn), indent=4)
+        utils.download(self.source_url, self.source_fn)
+        utils.unpack(self.source_fn, os.path.dirname(self.source_fn))
+
+        if self._needs_download():
+            raise ValueError(
+                "Downloading and unpacking '%s' did not result in '%s'"
+                % (self.source_url, self.source.fn))
+
+    def _needs_update(self):
+        """
+        Decides if we need to update the processed file.
+        """
+        do_update = False
+        if self._was_lifted_over():
+            log("This study appears to have been lifted over from another "
+                "study, in which case we assume it does not need updating",
+                style=Fore.YELLOW
+            )
+            return False
+        if self._needs_download():
+            log("{0.original} does not exist; downloading"
+                .format(self, indent=4))
+            self._download()
+            do_update = True
+
         if not os.path.exists(self.processed):
-            return True
+            log("{0.processed} does not exist".format(self), indent=4)
+            do_update = True
+
+        # if processed is a link, then check the LINK time
         if (
-
-            # if processed is a link, then check the LINK time
-            utils.link_is_newer(self.script, self.processed) or
-
-            (os.path.exists(self.original) and
-                # but for the original data, we want to FOLLOW the link
-                utils.is_newer(self.original, self.processed))
+            os.path.exists(self.processed) and
+            utils.link_is_newer(self.script, self.processed)
         ):
-            return True
+            log("{0.script} is newer than {0.processed}, need to re-run"
+                .format(self), indent=4)
+            do_update = True
+
+        # but for the original data, we want to FOLLOW the link
+        if (
+                os.path.exists(self.original) and
+                os.path.exists(self.processed) and
+                utils.is_newer(self.original, self.processed)
+        ):
+            log("{0.original} is newer than {0.processed}, need to re-run"
+                .format(self), indent=4)
+            do_update = True
+
+        if not do_update:
+            log("{0.processed} is up to date"
+                .format(self), indent=4, style=Style.DIM)
+
+        return do_update
 
     def process(self):
         """
-        Runs the processing script, which must accept 2 args, the absolute path
-        of the original file and absolute path of the processed file.
-
-        It's up to the processing script to handle everything else.
+        Run the conversion script if the output needs updating.
         """
+        # Note: _needs_update() does the logging.
+        if not self._needs_update():
+            return
+
+        if not os.path.exists(self.script):
+            raise ValueError(
+                "Processing script {0.script} does not exist".format(self))
+
+        if not (stat.S_IXUSR & os.stat(self.script)[stat.ST_MODE]):
+            raise ValueError(
+                Fore.RED + "Processing script {0.script} not executable".format(self) + Fore.RESET)
+
+        utils.makedirs(os.path.dirname(self.processed))
+
         cmds = [
             self.script,
             self.original,
-            self.processed]
-        if not os.path.exists(self.original):
-            url = self.source['url']
-            log(
-                'Downloading "%s" -> "%s"' %
-                (url, self.reldir), indent=4)
-            fn = os.path.join(self.reldir, 'raw-data', self.source['fn'])
-            utils.download(url, fn)
-            utils.unpack(fn, os.path.join(self.reldir, 'raw-data'))
-
-        if not os.path.exists(self.original):
+            self.processed
+        ]
+        retval = subprocess.check_call(cmds)
+        if self._needs_update():
             raise ValueError(
-                "Original data file %s does not exist" % self.original)
-        if not os.path.exists(self.script):
-            raise ValueError(
-                "Script %s does not exist" % self.script)
-        p = subprocess.Popen(
-            cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        try:
-            stdout, stderr = p.communicate()
-        except OSError:
-            print "Commands were", ' '.join(cmds)
-            raise
-
-        if p.returncode:
-            msg = 'CMDS: %s' % (' '.join(cmds))
-            msg += '\n'
-            msg += 'STDERR: %s' % stderr
-            raise ValueError(msg)
-
-        # Check again to make sure we updated the file we thought we did...
-        if self.needs_update():
-            print(
                 Fore.RED + 'The following command did not update '
                 '{1}:\n\n{0}\n'.format(' \\\n'.join(cmds), self.processed) +
                 Fore.RESET
@@ -120,92 +149,81 @@ class Data(object):
 
 
 class Study(object):
-    def __init__(self, fn):
+    def __init__(self, dirname):
         """
-        Represents a study documented in a single JSON or YAML file, with
-        dictionary keys mapped to easier-to-access attributes.
-
-        Validates against "schema.json" upon loading.
+        Represents a single metadata.yaml file.
 
         Parameters
         ----------
 
-        fn : JSON or YAML format file.
-
+        fn : filename of YAML- or JSON-formatted config file
         """
-        ext = os.path.splitext(fn)[-1]
-        if ext == '.json':
-            self.metadata = json.load(open(fn))
-        elif ext == '.yaml':
-            self.metadata = yaml.load(open(fn))
+        self.dirname = dirname
+        self._build_metadata()
+        fn = os.path.join(self.dirname, 'metadata.yaml')
 
-        # validation happens here...
-        validate(self.metadata, SCHEMA)
+        if not os.path.exists(fn):
+            raise ValueError("Can't find {0}".format(fn))
 
-        # Create easier-to-access attributes from the dict sub-keys.
-        self.filename = fn
-        self.pmid = self.metadata['study']['PMID']
-        self.description = self.metadata['study']['description']
-        self.reference = self.metadata['study']['reference']
+        self.metadata = yaml.load(open(fn))
+        schema = yaml.load(utils.get_resource('metadata_schema.yaml'))
+        jsonschema.validate(self.metadata, schema)
+        self.study = self.metadata['study']
         self.label = self.metadata['study']['label']
-        self.sanitized_label = utils.sanitize(self.label, strict=True)
-        self.dirname = os.path.abspath(os.path.dirname(fn))
-        self.processing = self.metadata['study']['processing']
 
-        self.data = [
-            Data(d, os.path.dirname(fn)) for d in self.metadata['data']]
+        self.study.setdefault('short_label', self.label)
+        self.study.setdefault('long_label', self.study['short_label'])
+        self.study.setdefault('description', self.study['long_label'])
+        self.data = [Data(d, self.dirname) for d in self.metadata['data']]
 
     def __str__(self):
-        return pyaml.dumps(self.json)
+        return yaml.dump(self.metadata)
 
-    def build_metadata(self):
+    def _build_metadata(self):
         """
-        Call the metadata-builder.py script to reconstruct the metadata.
+        If metadata-builder.py exists, always run it.
         """
-        dirname = os.path.dirname(self.filename)
-        if os.path.exists(os.path.join(dirname, 'metadata-builder.py')):
-            cmds = ['cd', dirname, '&&', 'python', 'metadata-builder.py']
-            os.system(' '.join(cmds))
+        builder = os.path.join(self.dirname, 'metadata-builder.py')
+        if not os.path.exists(builder):
+            return
+
+        log("{0} exists. Running it...".format(builder))
+        metadata = os.path.join(self.dirname, 'metadata.yaml')
+        if os.path.exists(metadata):
+            backup = os.path.join(self.dirname, 'metadata.yaml.bak')
+            shutil.copy(metadata, backup)
+            log("Existing {0} backed up to {1}"
+                .format(metadata, backup))
+        cmds = ['cd', dirname, '&&', './metadata-builder.py']
+        retval = subprocess.check_call(cmds)
+
+        if not os.path.exists(metadata):
+            raise ValueError("Expected {0} but was not created by {1}"
+                             .format(metadata, builder))
 
     def process(self, force=False):
-        """
-        Process all tracks in the study, calling their assigned conversion
-        script if data needs update. Report either way.
-        """
-        log('Study: {0.description}, in "{0.dirname}"'.format(self),
+        log('Study: {0.study[description]}, in "{0.dirname}"'.format(self),
             style=Fore.BLUE)
         for d in self.data:
-            if d.needs_update() or force:
-                log(
-                    'Converting "%s" -> "%s"' %
-                    (os.path.relpath(d.original, d.reldir),
-                     os.path.relpath(d.processed, d.reldir),
-                     ),
-                    indent=4)
-
-                d.process()
-            else:
-                log(
-                    'Up to date: "%s"' %
-                    os.path.relpath(d.processed, d.reldir), style=Style.DIM,
-                    indent=4)
-                continue
+            d.process()
 
     def reference_section(self):
         """
         Creates a ReST-formatted reference section to be appended to the end of
         the documentation for the composite track config page.
+
+        If no configured reference or PMID, then return an empty string.
         """
-        if not (self.reference or self.pmid):
+        reference = self.study.get('reference', "")
+
+        # Allow "0001111", "PMID:0001111", "PMID: 0001111"
+        pmid = self.study.get('PMID', "").split(':')[-1].strip()
+
+        if not (reference or pmid):
             return ""
-        if not self.reference:
-            reference = ""
-        else:
-            reference = self.reference
-        if not self.pmid:
-            pmid = ""
-        else:
-            pmid = 'http://www.ncbi.nlm.nih.gov/pubmed/{0}'.format(self.pmid)
+
+        if pmid:
+            pmid = 'http://www.ncbi.nlm.nih.gov/pubmed/{0}'.format(pmid)
         return dedent(
             """
             Reference
@@ -225,24 +243,43 @@ class Study(object):
 
         # Build the HTML docs
         last_section = self.reference_section()
-        html_string = utils.reST_to_html(self.processing + last_section)
+        html_string = utils.reST_to_html(self.metadata.get('processing', '') + last_section)
 
+        sanitized_label = utils.sanitize(self.label, strict=True)
+
+        # Composite track to hold all subtracks for the study
         composite = CompositeTrack(
-            name=utils.sanitize(self.label, strict=True),
-            short_label=self.description,
-            long_label=self.description,
-            html_string=html_string,
-            tracktype='bigBed')
+            name=sanitized_label,
+            short_label=self.study['short_label'],
+            long_label=self.study['long_label'],
+            tracktype='bigBed',
+
+            # Add all the documentation
+            html_string=html_string)
 
         # If there are any bigWigs defined for this study, make a new "signal"
         # subtrack in the composite and then add the bigWigs to it.
         #
-        # Use the sanitized label for the study to ensure uniqueness among
+        # Uses the sanitized label for the study to ensure uniqueness among
         # tracks.
+        #
+        def _add_tracks(data_list, view, default_tracktype):
+            for data_obj in data_list:
+                kwargs = data_obj.obj.get('trackinfo', {})
+                kwargs = dict((k, str(v)) for k, v in kwargs.items())
+                kwargs.setdefault('tracktype', default_tracktype)
+                view.add_tracks(
+                    Track(
+                        name=sanitized_label + utils.sanitize(data_obj.label),
+                        short_label=data_obj.label,
+                        long_label=data_obj.obj['long_label'],
+                        local_fn=data_obj.processed,
+                        **kwargs))
+
         if len(bigwigs) > 0:
             signal_view = ViewTrack(
-                name=self.sanitized_label + 'signalviewtrack',
-                view=self.sanitized_label + 'signalview',
+                name=sanitized_label + 'signalviewtrack',
+                view=sanitized_label + 'signalview',
                 short_label=self.label + ' signal view',
                 long_label=self.label + ' signal view',
                 visibility='full',
@@ -252,63 +289,75 @@ class Study(object):
             )
             composite.add_view(signal_view)
 
-            for bigwig in bigwigs:
+            _add_tracks(bigwigs, signal_view, 'bigWig')
 
-                # If the metadata for this track defined a trackinfo section,
-                # interpret it as kwargs to trackhub.Track
-                try:
-                    kwargs = bigwig.trackinfo
-                except AttributeError:
-                    kwargs = {}
-                kwargs = dict((k, str(v)) for k, v in kwargs.items())
-                signal_view.add_tracks(
-                    Track(
-                        # Tracks are named after both study and label to
-                        # hopefully ensure uniqueness across the entire hub
-                        name=self.sanitized_label + utils.sanitize(bigwig.label),
-                        short_label=bigwig.label,
-                        long_label=bigwig.description,
-                        local_fn=bigwig.processed,
-                        tracktype='bigWig',
-                        **kwargs
-                    )
-                )
 
         # Same thing with bigBeds
         if len(bigbeds) > 0:
             bed_view = ViewTrack(
-                name=self.sanitized_label + 'bedviewtrack',
-                view=self.sanitized_label + 'bed_view',
+                name=sanitized_label + 'bedviewtrack',
+                view=sanitized_label + 'bed_view',
                 short_label=self.label + ' bed view',
                 long_label=self.label + ' bed view',
                 visibility='dense',
             )
             composite.add_view(bed_view)
-            for bigbed in bigbeds:
-                try:
-                    kwargs = bigbed.trackinfo
-                except AttributeError:
-                    kwargs = {}
-                track_kwargs = dict(
-                        name=self.sanitized_label + utils.sanitize(bigbed.label),
-                        short_label=bigbed.label,
-                        long_label=bigbed.description,
-                        local_fn=bigbed.processed,
-                        tracktype='bigBed 9'
-                )
-                track_kwargs.update(**kwargs)
-
-                bed_view.add_tracks(Track(**track_kwargs))
+            _add_tracks(bigbeds, bed_view, 'bigBed 9')
 
         return composite
 
 
 class Group(object):
-    def __init__(self, directory, assembly):
-        """
-        Represents a group of studies, each of which is in a subdirectory of
-        provided `directory`.
-        """
-        self.studies = []
-        for metadata in glob.glob(os.path.join(directory, assembly, '*', 'metadata.yaml')):
-            self.studies.append(Study(metadata))
+    def __init__(self, fn):
+        self.group = yaml.load(open(fn))
+        self.filename = fn
+        self.dirname = os.path.dirname(fn)
+        self.group.setdefault('short_label', self.group['name'])
+        self.group.setdefault('long_label', self.group['name'])
+
+        schema = yaml.load(utils.get_resource('group_schema.yaml'))
+        jsonschema.validate(self.group, schema)
+        self.studies = [
+            Study(os.path.join(self.dirname, s))
+            for s in self.group['studies']
+        ]
+
+    def process(self):
+        hub, genomes_file, genome_, trackdb = default_hub(
+            hub_name=self.group['name'],
+            genome=self.group['genome'],
+            short_label=self.group['short_label'],
+            long_label=self.group['long_label'],
+            email=self.group['email'],
+        )
+        hub.url = self.group['hub_url']
+        hub.remote_fn = self.group['server']['hub_remote']
+
+        # Process each study, and have it generate its own composite track to
+        # be added to the trackdb.
+        for study in self.studies:
+            study.process()
+            composite = study.composite_track()
+            trackdb.add_tracks(composite)
+
+        hub.render()
+
+        self.hub = hub
+        self.genomes_file = genomes_file
+        self.genome_ = genome_
+        self.trackdb = trackdb
+
+    def upload(self, hub_only=False):
+        self.process()
+        kwargs = dict(
+            host=self.group['server']['host'],
+            user=self.group['server']['user'],
+            rsync_options='-avrL --progress'
+        )
+        upload_hub(hub=self.hub, **kwargs)
+        if not hub_only:
+            for track, level in self.hub.leaves(Track):
+                upload_track(track=track, **kwargs)
+
+        log("Hub can now be accessed via {0}"
+            .format(self.hub.url), style=Fore.BLUE)
