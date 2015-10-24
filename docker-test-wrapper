@@ -6,5 +6,5 @@
 # - Runs docker-test.sh inside the container
 
 set -e
-docker build -t hubward docker
-docker run -it -v $(pwd):/opt/hubward hubward /bin/bash docker-test.sh
+docker build -t daler/hubward-test .
+docker run -it -v $(pwd):/opt/hubward daler/hubward-test /bin/bash docker-test.sh

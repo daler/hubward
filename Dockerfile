@@ -27,23 +27,16 @@ RUN conda install -y -c daler \
     matplotlib \
     pybedtools \
     bedtools \
-    bedtobigbed \
-    bedgraphtobigwig \
+    crossmap \
+    ucsc-bedtobigbed \
+    ucsc-bedgraphtobigwig \
+    ucsc-wigtobigwig \
+    ucsc-fetchchromsizes \
+    ucsc-bigbedtobed \
     trackhub \
     conda \
     conda-build
 
-
-RUN pip install \
-    argh \
-    bleach \
-    colorama \
-    docutils \
-    fabric \
-    jsonschema \
-    pyaml \
-    unidecode \
-    sh
 
 RUN git config --global user.email "none@example.com"
 RUN git config --global user.name "hubward-example"
@@ -60,4 +53,8 @@ RUN echo "export PATH=/opt/conda/bin:$PATH" >> /etc/profile
 
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
+
+ADD requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+
 WORKDIR /opt/hubward

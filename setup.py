@@ -34,8 +34,8 @@ setup(
             'hubward',
             [
                 'resources/metadata_builder_template.py',
-                'resources/metadata_template.yaml',
-                'resources/schema.json',
+                'resources/metadata_schema.yaml',
+                'resources/group_schema.yaml',
                 'resources/process_template.py',
                 'resources/process_template.sh',
             ]
