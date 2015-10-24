@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hubward &mdash; hubward 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="hubward 0.1.0 documentation" href="#" />
+    <link rel="next" title="Installation" href="installation.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">hubward 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="hubward">
+<h1><code class="docutils literal"><span class="pre">hubward</span></code><a class="headerlink" href="#hubward" title="Permalink to this headline">¶</a></h1>
+<p>A common question when reading an interesting paper is, &#8220;how does relate to my
+favorite gene locus?&#8221;. To address this question, usually we need to download
+the supplemental data, figure out what format it&#8217;s in, convert it to some other
+useful format, and visualize it alongside our own data.</p>
+<p><cite>hubward</cite> helps manage this process, lowering the effort required to track,
+manage, organize, and upload many studies for cross-comparison in the UCSC
+Genome Browser.</p>
+<p>Data are organized into <a class="reference external" href="https://genome.ucsc.edu/goldenPath/help/hgTrackHubHelp.html">track hubs</a> on the UCSC
+Genome Browser, and the name <cite>hubward</cite> indicates the direction in which data
+are moved into these track hubs. It can also refer to a direction in <a class="reference external" href="http://wiki.lspace.org/mediawiki/Hubwards">other
+complex systems</a>.</p>
+<p>The separate repository, <a class="reference external" href="https://github.com/daler/hubward-studies">hubward-studies</a>, contains examples of prepared
+track hubs. Subsets of these can be combined into user-defined hubs, or can
+serve as examples for preparing other studies.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p><a href="#id1"><span class="problematic" id="id2">`This poster`_</span></a> gives an overview of <cite>hubward</cite>, and provides a worked example.</p>
+</div>
+<div class="section" id="a-study">
+<h2>A &#8220;study&#8221;<a class="headerlink" href="#a-study" title="Permalink to this headline">¶</a></h2>
+<p>The minimal definition of a <cite>hubward</cite> &#8220;study&#8221; is a directory with
+a <cite>metadata.yaml</cite> file. In practice, the directory contains raw data and
+conversion scripts. A study generally corresponds to data from a single
+published paper, but this is not required.  The <cite>metadata.yaml</cite> file describes
+and configures one or many tracks grouped together in a single composite track
+which, along with other related studies, is uploaded as a track hub.</p>
+<p>The <cite>metadata.yaml</cite> file consists of several sections. The <cite>study</cite> section
+stores bibliographic information. It is converted to HTML documentation and
+added to the study&#8217;s configuration page in the UCSC Genome Browser:</p>
+<div class="highlight-python"><div class="highlight"><pre>study:
+  reference: &#39;Ho, J. W. K. et al. Nature 512, 449-452 (2014).&#39;
+  PMID: 25164756
+  description: &#39;ENCODE predicted enhancers&#39;
+  label: encode-enhancers
+  processing: &quot;Downloaded data were converted to bigBed format&quot;
+</pre></div>
+</div>
+<p>The <cite>data</cite> section is a list, with one item for each track to be included in
+the hub. Here is one such item in the <cite>data</cite> list:</p>
+<div class="highlight-python"><div class="highlight"><pre>data:
+    -
+        description: &quot;K562 enhancers&quot;
+        label: &quot;enhancers [K562]&quot;
+        genome: hg19
+        infiles: &quot;raw-data/p300_enhancers_K562.txt&quot;
+        outfile: &quot;processed-data/p300_enhancers_K562.bigbed&quot;
+        script: &quot;scr/process.py&quot;
+              fn: &quot;comparative_enhancer_calls.tar.gz&quot;
+              url: &quot;http://compbio.med.harvard.edu/modencode/webpage/enh_calls_final/comparative_enhancer_calls.tar.gz&quot;
+        trackinfo:
+            tracktype: &quot;bigBed 3&quot;
+            visibility: &quot;dense&quot;
+            itemRgb: &quot;on&quot;
+            color: &quot;#FF0000&quot;
+        type: bigbed
+</pre></div>
+</div>
+<p>The config file format and fields are described in detail later in the
+documentation. In summary, this block defines the source data, an output file
+to create, and a conversion script to create a bigBed file with features
+colored red, for enhancers in K562 cells from the ENCODE project.  A logical
+extension of this would be to include additional items for other cell lines in
+this data set.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Implementation notes</strong></p>
+<p>If you&#8217;re going to be uploading to the UCSC genome browser, the output files
+must be in VCF, BAM, bigBed, or bigWig format. If an input file doesn&#8217;t exist,
+we look for the <cite>source</cite> key, which tells us the url of the file to download
+and the filename that we get upon downloading that file. Downloaded tarballs
+and zip files are automatically extracted to <cite>raw-data</cite>.</p>
+<p class="last">The script is expected to handle an arbitrary number of arguments where the
+last argument is the desired output file and the remainder of the arguments are
+input files.</p>
+</div>
+<p>Multiple studies can be grouped together using a higher-level config file,
+here called <cite>group.yaml</cite>. Each study can have multiple tracks; each group can
+have multiple studies.</p>
+<p>For example, if the path to the above <cite>metadata.yaml</cite> file is
+<cite>encode/hg19/encode-enhancers</cite>, then that directory can be included in the
+<cite>studies</cite> list so that the K562 enhancers track will be uploaded:</p>
+<div class="highlight-python"><div class="highlight"><pre>group: encode
+genome: hg19
+name: &quot;encodetracks&quot;
+short_label: &quot;Supp. ENCODE&quot;
+long_label: &quot;Supplemental ENCODE tracks&quot;
+hub_url: &quot;http://localhost/encode/hg19/compiled.hub.txt&quot;
+
+hub_remote: &quot;/root/encode/hg19/compiled.hub.txt&quot;
+host: &quot;localhost&quot;
+user: &quot;www&quot;
+email: &quot;www@localhost&quot;
+
+studies:
+    - encode/hg19/encode-enhancers
+</pre></div>
+</div>
+</div>
+<div class="section" id="workflow">
+<h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h2>
+<p>To visualize a new dataset, the workflow is the following:</p>
+<ol class="arabic simple">
+<li>Write a <cite>metadata.yaml</cite> file and the corresponding scripts to perform
+conversion.</li>
+<li>Write a <cite>group config</cite> file file that groups together individual studies.</li>
+<li>Run <cite>hubward process &lt;group config&gt;</cite>. This parses the group config file, and
+for each defined study, parses its <cite>metadata.yaml</cite> file, downloads data if
+neede, runs conversion scripts if necessary.</li>
+<li>Run <cite>hubward trackhub &lt;group config&gt;</cite>. This builds the track hub config
+files using the <cite>trackhub</cite> Python package, and uploads to the server
+configured in the group config.</li>
+</ol>
+</div>
+<div class="section" id="going-further">
+<h2>Going further<a class="headerlink" href="#going-further" title="Permalink to this headline">¶</a></h2>
+<p>Use <cite>hubward skeleton</cite> to create a template study including directories,
+and a <cite>metadata-builder.py</cite> script to aid in programmatic generation of
+<cite>metadata.yaml</cite>.</p>
+<p><cite>hubward</cite> includes many helper functions which can be imported into the
+processing script.</p>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#conda"><cite>conda</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#docker">Docker</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#types-of-contributions">Types of Contributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#development-lead">Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="history.html#id1">0.2.0 (2015-10-24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#id2">0.1.0 (2014-01-11)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">hubward</span></code></a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#a-study">A &#8220;study&#8221;</a></li>
+<li><a class="reference internal" href="#workflow">Workflow</a></li>
+<li><a class="reference internal" href="#going-further">Going further</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="next chapter">Installation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, Ryan Dale.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/index.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>
