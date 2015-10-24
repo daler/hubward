@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 
 try:
     from setuptools import setup
@@ -10,29 +11,13 @@ except ImportError:
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
-
-requirements = [
-    'bleach',
-    'pybedtools',
-    'fabric',
-    'colorama',
-    'trackhub',
-    'jsonschema',
-    'pyaml',
-    'argh',
-    'docutils',
-    'sh',
-    'conda',
-    'conda-build',
-]
-
-test_requirements = [
-    # TODO: put package test requirements here
-]
+requirements = [i.strip() for i in open('requirements.txt')]
+version = open(os.path.join(os.path.dirname(__file__), 'hubward', 'version.py')).readline().split()[-1].replace('"', '')
+print(version)
 
 setup(
     name='hubward',
-    version='0.1.0',
+    version=version,
     description='Manage the visualization of large amounts of other people\'s [often messy] genomics data',
     long_description=readme + '\n\n' + history,
     author='Ryan Dale',
@@ -49,6 +34,7 @@ setup(
             'hubward',
             [
                 'resources/metadata_builder_template.py',
+                'resources/metadata_template.yaml',
                 'resources/schema.json',
                 'resources/process_template.py',
                 'resources/process_template.sh',
@@ -74,6 +60,4 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],
-    test_suite='tests',
-    tests_require=test_requirements
 )
