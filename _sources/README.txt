@@ -21,7 +21,7 @@ The separate repository, `hubward-studies
 track hubs. Subsets of these can be combined into user-defined hubs, or can
 serve as examples for preparing other studies.
 
-Documentation can be found at `https://daler.github.io/hubward`_.
+Documentation can be found at `<https://daler.github.io/hubward>`_.
 
 Overview
 --------
