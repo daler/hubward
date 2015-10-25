@@ -10,6 +10,7 @@ help:
 	@echo "test-all - run tests on every Python version with tox"
 	@echo "coverage - check code coverage quickly with the default Python"
 	@echo "docs - generate Sphinx HTML documentation, including API docs"
+	@echo "docs-gh-pages - generate docs and upload to gh-pages branch of repo"
 	@echo "release - package and upload a release"
 	@echo "dist - package"
 
@@ -49,6 +50,16 @@ docs:
 	sphinx-apidoc -o docs/ hubward
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
+
+TMPREPO = /tmp/docs
+docs-gh-pages: docs
+	rm -rf $(TMPREPO)
+	mkdir -p -m 0755 $(TMPREPO)
+	git clone git@github.com:daler/hubward.git $(TMPREPO)
+	cd $(TMPREPO); git checkout gh-pages
+	cp -r docs/_build/html/* $(TMPREPO)
+	touch $(TMPREPO)/.nojekyll
+	cd $(TMPREPO); git add -A; git commit -m 'update docs'; git push origin gh-pages
 
 release: clean
 	python setup.py sdist upload
