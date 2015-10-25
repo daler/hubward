@@ -38,6 +38,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">hubward 0.1.0 documentation</a> &raquo;</li> 
@@ -69,44 +72,63 @@ serve as examples for preparing other studies.</p>
 <div class="section" id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p><a href="#id1"><span class="problematic" id="id2">`This poster`_</span></a> gives an overview of <cite>hubward</cite>, and provides a worked example.</p>
+<p>Further details can be found in the <a class="reference external" href="https://daler.github.io/hubward">full documentation</a>.</p>
+<p><cite>hubward</cite> uses the following concepts:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">track:</th><td class="field-body">Data that can be represented as a single track in the UCSC Genome Browser.
+Examples include called peaks (for a single antibody in a single
+condition); read pileup from a single RNA-seq sample; CNV scores for one
+sample; or anything that can be converted into bigBed, bigWig, BAM, or VCF
+format.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">study:</th><td class="field-body">A collection of tracks, typically all from the same published article.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">group:</th><td class="field-body">A collection of studies, typically related in some way.</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="section" id="a-study">
-<h2>A &#8220;study&#8221;<a class="headerlink" href="#a-study" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="studies">
+<h2>Studies<a class="headerlink" href="#studies" title="Permalink to this headline">¶</a></h2>
 <p>The minimal definition of a <cite>hubward</cite> &#8220;study&#8221; is a directory with
 a <cite>metadata.yaml</cite> file. In practice, the directory contains raw data and
 conversion scripts. A study generally corresponds to data from a single
 published paper, but this is not required.  The <cite>metadata.yaml</cite> file describes
-and configures one or many tracks grouped together in a single composite track
-which, along with other related studies, is uploaded as a track hub.</p>
+and configures one or many <cite>tracks</cite> grouped together. These are uploaded to
+a track hub as a single <a class="reference external" href="https://genome.ucsc.edu/goldenPath/help/hubQuickStartGroups.html#composite">composite track</a>.</p>
 <p>The <cite>metadata.yaml</cite> file consists of several sections. The <cite>study</cite> section
 stores bibliographic information. It is converted to HTML documentation and
-added to the study&#8217;s configuration page in the UCSC Genome Browser:</p>
-<div class="highlight-python"><div class="highlight"><pre>study:
-  reference: &#39;Ho, J. W. K. et al. Nature 512, 449-452 (2014).&#39;
-  PMID: 25164756
-  description: &#39;ENCODE predicted enhancers&#39;
-  label: encode-enhancers
-  processing: &quot;Downloaded data were converted to bigBed format&quot;
+added to the study&#8217;s configuration page in the UCSC Genome Browser.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">study</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">reference</span><span class="p-Indicator">:</span> <span class="s">&#39;Ho,</span><span class="nv"> </span><span class="s">J.</span><span class="nv"> </span><span class="s">W.</span><span class="nv"> </span><span class="s">K.</span><span class="nv"> </span><span class="s">et</span><span class="nv"> </span><span class="s">al.</span><span class="nv"> </span><span class="s">Nature</span><span class="nv"> </span><span class="s">512,</span><span class="nv"> </span><span class="s">449-452</span><span class="nv"> </span><span class="s">(2014).&#39;</span>
+  <span class="l-Scalar-Plain">PMID</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">25164756</span>
+  <span class="l-Scalar-Plain">description</span><span class="p-Indicator">:</span> <span class="s">&#39;ENCODE</span><span class="nv"> </span><span class="s">predicted</span><span class="nv"> </span><span class="s">enhancers&#39;</span>
+  <span class="l-Scalar-Plain">label</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">encode-enhancers</span>
+  <span class="l-Scalar-Plain">processing</span><span class="p-Indicator">:</span> <span class="s">&quot;Downloaded</span><span class="nv"> </span><span class="s">data</span><span class="nv"> </span><span class="s">were</span><span class="nv"> </span><span class="s">converted</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">bigBed</span><span class="nv"> </span><span class="s">format&quot;</span>
 </pre></div>
 </div>
 <p>The <cite>data</cite> section is a list, with one item for each track to be included in
 the hub. Here is one such item in the <cite>data</cite> list:</p>
-<div class="highlight-python"><div class="highlight"><pre>data:
-    -
-        description: &quot;K562 enhancers&quot;
-        label: &quot;enhancers [K562]&quot;
-        genome: hg19
-        infiles: &quot;raw-data/p300_enhancers_K562.txt&quot;
-        outfile: &quot;processed-data/p300_enhancers_K562.bigbed&quot;
-        script: &quot;scr/process.py&quot;
-              fn: &quot;comparative_enhancer_calls.tar.gz&quot;
-              url: &quot;http://compbio.med.harvard.edu/modencode/webpage/enh_calls_final/comparative_enhancer_calls.tar.gz&quot;
-        trackinfo:
-            tracktype: &quot;bigBed 3&quot;
-            visibility: &quot;dense&quot;
-            itemRgb: &quot;on&quot;
-            color: &quot;#FF0000&quot;
-        type: bigbed
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">data</span><span class="p-Indicator">:</span>
+  <span class="p-Indicator">-</span>
+    <span class="l-Scalar-Plain">label</span><span class="p-Indicator">:</span> <span class="s">&quot;enhancers</span><span class="nv"> </span><span class="s">[K562]&quot;</span>
+    <span class="l-Scalar-Plain">description</span><span class="p-Indicator">:</span> <span class="s">&quot;K562</span><span class="nv"> </span><span class="s">enhancers&quot;</span>
+    <span class="l-Scalar-Plain">genome</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">hg19</span>
+    <span class="l-Scalar-Plain">original</span><span class="p-Indicator">:</span> <span class="s">&quot;raw-data/p300_enhancers_K562.txt&quot;</span>
+    <span class="l-Scalar-Plain">processed</span><span class="p-Indicator">:</span> <span class="s">&quot;processed-data/p300_enhancers_K562.bigbed&quot;</span>
+    <span class="l-Scalar-Plain">script</span><span class="p-Indicator">:</span> <span class="s">&quot;scr/process.py&quot;</span>
+    <span class="l-Scalar-Plain">source</span><span class="p-Indicator">:</span>
+      <span class="l-Scalar-Plain">fn</span><span class="p-Indicator">:</span> <span class="s">&quot;comparative_enhancer_calls.tar.gz&quot;</span>
+      <span class="l-Scalar-Plain">url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://compbio.med.harvard.edu/modencode/webpage/enh_calls_final/comparative_enhancer_calls.tar.gz&quot;</span>
+    <span class="l-Scalar-Plain">trackinfo</span><span class="p-Indicator">:</span>
+       <span class="l-Scalar-Plain">tracktype</span><span class="p-Indicator">:</span> <span class="s">&quot;bigBed</span><span class="nv"> </span><span class="s">3&quot;</span>
+       <span class="l-Scalar-Plain">visibility</span><span class="p-Indicator">:</span> <span class="s">&quot;dense&quot;</span>
+       <span class="l-Scalar-Plain">itemRgb</span><span class="p-Indicator">:</span> <span class="s">&quot;on&quot;</span>
+       <span class="l-Scalar-Plain">color</span><span class="p-Indicator">:</span> <span class="s">&quot;#FF0000&quot;</span>
+    <span class="l-Scalar-Plain">type</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">bigbed</span>
 </pre></div>
 </div>
 <p>The config file format and fields are described in detail later in the
@@ -115,40 +137,54 @@ to create, and a conversion script to create a bigBed file with features
 colored red, for enhancers in K562 cells from the ENCODE project.  A logical
 extension of this would be to include additional items for other cell lines in
 this data set.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p><strong>Implementation notes</strong></p>
-<p>If you&#8217;re going to be uploading to the UCSC genome browser, the output files
-must be in VCF, BAM, bigBed, or bigWig format. If an input file doesn&#8217;t exist,
-we look for the <cite>source</cite> key, which tells us the url of the file to download
-and the filename that we get upon downloading that file. Downloaded tarballs
-and zip files are automatically extracted to <cite>raw-data</cite>.</p>
-<p class="last">The script is expected to handle an arbitrary number of arguments where the
-last argument is the desired output file and the remainder of the arguments are
-input files.</p>
+<p>To process the data for a study, use:</p>
+<div class="highlight-python"><div class="highlight"><pre>hubward process study &lt;directory&gt;
+</pre></div>
 </div>
+<p>where <cite>directory</cite> contains the <cite>metadata.yaml</cite> file. For each defined track, this will:</p>
+<ul class="simple">
+<li>ensure original data exist. If not, the <cite>source</cite> url is downloaded to the
+<cite>source</cite> fn and extracted</li>
+<li>ensure processed file exists and is up-to-date. If it is older than
+<cite>original</cite> or older than <cite>script</cite>, the script is re-run.</li>
+</ul>
+</div>
+<div class="section" id="groups">
+<h2>Groups<a class="headerlink" href="#groups" title="Permalink to this headline">¶</a></h2>
 <p>Multiple studies can be grouped together using a higher-level config file,
 here called <cite>group.yaml</cite>. Each study can have multiple tracks; each group can
 have multiple studies.</p>
 <p>For example, if the path to the above <cite>metadata.yaml</cite> file is
 <cite>encode/hg19/encode-enhancers</cite>, then that directory can be included in the
 <cite>studies</cite> list so that the K562 enhancers track will be uploaded:</p>
-<div class="highlight-python"><div class="highlight"><pre>group: encode
-genome: hg19
-name: &quot;encodetracks&quot;
-short_label: &quot;Supp. ENCODE&quot;
-long_label: &quot;Supplemental ENCODE tracks&quot;
-hub_url: &quot;http://localhost/encode/hg19/compiled.hub.txt&quot;
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">group</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">encode</span>
+<span class="l-Scalar-Plain">genome</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">hg19</span>
+<span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="s">&quot;encodetracks&quot;</span>
+<span class="l-Scalar-Plain">short_label</span><span class="p-Indicator">:</span> <span class="s">&quot;Supp.</span><span class="nv"> </span><span class="s">ENCODE&quot;</span>
+<span class="l-Scalar-Plain">long_label</span><span class="p-Indicator">:</span> <span class="s">&quot;Supplemental</span><span class="nv"> </span><span class="s">ENCODE</span><span class="nv"> </span><span class="s">tracks&quot;</span>
+<span class="l-Scalar-Plain">hub_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://localhost/encode/hg19/compiled.hub.txt&quot;</span>
 
-hub_remote: &quot;/root/encode/hg19/compiled.hub.txt&quot;
-host: &quot;localhost&quot;
-user: &quot;www&quot;
-email: &quot;www@localhost&quot;
+<span class="l-Scalar-Plain">server</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">hub_remote</span><span class="p-Indicator">:</span> <span class="s">&quot;/root/encode/hg19/compiled.hub.txt&quot;</span>
+  <span class="l-Scalar-Plain">host</span><span class="p-Indicator">:</span> <span class="s">&quot;localhost&quot;</span>
+  <span class="l-Scalar-Plain">user</span><span class="p-Indicator">:</span> <span class="s">&quot;www&quot;</span>
+  <span class="l-Scalar-Plain">email</span><span class="p-Indicator">:</span> <span class="s">&quot;www@localhost&quot;</span>
 
-studies:
-    - encode/hg19/encode-enhancers
+<span class="l-Scalar-Plain">studies</span><span class="p-Indicator">:</span>
+  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">encode/hg19/encode-enhancers</span>
 </pre></div>
 </div>
+<p>To process all studies in a group, run:</p>
+<div class="highlight-python"><div class="highlight"><pre>hubward process group &lt;group YAML file&gt;
+</pre></div>
+</div>
+<p>This processes all configured studies to ensure their output is up-to-date.</p>
+<p>To create the track hub files and upload to a remote server, run:</p>
+<div class="highlight-python"><div class="highlight"><pre>hubward upload &lt;group YAML file&gt;
+</pre></div>
+</div>
+<p>After it runs, it will show the URL that can be used to load the hub into the
+Genome Browser.</p>
 </div>
 <div class="section" id="workflow">
 <h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h2>
@@ -157,10 +193,10 @@ studies:
 <li>Write a <cite>metadata.yaml</cite> file and the corresponding scripts to perform
 conversion.</li>
 <li>Write a <cite>group config</cite> file file that groups together individual studies.</li>
-<li>Run <cite>hubward process &lt;group config&gt;</cite>. This parses the group config file, and
+<li>Run <cite>hubward process group &lt;group config&gt;</cite>. This parses the group config file, and
 for each defined study, parses its <cite>metadata.yaml</cite> file, downloads data if
-neede, runs conversion scripts if necessary.</li>
-<li>Run <cite>hubward trackhub &lt;group config&gt;</cite>. This builds the track hub config
+needed, runs conversion scripts if necessary.</li>
+<li>Run <cite>hubward upload &lt;group config&gt;</cite>. This builds the track hub config
 files using the <cite>trackhub</cite> Python package, and uploads to the server
 configured in the group config.</li>
 </ol>
@@ -178,6 +214,17 @@ processing script.</p>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#conda"><cite>conda</cite></a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#docker">Docker</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hubward.html">hubward package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hubward.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hubward.html#module-hubward.generate_config_from_schema">hubward.generate_config_from_schema module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hubward.html#module-hubward.liftover">hubward.liftover module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hubward.html#module-hubward.log">hubward.log module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hubward.html#module-hubward.models">hubward.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hubward.html#module-hubward.utils">hubward.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hubward.html#module-hubward.version">hubward.version module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hubward.html#module-hubward">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
@@ -219,7 +266,8 @@ processing script.</p>
   <ul>
 <li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">hubward</span></code></a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
-<li><a class="reference internal" href="#a-study">A &#8220;study&#8221;</a></li>
+<li><a class="reference internal" href="#studies">Studies</a></li>
+<li><a class="reference internal" href="#groups">Groups</a></li>
 <li><a class="reference internal" href="#workflow">Workflow</a></li>
 <li><a class="reference internal" href="#going-further">Going further</a></li>
 </ul>

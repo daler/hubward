@@ -1,0 +1,581 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hubward package &mdash; hubward 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="hubward 0.1.0 documentation" href="index.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">hubward 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="hubward-package">
+<h1>hubward package<a class="headerlink" href="#hubward-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-hubward.generate_config_from_schema">
+<span id="hubward-generate-config-from-schema-module"></span><h2>hubward.generate_config_from_schema module<a class="headerlink" href="#module-hubward.generate_config_from_schema" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="hubward.generate_config_from_schema.access">
+<code class="descclassname">hubward.generate_config_from_schema.</code><code class="descname">access</code><span class="sig-paren">(</span><em>dct</em>, <em>keys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/generate_config_from_schema.html#access"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.generate_config_from_schema.access" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access a value from an arbitrarily-nested dictionary, given a set of keys.</p>
+<p>If any key doesn&#8217;t exist, returns None.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">access</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;aa&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;aaa&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}}}},</span> <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;aa&#39;</span><span class="p">,</span> <span class="s">&#39;aaa&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.generate_config_from_schema.create_config">
+<code class="descclassname">hubward.generate_config_from_schema.</code><code class="descname">create_config</code><span class="sig-paren">(</span><em>schema</em>, <em>fout=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/generate_config_from_schema.html#create_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.generate_config_from_schema.create_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an example config file based on the schema alone and writes it to
+<cite>fout</cite>, which can then be validated.</p>
+<p>The goal is to have the schema be the sole source of config files.</p>
+<p>&#8220;description&#8221; fields in the schema will be printed out as YAML comments,
+serving as documentation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>schema</strong> : str</p>
+<blockquote>
+<div><p>Filename of schema</p>
+</div></blockquote>
+<p><strong>fout</strong> : file-like</p>
+<blockquote class="last">
+<div><p>Output file to write YAML to.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.generate_config_from_schema.follow_ref">
+<code class="descclassname">hubward.generate_config_from_schema.</code><code class="descname">follow_ref</code><span class="sig-paren">(</span><em>ref</em>, <em>dct</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/generate_config_from_schema.html#follow_ref"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.generate_config_from_schema.follow_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Follow a &#8220;$ref&#8221; JSON Schema reference</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.generate_config_from_schema.ordered_load">
+<code class="descclassname">hubward.generate_config_from_schema.</code><code class="descname">ordered_load</code><span class="sig-paren">(</span><em>stream</em>, <em>Loader=&lt;class 'yaml.loader.Loader'&gt;</em>, <em>object_pairs_hook=&lt;class 'collections.OrderedDict'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/generate_config_from_schema.html#ordered_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.generate_config_from_schema.ordered_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load YAML into an ordered dictionary to maintain key sorting.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.generate_config_from_schema.represent_odict">
+<code class="descclassname">hubward.generate_config_from_schema.</code><code class="descname">represent_odict</code><span class="sig-paren">(</span><em>dump</em>, <em>tag</em>, <em>mapping</em>, <em>flow_style=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/generate_config_from_schema.html#represent_odict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.generate_config_from_schema.represent_odict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump an ordered dictionary to YAML, maintaining the key order but making it
+look like a normal dictionary (without the !!python/object extra stuff).</p>
+<p>From <a class="reference external" href="https://gist.github.com/miracle2k/3184458">https://gist.github.com/miracle2k/3184458</a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-hubward.liftover">
+<span id="hubward-liftover-module"></span><h2>hubward.liftover module<a class="headerlink" href="#module-hubward.liftover" title="Permalink to this headline">¶</a></h2>
+<p>Module for converting genomic coordinates from one version of an assembly to
+another</p>
+<dl class="function">
+<dt id="hubward.liftover.chainfile_url">
+<code class="descclassname">hubward.liftover.</code><code class="descname">chainfile_url</code><span class="sig-paren">(</span><em>source_assembly</em>, <em>target_assembly</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/liftover.html#chainfile_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.liftover.chainfile_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hubward.liftover.download_chainfile">
+<code class="descclassname">hubward.liftover.</code><code class="descname">download_chainfile</code><span class="sig-paren">(</span><em>source_assembly</em>, <em>target_assembly</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/liftover.html#download_chainfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.liftover.download_chainfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download if needed, putting in the cache_dir.</p>
+<p>If the environmental variable HUBWARD_CACHE_DIR does not exist, then use
+~/.hubward_cache</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.liftover.liftover">
+<code class="descclassname">hubward.liftover.</code><code class="descname">liftover</code><span class="sig-paren">(</span><em>from_</em>, <em>to_</em>, <em>infile</em>, <em>outfile</em>, <em>filetype</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/liftover.html#liftover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.liftover.liftover" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-hubward.log">
+<span id="hubward-log-module"></span><h2>hubward.log module<a class="headerlink" href="#module-hubward.log" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="hubward.log.log">
+<code class="descclassname">hubward.log.</code><code class="descname">log</code><span class="sig-paren">(</span><em>msg</em>, <em>indent=0</em>, <em>style=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/log.html#log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.log.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic module-level logging.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>msg</strong> : string</p>
+<p><strong>indent</strong> : int</p>
+<blockquote>
+<div><p>How much to indent the message. Timestamp will remain left-justified.</p>
+</div></blockquote>
+<p><strong>style</strong> : a colorama style</p>
+<blockquote class="last">
+<div><p>For example, use sytle=colorama.Fore.BLUE for blue text.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-hubward.models">
+<span id="hubward-models-module"></span><h2>hubward.models module<a class="headerlink" href="#module-hubward.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="hubward.models.Data">
+<em class="property">class </em><code class="descclassname">hubward.models.</code><code class="descname">Data</code><span class="sig-paren">(</span><em>obj</em>, <em>reldir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#hubward.models.Data.liftover" title="hubward.models.Data.liftover"><code class="xref py py-obj docutils literal"><span class="pre">liftover</span></code></a>(from_assembly,&nbsp;to_assembly,&nbsp;newfile)</td>
+<td>Lifts over the processed file to a new file, but only if needed.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#hubward.models.Data.process" title="hubward.models.Data.process"><code class="xref py py-obj docutils literal"><span class="pre">process</span></code></a>()</td>
+<td>Run the conversion script if the output needs updating.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="hubward.models.Data.liftover">
+<code class="descname">liftover</code><span class="sig-paren">(</span><em>from_assembly</em>, <em>to_assembly</em>, <em>newfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Data.liftover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Data.liftover" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lifts over the processed file to a new file, but only if needed.</p>
+<p>Uses a hidden sentinel file to indicate whether it&#8217;s been lifted over.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>from_assembly</strong> : str</p>
+<blockquote>
+<div><p>Existing data are in this assembly&#8217;s coordinates</p>
+</div></blockquote>
+<p><strong>to_assembly</strong> : str</p>
+<blockquote>
+<div><p>Lift over existing data to this assembly&#8217;s coordinates</p>
+</div></blockquote>
+<p><strong>newfile</strong> : str</p>
+<blockquote class="last">
+<div><p>Target filename of the lifted-over data</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hubward.models.Data.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Data.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Data.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the conversion script if the output needs updating.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="hubward.models.Group">
+<em class="property">class </em><code class="descclassname">hubward.models.</code><code class="descname">Group</code><span class="sig-paren">(</span><em>fn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#hubward.models.Group.process" title="hubward.models.Group.process"><code class="xref py py-obj docutils literal"><span class="pre">process</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#hubward.models.Group.upload" title="hubward.models.Group.upload"><code class="xref py py-obj docutils literal"><span class="pre">upload</span></code></a>([hub_only])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="hubward.models.Group.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Group.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Group.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hubward.models.Group.upload">
+<code class="descname">upload</code><span class="sig-paren">(</span><em>hub_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Group.upload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Group.upload" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="hubward.models.Study">
+<em class="property">class </em><code class="descclassname">hubward.models.</code><code class="descname">Study</code><span class="sig-paren">(</span><em>dirname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Study"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Study" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#hubward.models.Study.composite_track" title="hubward.models.Study.composite_track"><code class="xref py py-obj docutils literal"><span class="pre">composite_track</span></code></a>()</td>
+<td>Create a composite track ready to be added to a trackhub.TrackDb instance.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#hubward.models.Study.process" title="hubward.models.Study.process"><code class="xref py py-obj docutils literal"><span class="pre">process</span></code></a>([force])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#hubward.models.Study.reference_section" title="hubward.models.Study.reference_section"><code class="xref py py-obj docutils literal"><span class="pre">reference_section</span></code></a>()</td>
+<td>Creates a ReST-formatted reference section to be appended to the end of the documentation for the composite track config page.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="hubward.models.Study.composite_track">
+<code class="descname">composite_track</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Study.composite_track"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Study.composite_track" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a composite track ready to be added to a trackhub.TrackDb
+instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hubward.models.Study.process">
+<code class="descname">process</code><span class="sig-paren">(</span><em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Study.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Study.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hubward.models.Study.reference_section">
+<code class="descname">reference_section</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/models.html#Study.reference_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.models.Study.reference_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a ReST-formatted reference section to be appended to the end of
+the documentation for the composite track config page.</p>
+<p>If no configured reference or PMID, then return an empty string.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-hubward.utils">
+<span id="hubward-utils-module"></span><h2>hubward.utils module<a class="headerlink" href="#module-hubward.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="hubward.utils.add_chr">
+<code class="descclassname">hubward.utils.</code><code class="descname">add_chr</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#add_chr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.add_chr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepend &#8220;chr&#8221; to the beginning of chromosome names.</p>
+<p>Useful when passed to pybedtool.BedTool.each().</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.bigbed">
+<code class="descclassname">hubward.utils.</code><code class="descname">bigbed</code><span class="sig-paren">(</span><em>filename</em>, <em>genome</em>, <em>output</em>, <em>blockSize=256</em>, <em>itemsPerSlot=512</em>, <em>bedtype=None</em>, <em>_as=None</em>, <em>unc=False</em>, <em>tab=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#bigbed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.bigbed" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>:filename:</strong></p>
+<blockquote>
+<div><p>BED-like file to convert</p>
+</div></blockquote>
+<p><strong>:genome:</strong></p>
+<blockquote>
+<div><p>Assembly string (e.g., &#8220;mm10&#8221; or &#8220;hg19&#8221;)</p>
+</div></blockquote>
+<p><strong>:output:</strong></p>
+<blockquote>
+<div><p>Path to bigBed file to create.</p>
+</div></blockquote>
+<p><strong>Other args are passed to bedToBigBed.  In particular, `bedtype` (which</strong></p>
+<p><strong>becomes the &#8220;-type=&#8221; argument) is automatically handled for you if it is</strong></p>
+<p><strong>kept as the default None.</strong></p>
+<p class="last"><strong>Assumes that a recent version of bedToBigBed from UCSC is on the path.</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.bigwig">
+<code class="descclassname">hubward.utils.</code><code class="descname">bigwig</code><span class="sig-paren">(</span><em>filename</em>, <em>genome</em>, <em>output</em>, <em>blockSize=256</em>, <em>itemsPerSlot=512</em>, <em>bedtype=None</em>, <em>_as=None</em>, <em>unc=False</em>, <em>tab=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#bigwig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.bigwig" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>:filename:</strong></p>
+<blockquote>
+<div><p>BEDGRAPH-like file to convert</p>
+</div></blockquote>
+<p><strong>:genome:</strong></p>
+<blockquote>
+<div><p>Assembly string (e.g., &#8220;mm10&#8221; or &#8220;hg19&#8221;)</p>
+</div></blockquote>
+<p><strong>:output:</strong></p>
+<blockquote>
+<div><p>Path to bigWig file to create.</p>
+</div></blockquote>
+<p class="last"><strong>Other args are passed to bedGraphToBigWig.</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.chromsizes">
+<code class="descclassname">hubward.utils.</code><code class="descname">chromsizes</code><span class="sig-paren">(</span><em>assembly</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#chromsizes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.chromsizes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.colored_bigbed">
+<code class="descclassname">hubward.utils.</code><code class="descname">colored_bigbed</code><span class="sig-paren">(</span><em>x</em>, <em>color</em>, <em>genome</em>, <em>target</em>, <em>autosql=None</em>, <em>bedtype=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#colored_bigbed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.colored_bigbed" title="Permalink to this definition">¶</a></dt>
+<dd><p>if color is &#8220;smart&#8221;, then use metaseq&#8217;s smart colormap centered on zero.</p>
+<p>otherwise, use singlecolormap.</p>
+<p>assumes that you have scores in BedTool x; this will zero all scores in the
+final bigbed</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.colortuple">
+<code class="descclassname">hubward.utils.</code><code class="descname">colortuple</code><span class="sig-paren">(</span><em>col</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#colortuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.colortuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a color in any format supported by matplotlib, return
+a comma-separated string of R,G,B uint8 values.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.fix_macs_wig">
+<code class="descclassname">hubward.utils.</code><code class="descname">fix_macs_wig</code><span class="sig-paren">(</span><em>fn</em>, <em>genome</em>, <em>output=None</em>, <em>add_chr=False</em>, <em>to_ignore=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#fix_macs_wig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.fix_macs_wig" title="Permalink to this definition">¶</a></dt>
+<dd><p>wig files created by MACS often are extended outside the chromsome ranges.
+This function edits an input WIG file to fit within the chromosome
+boundaries defined by <cite>genome</cite>.</p>
+<p>If <cite>add_chr</cite> is True, then prefix each chromosome name with &#8220;chr&#8221;.</p>
+<p>Also gets rid of any track lines so the file is ready for conversion to
+bigWig.</p>
+<p>Returns the output filename.</p>
+<dl class="docutils">
+<dt>fn <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Input WIG filename. Can be gzipped, if extension ends in .gz.</dd>
+</dl>
+<p>genome : str or dict</p>
+<dl class="docutils">
+<dt>output <span class="classifier-delimiter">:</span> <span class="classifier">str or None</span></dt>
+<dd>If None, writes to temp file</dd>
+<dt>to_ignore <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>List of chromosomes to ignore.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.get_resource">
+<code class="descclassname">hubward.utils.</code><code class="descname">get_resource</code><span class="sig-paren">(</span><em>fn</em>, <em>as_tempfile=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#get_resource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.get_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an installed resource.</p>
+<p>If an installed resource can&#8217;t be found, then assume we&#8217;re working out of
+the source directory in which case we can find the file in the ../resources
+dir.</p>
+<p>By default, returns a string. If as_tempfile=True, then write the string to
+a tempfile and return that new filename. The caller is responsible for
+deleting the tempfile.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.is_newer">
+<code class="descclassname">hubward.utils.</code><code class="descname">is_newer</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#is_newer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.is_newer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.link_is_newer">
+<code class="descclassname">hubward.utils.</code><code class="descname">link_is_newer</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#link_is_newer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.link_is_newer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.makedirs">
+<code class="descclassname">hubward.utils.</code><code class="descname">makedirs</code><span class="sig-paren">(</span><em>dirnames</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#makedirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.makedirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively create the given directory or directories without reporting
+errors if they are present.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.reST_to_html">
+<code class="descclassname">hubward.utils.</code><code class="descname">reST_to_html</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#reST_to_html"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.reST_to_html" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert ReST-formatted string <cite>s</cite> into HTML.</p>
+<p>Output is intended for uploading to UCSC configuration pages, so this uses
+a whitelist approach for HTML tags.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.sanitize">
+<code class="descclassname">hubward.utils.</code><code class="descname">sanitize</code><span class="sig-paren">(</span><em>s</em>, <em>strict=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#sanitize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.sanitize" title="Permalink to this definition">¶</a></dt>
+<dd><p>If strict, only allow letters and digits &#8211; spaces will be stripped.</p>
+<p>Otherwise, convert spaces to underscores.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.singlecolormap">
+<code class="descclassname">hubward.utils.</code><code class="descname">singlecolormap</code><span class="sig-paren">(</span><em>color</em>, <em>func=None</em>, <em>n=64</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#singlecolormap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.singlecolormap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a linear colormap where <cite>color</cite> is the top, and func(color) is the
+bottom.</p>
+<p><cite>func</cite> should take an RGB tuple as its only input.  If <cite>func</cite> is None, then
+use a light gray as the min.</p>
+<p><cite>n</cite> is the number of levels.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.smart_colormap">
+<code class="descclassname">hubward.utils.</code><code class="descname">smart_colormap</code><span class="sig-paren">(</span><em>vmin</em>, <em>vmax</em>, <em>color_high='#b11902'</em>, <em>hue_low=0.6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#smart_colormap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.smart_colormap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a &#8220;smart&#8221; colormap that is centered on zero, and accounts for
+asymmetrical vmin and vmax by matching saturation/value of high and low
+colors.</p>
+<p>It works by first creating a colormap from white to <cite>color_high</cite>.  Setting
+this color to the max(abs([vmin, vmax])), it then determines what the color
+of min(abs([vmin, vmax])) should be on that scale.  Then it shifts the
+color to the new hue <cite>hue_low</cite>, and finally creates a new colormap with the
+new hue-shifted as the low, <cite>color_high</cite> as the max, and centered on zero.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>color_high</strong> : color</p>
+<blockquote>
+<div><p>Can be any format supported by matplotlib. Try &#8220;#b11902&#8221; for a nice
+red.</p>
+</div></blockquote>
+<p><strong>hue_low</strong> : float in [0, 1]</p>
+<blockquote>
+<div><p>Try 0.6 for a nice blue</p>
+</div></blockquote>
+<p><strong>vmin</strong> : float</p>
+<blockquote>
+<div><p>Lowest value in data you&#8217;ll be plotting</p>
+</div></blockquote>
+<p><strong>vmax</strong> : float</p>
+<blockquote class="last">
+<div><p>Highest value in data you&#8217;ll be plotting</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hubward.utils.unpack">
+<code class="descclassname">hubward.utils.</code><code class="descname">unpack</code><span class="sig-paren">(</span><em>filename</em>, <em>dest</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hubward/utils.html#unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hubward.utils.unpack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-hubward.version">
+<span id="hubward-version-module"></span><h2>hubward.version module<a class="headerlink" href="#module-hubward.version" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-hubward">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hubward" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">hubward package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-hubward.generate_config_from_schema">hubward.generate_config_from_schema module</a></li>
+<li><a class="reference internal" href="#module-hubward.liftover">hubward.liftover module</a></li>
+<li><a class="reference internal" href="#module-hubward.log">hubward.log module</a></li>
+<li><a class="reference internal" href="#module-hubward.models">hubward.models module</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-hubward.utils">hubward.utils module</a></li>
+<li><a class="reference internal" href="#module-hubward.version">hubward.version module</a></li>
+<li><a class="reference internal" href="#module-hubward">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/hubward.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, Ryan Dale.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/hubward.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>
