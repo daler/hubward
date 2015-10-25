@@ -61,10 +61,42 @@ def liftover(dirname, newdir, from_assembly=None, to_assembly=None):
     os.symlink(os.path.abspath(dirname), symlink)
 
 
-parser = argparse.ArgumentParser()
+@arg('dirname', help='Path to contain skeleton project')
+@arg('--use-metadata-builder', help='Sets up a metadata-builder.py script '
+     'instead of a metadata.yaml config file. Useful for more complicated '
+     'studies')
+def skeleton(dirname, use_metadata_builder=False):
+    """
+    Populate <dirname> with template files that can be customized on
+    a per-study basis.
+    """
+    if os.path.exists(dirname):
+        raise ValueError("Directory {0} exists. Aborting!".format(dirname))
+
+    os.makedirs(dirname)
+    if use_metadata_builder:
+        with open(os.path.join(dirname, 'metadata-builder.py'), 'w') as fout:
+            fout.write(
+                hubward.utils.get_resource('metadata_builder_template.py'))
+    else:
+        metadata_schema = hubward.utils.get_resource(
+            'metadata_schema.yaml', as_tempfile=True)
+        with open(os.path.join(dirname, 'metadata.yaml'), 'w') as fout:
+            hubward.generate_config_from_schema.create_config(
+                metadata_schema, fout)
+
+    group_schema = hubward.utils.get_resource(
+        'group_schema.yaml', as_tempfile=True)
+    with open(os.path.join(dirname, 'example-group.yaml'), 'w') as fout:
+        hubward.generate_config_from_schema.create_config(
+            group_schema, fout)
+
+    with open(os.path.join(dirname, 'README.rst'), 'w') as fout:
+        fout.write('Description of study and necessary processing steps\n')
+
+
 argh.add_commands(parser, [study, group], namespace='process')
-argh.add_commands(parser, [upload])
-argh.add_commands(parser, [liftover])
+argh.add_commands(parser, [upload, liftover, skeleton])
 
 if __name__ == "__main__":
     argh.dispatch(parser)
