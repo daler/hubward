@@ -1,7 +1,0 @@
-package:
-    name: bedtobigbed
-    version: "0.0"
-
-source:
-    fn: bedToBigBed
-    url: http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/bedToBigBed
