@@ -39,12 +39,29 @@ def is_newer(x, y):
     return os.stat(x).st_mtime > os.stat(y).st_mtime
 
 
-def get_resource(fn):
+def get_resource(fn, as_tempfile=False):
+    """
+    Retrieve an installed resource.
+
+    If an installed resource can't be found, then assume we're working out of
+    the source directory in which case we can find the file in the ../resources
+    dir.
+
+    By default, returns a string. If as_tempfile=True, then write the string to
+    a tempfile and return that new filename. The caller is responsible for
+    deleting the tempfile.
+    """
     try:
-        return pkg_resources.resource_string('hubward', fn)
+        s = pkg_resources.resource_string('hubward', fn)
     except IOError:
-        return open(os.path.join(
+        s = open(os.path.join(
             os.path.dirname(__file__), '..', 'resources', fn)).read()
+    if not as_tempfile:
+        return s
+    tmp = tempfile.NamedTemporaryFile(delete=False).name
+    with open(tmp, 'w') as fout:
+        fout.write(s)
+    return tmp
 
 
 def reST_to_html(s):
