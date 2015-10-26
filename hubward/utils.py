@@ -7,6 +7,7 @@ import conda_build.utils
 from docutils.core import publish_string
 import bleach
 from conda.fetch import download
+import pybedtools
 import string
 
 
@@ -231,6 +232,7 @@ def colored_bigbed(x, color, genome, target, autosql=None, bedtype=None):
     assumes that you have scores in BedTool x; this will zero all scores in the
     final bigbed
     """
+    from pybedtools.featurefuncs import add_color
     norm = x.colormap_normalize()
     if color == 'smart':
         cmap = smart_colormap(norm.vmin, norm.vmax)
@@ -263,6 +265,8 @@ def singlecolormap(color, func=None, n=64):
         def func(x):
             return '0.9'
 
+    import numpy as np
+    import matplotlib
     rgb = np.array(matplotlib.colors.colorConverter.to_rgb(color))
     return matplotlib.colors.LinearSegmentedColormap.from_list(
         name='colormap',
@@ -320,6 +324,8 @@ def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512,
 
     Assumes that a recent version of bedToBigBed from UCSC is on the path.
     """
+    if isinstance(filename, pybedtools.BedTool):
+        filename = filename.fn
     x = pybedtools.BedTool(filename)
     chromsizes_file = chromsizes(genome)
     if bedtype is None:
