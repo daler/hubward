@@ -61,10 +61,6 @@ properties:
                     Path on `host` to rsync the track hub `hub.txt` file. This
                     file is expected to be served and accessible via the
                     `hub_url` configured above.
-        required:
-            - host
-            - user
-            - hub_remote
 
     studies:
         type: array
@@ -75,5 +71,3 @@ properties:
 
 required:
     - name
-    - hub_url
-    - server

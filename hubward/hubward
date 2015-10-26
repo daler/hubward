@@ -60,7 +60,15 @@ def process(items):
 
 @arg('filename', help='Group config file')
 @arg('--hub-only', help='Just update the hub text files, not data files')
-def upload(filename, hub_only=False):
+@arg('--host', help='Host to upload to. Overrides [server][host] in the group '
+     ' config file.')
+@arg('--user', help='User for host. Overrides [server][user] in the group '
+     'config file.')
+@arg('--hub_remote', help='Remote filename for the top-level hub file. '
+     'Overrides [server][hub_remote] in the config file.')
+@arg('--rsync_options', help='Options for rsync. Default is "%(default)s"')
+def upload(filename, hub_only=False, rsync_options='-avrL --progress',
+           host=None, user=None, hub_remote=None):
     """
     Creates a track hub and uploads to configured host.
 
@@ -73,7 +81,14 @@ def upload(filename, hub_only=False):
     to their respective configured locations on the remote host.
     """
     _group = hubward.models.Group(filename)
-    _group.upload(hub_only=hub_only)
+
+    _group.upload(
+        hub_only=hub_only,
+        host=host,
+        user=user,
+        hub_remote=hub_remote,
+        rsync_options=rsync_options,
+    )
 
 
 @arg('dirname', help='Single study to liftover')
@@ -105,7 +120,7 @@ def liftover(dirname, newdir, from_assembly=None, to_assembly=None):
 
     # First process everything into a temporary directory
     tmpdir = tempfile.mkdtemp()
-    for d in _study.data:
+    for d in _study.tracks:
         infile = d.processed
         outfile = d.processed.replace(dirname, newdir)
         d.liftover(from_assembly, to_assembly, outfile)

@@ -405,7 +405,6 @@ class Group(object):
             email=self.group['email'],
         )
         hub.url = self.group['hub_url']
-        hub.remote_fn = self.group['server']['hub_remote']
 
         # Process each study, and have it generate its own composite track to
         # be added to the trackdb.
@@ -421,13 +420,35 @@ class Group(object):
         self.genome_ = genome_
         self.trackdb = trackdb
 
-    def upload(self, hub_only=False):
+    def upload(self, hub_only=False, host=None, user=None, rsync_options=None, hub_remote=None):
         self.process()
-        kwargs = dict(
-            host=self.group['server']['host'],
-            user=self.group['server']['user'],
-            rsync_options='-avrL --progress'
-        )
+
+
+        if 'server' not in self.group:
+            kwargs = dict(host=None, user=None, rsync_options=None)
+        else:
+            kwargs = dict(
+                host=self.group['server'].get('host', None),
+                user=self.group['server'].get('user', None),
+                rsync_options=self.group['server'].get('rsync_options', None),
+            )
+
+        if not hub_remote:
+            try:
+                hub_remote = self.group['server']['hub_remote']
+            except KeyError:
+                raise KeyError("No hub_remote specified")
+
+        self.hub.remote_fn = hub_remote
+
+        # Update kwargs from config with passed in args.
+        if host:
+            kwargs['host'] = host
+        if user:
+            kwargs['user'] = user
+        if rsync_options:
+            kwargs['rsync_options'] = rsync_options
+
         upload_hub(hub=self.hub, **kwargs)
         if not hub_only:
             for track, level in self.hub.leaves(Track):
