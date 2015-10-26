@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# - Ensures the latest docker container is built
-# - Runs the docker container, exporting the current directory into the
-#   /opt/hubward dir in the container
-# - Runs docker-test.sh inside the container
-
 set -e
-docker build -t daler/hubward-test .
+if [ ! -z $TRAVIS ]; then
+    docker build -t daler/hubward-test .
+fi
 docker run -it -v $(pwd):/opt/hubward daler/hubward-test /bin/bash docker-test.sh
