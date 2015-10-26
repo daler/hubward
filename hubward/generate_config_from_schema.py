@@ -183,17 +183,9 @@ def create_config(schema, fout=None):
         props.out.write(
             '{indent}{k}{colon}{prefix}{default}\n'.format(**locals()))
 
-        # Recursively call this function for everything in properties
-        if 'properties' in v:
-            for k, v in v['properties'].items():
-                props.level += 1
-                path.append(k)
-                props(path, v)
-                props.level -= 1
-                path.pop()
 
         # Follow references if needed for an array
-        if v['type'] == 'array':
+        if 'type' in v and v['type'] == 'array':
             if 'default' not in v:
                 props.level += 1
                 props.out.write('%s-' % ('  ' * props.level))
@@ -207,6 +199,14 @@ def create_config(schema, fout=None):
                           print_key=False)
                     props.level -= 1
 
+        # Recursively call this function for everything in properties
+        if 'properties' in v:
+            for k, v in v['properties'].items():
+                props.level += 1
+                path.append(k)
+                props(path, v)
+                props.level -= 1
+                path.pop()
         return
 
     # Set the default level and then recursively call props to generate the
