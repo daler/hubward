@@ -1,6 +1,9 @@
 ``hubward``
 ===========
 
+.. image:: https://travis-ci.org/daler/hubward.svg
+    :target: https://travis-ci.org/daler/hubward
+
 A common question when reading an interesting paper is, "how does relate to my
 favorite gene locus?". To address this question, usually we need to download
 the supplemental data, figure out what format it's in, convert it to some other
