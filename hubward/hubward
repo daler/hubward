@@ -144,6 +144,15 @@ def skeleton(dirname, use_metadata_builder=False):
     """
     Populate <dirname> with template files that can be customized on
     a per-study basis.
+
+    The skeleton is actually a working example:
+
+        hubward skeleton <dirname>
+        hubward process <dirname>
+        hubward upload <dirname>/example-group.yaml \\
+                --host <host> --user <user> \\
+                --hub_remote <remotepath>
+
     """
     if os.path.exists(dirname):
         raise ValueError("Directory {0} exists. Aborting!".format(dirname))

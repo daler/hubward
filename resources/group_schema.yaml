@@ -12,23 +12,27 @@ properties:
         type: string
         description: |
             Group name. Will appear as a new section (blue bars) in the genome browser.
+        default: hubward-example-hub
 
     genome:
         type: string
         description: |
             Genome assembly
+        default: hg19
 
     short_label:
         type: string
         description: |
             Short label for this group. This text will be found in the blue
             section headers in the UCSC Genome Browser.
+        default: Hubward example hub
 
     long_label:
         type: string
         description: |
             Long label for hub. This will be seen in the Description column
             when adding a track hub.
+        default: Example hub for demonstrating hubward
 
     hub_url:
         type: string
@@ -36,11 +40,13 @@ properties:
             Upon being uploaded to the server, this is the URL by which the hub
             can be accessed. It is the URL to be pasted into the text box when
             adding a new track hub in the UCSC Genome Browser.
+        default: hub_dir/example.hub.txt
     email:
         type: string
         description: |
             UCSC requests that email is included on track hubs so they can
             track usage.
+        default: "none@example.com"
 
     server:
         type: object
@@ -57,11 +63,15 @@ properties:
                 type: string
                 description: |
                     Host name where tracks will be rsynced. Override at command line with `--host <HOST>`.
+                default: "localhost"
 
             user:
                 type: string
                 description: |
-                    User on `host`. Override on command line with `--user <USERNAME>`
+                    User on `host`. Override on command line with `--user
+                    <USERNAME>`. Can use "$USER" to expand to the current
+                    username.
+                default: "$USER"
 
             hub_remote:
                 type: string
@@ -70,6 +80,7 @@ properties:
                     file is expected to be served and accessible via the
                     `hub_url` configured above. Override at command line with
                     `--hub_remote <FILENAME>`.
+                default: hub_dir/example.txt
 
     studies:
         type: array
