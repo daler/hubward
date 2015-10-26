@@ -10,10 +10,9 @@
 
 :track:
     Data that can be represented as a single track in the UCSC Genome Browser.
-    Examples include called peaks (for a single antibody in a single
-    condition); read pileup from a single RNA-seq sample; CNV scores for one
-    sample; or anything that can be converted into bigBed, bigWig, BAM, or VCF
-    format.
+    Examples include a file of called peaks; read pileup from a single RNA-seq
+    sample; CNV scores for one sample; or anything that can be converted into
+    bigBed, bigWig, BAM, or VCF format.
 
 :study:
     A collection of tracks, typically all from the same published article.
@@ -44,12 +43,12 @@ added to the study's configuration page in the UCSC Genome Browser.
       label: encode-enhancers
       processing: "Downloaded data were converted to bigBed format"
 
-The `data` section is a list, with one item for each track to be included in
-the hub. Here is one such item in the `data` list:
+The `tracks` section is a list, with one item for each track to be included in
+the hub. Here is one such item in the `tracks` list:
 
 .. code-block:: yaml
 
-    data:
+    tracks:
       -
         label: "enhancers [K562]"
         description: "K562 enhancers"
@@ -71,12 +70,12 @@ The config file format and fields are described in detail later in the
 documentation. In summary, this block defines the source data, an output file
 to create, and a conversion script to create a bigBed file with features
 colored red, for enhancers in K562 cells from the ENCODE project.  A logical
-extension of this would be to include additional items for other cell lines in
+extension of this would be to include additional tracks for other cell lines in
 this data set.
 
 To process the data for a study, use::
 
-    hubward process study <directory>
+    hubward process <directory>
 
 where `directory` contains the `metadata.yaml` file. For each defined track, this will:
 
@@ -115,7 +114,7 @@ For example, if the path to the above `metadata.yaml` file is
 
 To process all studies in a group, run::
 
-    hubward process group <group YAML file>
+    hubward process <group YAML file>
 
 This processes all configured studies to ensure their output is up-to-date.
 
@@ -133,7 +132,7 @@ To visualize a new dataset, the workflow is the following:
 1. Write a `metadata.yaml` file and the corresponding scripts to perform
    conversion.
 2. Write a `group config` file file that groups together individual studies.
-3. Run `hubward process group <group config>`. This parses the group config file, and
+3. Run `hubward process <group config>`. This parses the group config file, and
    for each defined study, parses its `metadata.yaml` file, downloads data if
    needed, runs conversion scripts if necessary.
 4. Run `hubward upload <group config>`. This builds the track hub config
