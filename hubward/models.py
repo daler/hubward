@@ -419,41 +419,30 @@ class Group(object):
             composite = study.composite_track()
             trackdb.add_tracks(composite)
 
-        hub.render()
 
         self.hub = hub
         self.genomes_file = genomes_file
         self.genome_ = genome_
         self.trackdb = trackdb
 
-    def upload(self, hub_only=False, host=None, user=None, rsync_options=None, hub_remote=None):
+    def upload(self, hub_only=False, host=None, user=None, rsync_options=None,
+               hub_remote=None):
         self.process()
 
-
-        if 'server' not in self.group:
-            kwargs = dict(host=None, user=None, rsync_options=None)
-        else:
-            kwargs = dict(
-                host=self.group['server'].get('host', None),
-                user=self.group['server'].get('user', None),
-                rsync_options=self.group['server'].get('rsync_options', None),
-            )
-
-        if not hub_remote:
-            try:
-                hub_remote = self.group['server']['hub_remote']
-            except KeyError:
-                raise KeyError("No hub_remote specified")
+        if 'server' in self.group:
+            host = host or self.group['server'].get('host')
+            user = user or self.group['server'].get('user')
+            rsync_options = rsync_options or self.group['server'].get('rsync_options')
+            hub_remote = hub_remote or self.group['server'].get('hub_remote')
 
         self.hub.remote_fn = hub_remote
+        self.hub.remote_dir = os.path.dirname(hub_remote)
 
-        # Update kwargs from config with passed in args.
-        if host:
-            kwargs['host'] = host
-        if user:
-            kwargs['user'] = user
-        if rsync_options:
-            kwargs['rsync_options'] = rsync_options
+        self.hub.render()
+
+        if user == '$USER':
+            user = os.environ.get('USER')
+        kwargs = dict(host=host, user=user, rsync_options=rsync_options)
 
         upload_hub(hub=self.hub, **kwargs)
         if not hub_only:
