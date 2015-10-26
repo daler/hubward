@@ -38,6 +38,7 @@ setup(
                 'resources/group_schema.yaml',
                 'resources/process_template.py',
                 'resources/process_template.sh',
+                'resources/dat2bigbed.sh',
             ]
         ),
     ],
