@@ -268,8 +268,14 @@ class Study(object):
             shutil.copy(metadata, backup)
             log("Existing {0} backed up to {1}"
                 .format(metadata, backup))
-        cmds = ['cd', dirname, '&&', './metadata-builder.py']
-        retval = subprocess.check_call(cmds)
+
+        if not (stat.S_IXUSR & os.stat(builder)[stat.ST_MODE]):
+            raise ValueError(
+                Fore.RED +
+                "{0} not executable".format(builder) +
+                Fore.RESET)
+        cmds = ['./metadata-builder.py']
+        retval = subprocess.check_call(cmds, cwd=self.dirname)
 
         if not os.path.exists(metadata):
             raise ValueError("Expected {0} but was not created by {1}"
