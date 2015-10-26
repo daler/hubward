@@ -147,11 +147,14 @@ def skeleton(dirname, use_metadata_builder=False):
     if os.path.exists(dirname):
         raise ValueError("Directory {0} exists. Aborting!".format(dirname))
 
-    os.makedirs(dirname)
+    os.makedirs(os.path.join(dirname, 'src'))
+
     if use_metadata_builder:
         with open(os.path.join(dirname, 'metadata-builder.py'), 'w') as fout:
             fout.write(
                 hubward.utils.get_resource('metadata_builder_template.py'))
+        hubward.utils.make_executable(fout.name)
+
     else:
         metadata_schema = hubward.utils.get_resource(
             'metadata_schema.yaml', as_tempfile=True)
@@ -167,6 +170,11 @@ def skeleton(dirname, use_metadata_builder=False):
 
     with open(os.path.join(dirname, 'README.rst'), 'w') as fout:
         fout.write('Description of study and necessary processing steps\n')
+
+    with open(os.path.join(dirname, 'src', 'dat2bigbed.sh'), 'w') as fout:
+        fout.write(
+            hubward.utils.get_resource('dat2bigbed.sh'))
+    hubward.utils.make_executable(fout.name)
 
 
 parser = argparse.ArgumentParser(description=description)
