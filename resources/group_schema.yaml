@@ -2,6 +2,11 @@ $schema: "http://json-schema.org/draft-04/schema#"
 type: object
 description: |
     Group together [possibly many] studies.
+
+definitions:
+    study:
+        type: string
+        default: "."
 properties:
     name:
         type: string
@@ -42,32 +47,35 @@ properties:
         description: |
             Configuration for uploading tracks and track hub to a server over
             rsync, called as `rsync <locally-prepared track hub>
-            <user>@<host>:<hub_remote>`
+            <user>@<host>:<hub_remote>`. If deleted, empty, or set to empty
+            strings, then you'll need to provide these details on the command
+            line when calling `hubward upload`. Those command line arguments
+            also override the corresponding option configured here.
         properties:
 
             host:
                 type: string
                 description: |
-                    Host name where tracks will be rsynced
+                    Host name where tracks will be rsynced. Override at command line with `--host <HOST>`.
 
             user:
                 type: string
                 description: |
-                    User on `host`
+                    User on `host`. Override on command line with `--user <USERNAME>`
 
             hub_remote:
                 type: string
                 description: |
                     Path on `host` to rsync the track hub `hub.txt` file. This
                     file is expected to be served and accessible via the
-                    `hub_url` configured above.
+                    `hub_url` configured above. Override at command line with
+                    `--hub_remote <FILENAME>`.
 
     studies:
         type: array
+        description: List of studies to include, as composite tracks, in this hub.
         items:
-            type: string
-            description: |
-                Path to a study, relative to this config file's directory.
+            $ref: "#/definitions/study"
 
 required:
     - name
