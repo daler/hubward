@@ -21,7 +21,7 @@ cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
 # Finally run the example
 git clone https://github.com/daler/hubward-studies.git
-cd hubward-studies
+cd hubward-studies/test
 hubward process yip-2012
 hubward process lieberman-2009
 
@@ -38,8 +38,6 @@ short_label: "Hubward example"
 long_label: "Hubward example tracks"
 hub_url: "http://example.com/hubs/example.hub.txt"
 email: "dalerr@niddk.nih.gov"
-
-
 
 studies:
     - "yip-2012"
