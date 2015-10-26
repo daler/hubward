@@ -14,49 +14,48 @@ Command-line interface for hubward.
 """
 
 
-@arg('dirname', help='Directory (or directories), each of which is '
-     'expected to contain a metadata.yaml file or a '
-     'metadata-builder.yaml file',
+@arg('items', help='Path to directory containing metadata.yaml file or '
+     'metadata-builder.yaml file, or path to a group config YAML file. Can '
+     'specify multiple.',
      nargs="+")
-def study(dirname):
+def process(items):
     """
     Process one or many studies.
 
-    Each study's directory is expected to contain either:
+    *items* can be one or more directories or files to process. They are
+    handled as follows:
 
-        a file called metadata.yaml (in which case that file is used as-is)
+    - If an item to process is a *directory* then it is expected to contain
+      either:
+
+        - a file called metadata.yaml (in which case that file is used as-is)
 
             or
 
-        a file called metadata-builder.py (in which case it is executed and is
-        expected to create a metadata.yaml file).
+        - a file called metadata-builder.py (in which case it is executed and
+          is expected to create a metadata.yaml file).
 
-    Each output file in the metadata.yaml file is considered up-to-date if it
-    are newer than both the input file and the script that creates it.
-    Otherwise, the script is run to update the output file.
+        Each output file in the metadata.yaml file is considered up-to-date if it
+        are newer than both the input file and the script that creates it. If
+        it's up-to-date then nothing is done.  Otherwise, the script is run to
+        update the output file.
+
+    - If an item to process is a *file* then it is assumed to be a group
+      configuration YAML-format file. All directories listed in that file's
+      `studies` section will be processed.
 
     For creating a new study, see `hubward skeleton` which creates template
     files that can be filled in.
     """
-    if isinstance(dirname, str):
-        dirnames = [dirname]
-    else:
-        dirnames = dirname
-    for dirname in dirnames:
-        _study = hubward.models.Study(dirname)
-        _study.process()
-
-
-@arg('filename', help='Group config file')
-def group(filename):
-    """
-    Process a group of studies configured in a group config file.
-
-    This essentially calls `hubward process study <study name>` for each study
-    in the group.
-    """
-    _group = hubward.models.Group(filename)
-    _group.process()
+    if isinstance(items, str):
+        items = [items]
+    for item in items:
+        if os.path.isdir(item):
+            _study = hubward.models.Study(item)
+            _study.process()
+        elif os.path.isfile(item):
+            _group = hubward.models.Group(filename)
+            _group.process()
 
 
 @arg('filename', help='Group config file')
@@ -156,8 +155,7 @@ def skeleton(dirname, use_metadata_builder=False):
 
 
 parser = argparse.ArgumentParser(description=description)
-argh.add_commands(parser, [study, group], namespace='process')
-argh.add_commands(parser, [upload, liftover, skeleton])
+argh.add_commands(parser, [process, upload, liftover, skeleton])
 
 if __name__ == "__main__":
     argh.dispatch(parser)

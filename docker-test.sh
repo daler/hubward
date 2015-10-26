@@ -20,6 +20,6 @@ cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 # Finally run the example
 git clone https://github.com/daler/hubward-studies.git
 cd hubward-studies
-hubward process study yip-2012
-hubward process study lieberman-2009
+hubward process yip-2012
+hubward process lieberman-2009
 
