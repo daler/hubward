@@ -18,7 +18,6 @@ ssh-keyscan -H localhost >> /root/.ssh/known_hosts
 cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
 
-
 # Finally run the example
 git clone https://github.com/daler/hubward-studies.git
 cd hubward-studies/test
@@ -44,6 +43,15 @@ studies:
     - "lieberman-2009-hg19"
 EOF
 
-
 hubward upload --host localhost --user root --hub_remote $(pwd)/uploaded_hub group.yaml
 rm group.yaml
+
+# Ensure the skeleton itself works
+hubward skeleton demo1
+hubward process demo1
+rm -r demo1
+
+# Skeleton with metadata-builder
+hubward skeleton --use-metadata-builder demo2
+hubward process demo2
+rm -r demo2
