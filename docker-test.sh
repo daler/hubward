@@ -46,12 +46,16 @@ EOF
 hubward upload --host localhost --user root --hub_remote $(pwd)/uploaded_hub group.yaml
 rm group.yaml
 
+
 # Ensure the skeleton itself works
+cd /tmp
 hubward skeleton demo1
 hubward process demo1
+hubward upload demo1/example-group.yaml --user root
 rm -r demo1
 
 # Skeleton with metadata-builder
 hubward skeleton --use-metadata-builder demo2
 hubward process demo2
+hubward upload demo2/example-group.yaml --user root
 rm -r demo2

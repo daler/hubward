@@ -70,7 +70,7 @@ for fn, description in FILENAMES:
         trackinfo = {
             'tracktype': 'bigwig',
             'visibility': 'full',
-            'viewLimts': '0:5',
+            'viewLimits': '0:5',
         }
 
     processed = os.path.join('processed-data/', fn.replace('dat', kind))
