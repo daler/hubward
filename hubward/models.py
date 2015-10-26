@@ -22,7 +22,7 @@ class Data(object):
         Parameters
         ----------
         obj : dict
-            One entry from the `data` list in the metadata.yaml file
+            One entry from the `tracks` list in the metadata.yaml file
 
         reldir : str
             The directory name of the metadata file. All paths within the
@@ -244,7 +244,7 @@ class Study(object):
         self.study.setdefault('short_label', self.label)
         self.study.setdefault('long_label', self.study['short_label'])
         self.study.setdefault('description', self.study['long_label'])
-        self.data = [Data(d, self.dirname) for d in self.metadata['data']]
+        self.tracks = [Data(d, self.dirname) for d in self.metadata['tracks']]
 
     def __str__(self):
         return yaml.dump(self.metadata)
@@ -278,7 +278,7 @@ class Study(object):
     def process(self, force=False):
         log('Study: {0.study[description]}, in "{0.dirname}"'.format(self),
             style=Fore.BLUE)
-        for d in self.data:
+        for d in self.tracks:
             d.process()
 
     def reference_section(self):
@@ -312,8 +312,8 @@ class Study(object):
         Create a composite track ready to be added to a trackhub.TrackDb
         instance.
         """
-        bigwigs = [i for i in self.data if i.type_ == 'bigwig']
-        bigbeds = [i for i in self.data if i.type_ == 'bigbed']
+        bigwigs = [i for i in self.tracks if i.type_ == 'bigwig']
+        bigbeds = [i for i in self.tracks if i.type_ == 'bigbed']
 
         # Build the HTML docs
         last_section = self.reference_section()

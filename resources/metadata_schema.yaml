@@ -163,7 +163,7 @@ properties:
         required:
             - label
 
-    data:
+    tracks:
         type: array
         description: |
             Each item in this list describes a single track in the composite
@@ -176,7 +176,7 @@ properties:
 
 required:
     - study
-    - data
+    - tracks
 
 
 
