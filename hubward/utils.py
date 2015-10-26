@@ -10,6 +10,12 @@ from conda.fetch import download
 import string
 
 
+def make_executable(filename):
+    mode = os.stat(filename).st_mode
+    mode |= (mode & 292) >> 2
+    os.chmod(filename, mode)
+
+
 def makedirs(dirnames):
     """
     Recursively create the given directory or directories without reporting
