@@ -3,12 +3,90 @@ import pybedtools
 import os
 import pkg_resources
 import tempfile
-import conda_build.utils
 from docutils.core import publish_string
 import bleach
-from conda.fetch import download
+from wget import download
 import pybedtools
 import string
+
+
+# The following license is from conda_build. Code from conda_build is used in
+# the download, tar_xf, and unzip functions.
+#
+# ----------------------------------------------------------------------------
+# Except where noted below, conda is released under the following terms:
+#
+# (c) 2012 Continuum Analytics, Inc. / http://continuum.io
+# All Rights Reserved
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of Continuum Analytics, Inc. nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL CONTINUUM ANALYTICS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#
+# Exceptions
+# ==========
+#
+# versioneer.py is Public Domain
+# ----------------------------------------------------------------------------
+
+
+
+def _tar_xf(tarball, dir_path, mode='r:*'):
+    # From conda_build, see license above.
+    if tarball.lower().endswith('.tar.z'):
+        uncompress = external.find_executable('uncompress')
+        if not uncompress:
+            sys.exit("""\
+uncompress is required to unarchive .z source files.
+""")
+        subprocess.check_call([uncompress, '-f', tarball])
+        tarball = tarball[:-2]
+    if not PY3 and tarball.endswith('.tar.xz'):
+        unxz = external.find_executable('unxz')
+        if not unxz:
+            sys.exit("""\
+unxz is required to unarchive .xz source files.
+""")
+
+        subprocess.check_call([unxz, '-f', '-k', tarball])
+        tarball = tarball[:-3]
+    t = tarfile.open(tarball, mode)
+    t.extractall(path=dir_path)
+    t.close()
+
+
+def _unzip(zip_path, dir_path):
+    # From conda_build, see license above.
+    z = zipfile.ZipFile(zip_path)
+    for name in z.namelist():
+        if name.endswith('/'):
+            continue
+        path = join(dir_path, *name.split('/'))
+        dp = dirname(path)
+        if not isdir(dp):
+            os.makedirs(dp)
+        with open(path, 'wb') as fo:
+            fo.write(z.read(name))
+    z.close()
 
 
 def make_executable(filename):
@@ -33,9 +111,9 @@ def unpack(filename, dest):
     if filename.lower().endswith(
         ('.tar.gz', '.tar.bz2', '.tgz', '.tar.xz', '.tar', 'tar.z')
     ):
-        conda_build.utils.tar_xf(filename, dest)
+        _tar_xf(filename, dest)
     elif filename.lower().endswith('.zip'):
-        conda_build.utils.unzip(filename, dest)
+        _unzip(filename, dest)
 
 
 def link_is_newer(x, y):
@@ -298,7 +376,7 @@ def add_chr(f):
 def chromsizes(assembly):
     url = ("http://hgdownload.cse.ucsc.edu/goldenPath/"
            "{0}/bigZips/{0}.chrom.sizes")
-    dest = tempfile.NamedTemporaryFile(delete=False).name
+    dest = tempfile.NamedTemporaryFile(delete=False).name + '.chromsizes'
     download(url.format(assembly), dest)
     return dest
 
