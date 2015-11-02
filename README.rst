@@ -28,6 +28,7 @@ Documentation can be found at `<https://daler.github.io/hubward>`_.
 
 Overview
 --------
-`This poster`_ gives an overview of `hubward`, and provides a worked example.
+`This poster
+<https://github.com/daler/hubward/raw/master/docs/images/hubward-poster.pdf>`_ gives an overview of `hubward`, and provides a worked example.
 
 Further details can be found in the `full documentation <https://daler.github.io/hubward>`_.
