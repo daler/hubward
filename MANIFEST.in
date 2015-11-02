@@ -3,7 +3,8 @@ include CONTRIBUTING.rst
 include HISTORY.rst
 include LICENSE
 include README.rst
-include hubward/schema.json
+include requirements.txt
+recursive-include resources *
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]

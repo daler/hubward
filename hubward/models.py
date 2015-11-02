@@ -63,6 +63,8 @@ class Data(object):
         log(
             "Downloading '%s' -> '%s'" %
             (self.source_url, self.source_fn), indent=4)
+        if not os.path.exists(os.path.dirname(self.source_fn)):
+            os.makedirs(os.path.dirname(self.source_fn))
         utils.download(self.source_url, self.source_fn)
         utils.unpack(self.source_fn, os.path.dirname(self.source_fn))
 
