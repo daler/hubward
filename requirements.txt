@@ -10,3 +10,4 @@ fabric
 trackhub
 docutils
 wget
+functools32
