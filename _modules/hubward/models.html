@@ -103,6 +103,8 @@
         <span class="n">log</span><span class="p">(</span>
             <span class="s">&quot;Downloading &#39;</span><span class="si">%s</span><span class="s">&#39; -&gt; &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_fn</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_fn</span><span class="p">)):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_fn</span><span class="p">))</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_fn</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_fn</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_fn</span><span class="p">))</span>
 
@@ -308,8 +310,14 @@
             <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">backup</span><span class="p">)</span>
             <span class="n">log</span><span class="p">(</span><span class="s">&quot;Existing {0} backed up to {1}&quot;</span>
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">backup</span><span class="p">))</span>
-        <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;cd&#39;</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="s">&#39;&amp;&amp;&#39;</span><span class="p">,</span> <span class="s">&#39;./metadata-builder.py&#39;</span><span class="p">]</span>
-        <span class="n">retval</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">S_IXUSR</span> <span class="o">&amp;</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">builder</span><span class="p">)[</span><span class="n">stat</span><span class="o">.</span><span class="n">ST_MODE</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span>
+                <span class="s">&quot;{0} not executable&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span> <span class="o">+</span>
+                <span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+        <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;./metadata-builder.py&#39;</span><span class="p">]</span>
+        <span class="n">retval</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">metadata</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Expected {0} but was not created by {1}&quot;</span>
@@ -445,7 +453,6 @@
             <span class="n">email</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="s">&#39;email&#39;</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">hub</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="s">&#39;hub_url&#39;</span><span class="p">]</span>
-        <span class="n">hub</span><span class="o">.</span><span class="n">remote_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="s">&#39;server&#39;</span><span class="p">][</span><span class="s">&#39;hub_remote&#39;</span><span class="p">]</span>
 
         <span class="c"># Process each study, and have it generate its own composite track to</span>
         <span class="c"># be added to the trackdb.</span>
@@ -454,20 +461,31 @@
             <span class="n">composite</span> <span class="o">=</span> <span class="n">study</span><span class="o">.</span><span class="n">composite_track</span><span class="p">()</span>
             <span class="n">trackdb</span><span class="o">.</span><span class="n">add_tracks</span><span class="p">(</span><span class="n">composite</span><span class="p">)</span>
 
-        <span class="n">hub</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">hub</span> <span class="o">=</span> <span class="n">hub</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">genomes_file</span> <span class="o">=</span> <span class="n">genomes_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">genome_</span> <span class="o">=</span> <span class="n">genome_</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trackdb</span> <span class="o">=</span> <span class="n">trackdb</span>
 </div>
-<div class="viewcode-block" id="Group.upload"><a class="viewcode-back" href="../../hubward.html#hubward.models.Group.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hub_only</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Group.upload"><a class="viewcode-back" href="../../hubward.html#hubward.models.Group.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hub_only</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rsync_options</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">hub_remote</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">host</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="s">&#39;server&#39;</span><span class="p">][</span><span class="s">&#39;host&#39;</span><span class="p">],</span>
-            <span class="n">user</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="s">&#39;server&#39;</span><span class="p">][</span><span class="s">&#39;user&#39;</span><span class="p">],</span>
-            <span class="n">rsync_options</span><span class="o">=</span><span class="s">&#39;-avrL --progress&#39;</span>
-        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s">&#39;server&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="n">host</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="s">&#39;server&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;host&#39;</span><span class="p">)</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="s">&#39;server&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;user&#39;</span><span class="p">)</span>
+            <span class="n">rsync_options</span> <span class="o">=</span> <span class="n">rsync_options</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="s">&#39;server&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;rsync_options&#39;</span><span class="p">)</span>
+            <span class="n">hub_remote</span> <span class="o">=</span> <span class="n">hub_remote</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="s">&#39;server&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;hub_remote&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hub</span><span class="o">.</span><span class="n">remote_fn</span> <span class="o">=</span> <span class="n">hub_remote</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hub</span><span class="o">.</span><span class="n">remote_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">hub_remote</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hub</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">user</span> <span class="o">==</span> <span class="s">&#39;$USER&#39;</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;USER&#39;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">rsync_options</span><span class="o">=</span><span class="n">rsync_options</span><span class="p">)</span>
+
         <span class="n">upload_hub</span><span class="p">(</span><span class="n">hub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hub</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">hub_only</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">track</span><span class="p">,</span> <span class="n">level</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hub</span><span class="o">.</span><span class="n">leaves</span><span class="p">(</span><span class="n">Track</span><span class="p">):</span>

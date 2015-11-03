@@ -223,17 +223,9 @@
         <span class="n">props</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
             <span class="s">&#39;{indent}{k}{colon}{prefix}{default}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
 
-        <span class="c"># Recursively call this function for everything in properties</span>
-        <span class="k">if</span> <span class="s">&#39;properties&#39;</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="s">&#39;properties&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">props</span><span class="o">.</span><span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-                <span class="n">props</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-                <span class="n">props</span><span class="o">.</span><span class="n">level</span> <span class="o">-=</span> <span class="mi">1</span>
-                <span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
 
         <span class="c"># Follow references if needed for an array</span>
-        <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;array&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&#39;type&#39;</span> <span class="ow">in</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;array&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="s">&#39;default&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
                 <span class="n">props</span><span class="o">.</span><span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">props</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">-&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&#39;  &#39;</span> <span class="o">*</span> <span class="n">props</span><span class="o">.</span><span class="n">level</span><span class="p">))</span>
@@ -247,6 +239,14 @@
                           <span class="n">print_key</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
                     <span class="n">props</span><span class="o">.</span><span class="n">level</span> <span class="o">-=</span> <span class="mi">1</span>
 
+        <span class="c"># Recursively call this function for everything in properties</span>
+        <span class="k">if</span> <span class="s">&#39;properties&#39;</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="s">&#39;properties&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">props</span><span class="o">.</span><span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                <span class="n">props</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                <span class="n">props</span><span class="o">.</span><span class="n">level</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="k">return</span>
 
     <span class="c"># Set the default level and then recursively call props to generate the</span>

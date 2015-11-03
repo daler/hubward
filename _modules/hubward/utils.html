@@ -43,13 +43,98 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pkg_resources</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">conda_build.utils</span>
 <span class="kn">from</span> <span class="nn">docutils.core</span> <span class="kn">import</span> <span class="n">publish_string</span>
 <span class="kn">import</span> <span class="nn">bleach</span>
-<span class="kn">from</span> <span class="nn">conda.fetch</span> <span class="kn">import</span> <span class="n">download</span>
+<span class="kn">from</span> <span class="nn">wget</span> <span class="kn">import</span> <span class="n">download</span>
+<span class="kn">import</span> <span class="nn">pybedtools</span>
 <span class="kn">import</span> <span class="nn">string</span>
 
 
+<span class="c"># The following license is from conda_build. Code from conda_build is used in</span>
+<span class="c"># the download, tar_xf, and unzip functions.</span>
+<span class="c">#</span>
+<span class="c"># ----------------------------------------------------------------------------</span>
+<span class="c"># Except where noted below, conda is released under the following terms:</span>
+<span class="c">#</span>
+<span class="c"># (c) 2012 Continuum Analytics, Inc. / http://continuum.io</span>
+<span class="c"># All Rights Reserved</span>
+<span class="c">#</span>
+<span class="c"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c">#     * Redistributions of source code must retain the above copyright</span>
+<span class="c">#       notice, this list of conditions and the following disclaimer.</span>
+<span class="c">#     * Redistributions in binary form must reproduce the above copyright</span>
+<span class="c">#       notice, this list of conditions and the following disclaimer in the</span>
+<span class="c">#       documentation and/or other materials provided with the distribution.</span>
+<span class="c">#     * Neither the name of Continuum Analytics, Inc. nor the</span>
+<span class="c">#       names of its contributors may be used to endorse or promote products</span>
+<span class="c">#       derived from this software without specific prior written permission.</span>
+<span class="c">#</span>
+<span class="c"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND</span>
+<span class="c"># ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED</span>
+<span class="c"># WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</span>
+<span class="c"># DISCLAIMED. IN NO EVENT SHALL CONTINUUM ANALYTICS BE LIABLE FOR ANY</span>
+<span class="c"># DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES</span>
+<span class="c"># (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;</span>
+<span class="c"># LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND</span>
+<span class="c"># ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</span>
+<span class="c"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c">#</span>
+<span class="c">#</span>
+<span class="c"># Exceptions</span>
+<span class="c"># ==========</span>
+<span class="c">#</span>
+<span class="c"># versioneer.py is Public Domain</span>
+<span class="c"># ----------------------------------------------------------------------------</span>
+
+
+
+<span class="k">def</span> <span class="nf">_tar_xf</span><span class="p">(</span><span class="n">tarball</span><span class="p">,</span> <span class="n">dir_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;r:*&#39;</span><span class="p">):</span>
+    <span class="c"># From conda_build, see license above.</span>
+    <span class="k">if</span> <span class="n">tarball</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.tar.z&#39;</span><span class="p">):</span>
+        <span class="n">uncompress</span> <span class="o">=</span> <span class="n">external</span><span class="o">.</span><span class="n">find_executable</span><span class="p">(</span><span class="s">&#39;uncompress&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">uncompress</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">uncompress is required to unarchive .z source files.</span>
+<span class="s">&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="n">uncompress</span><span class="p">,</span> <span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="n">tarball</span><span class="p">])</span>
+        <span class="n">tarball</span> <span class="o">=</span> <span class="n">tarball</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PY3</span> <span class="ow">and</span> <span class="n">tarball</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.tar.xz&#39;</span><span class="p">):</span>
+        <span class="n">unxz</span> <span class="o">=</span> <span class="n">external</span><span class="o">.</span><span class="n">find_executable</span><span class="p">(</span><span class="s">&#39;unxz&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">unxz</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">unxz is required to unarchive .xz source files.</span>
+<span class="s">&quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="n">unxz</span><span class="p">,</span> <span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;-k&#39;</span><span class="p">,</span> <span class="n">tarball</span><span class="p">])</span>
+        <span class="n">tarball</span> <span class="o">=</span> <span class="n">tarball</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">tarball</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">dir_path</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_unzip</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="n">dir_path</span><span class="p">):</span>
+    <span class="c"># From conda_build, see license above.</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">z</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="o">*</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">))</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dp</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fo</span><span class="p">:</span>
+            <span class="n">fo</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="make_executable"><a class="viewcode-back" href="../../hubward.html#hubward.utils.make_executable">[docs]</a><span class="k">def</span> <span class="nf">make_executable</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">st_mode</span>
+    <span class="n">mode</span> <span class="o">|=</span> <span class="p">(</span><span class="n">mode</span> <span class="o">&amp;</span> <span class="mi">292</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+</div>
 <div class="viewcode-block" id="makedirs"><a class="viewcode-back" href="../../hubward.html#hubward.utils.makedirs">[docs]</a><span class="k">def</span> <span class="nf">makedirs</span><span class="p">(</span><span class="n">dirnames</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Recursively create the given directory or directories without reporting</span>
@@ -66,9 +151,9 @@
     <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span>
         <span class="p">(</span><span class="s">&#39;.tar.gz&#39;</span><span class="p">,</span> <span class="s">&#39;.tar.bz2&#39;</span><span class="p">,</span> <span class="s">&#39;.tgz&#39;</span><span class="p">,</span> <span class="s">&#39;.tar.xz&#39;</span><span class="p">,</span> <span class="s">&#39;.tar&#39;</span><span class="p">,</span> <span class="s">&#39;tar.z&#39;</span><span class="p">)</span>
     <span class="p">):</span>
-        <span class="n">conda_build</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">tar_xf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="n">_tar_xf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.zip&#39;</span><span class="p">):</span>
-        <span class="n">conda_build</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">unzip</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="n">_unzip</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="link_is_newer"><a class="viewcode-back" href="../../hubward.html#hubward.utils.link_is_newer">[docs]</a><span class="k">def</span> <span class="nf">link_is_newer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -265,6 +350,7 @@
 <span class="sd">    assumes that you have scores in BedTool x; this will zero all scores in the</span>
 <span class="sd">    final bigbed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pybedtools.featurefuncs</span> <span class="kn">import</span> <span class="n">add_color</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">colormap_normalize</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s">&#39;smart&#39;</span><span class="p">:</span>
         <span class="n">cmap</span> <span class="o">=</span> <span class="n">smart_colormap</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">vmin</span><span class="p">,</span> <span class="n">norm</span><span class="o">.</span><span class="n">vmax</span><span class="p">)</span>
@@ -297,6 +383,8 @@
         <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="s">&#39;0.9&#39;</span>
 
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+    <span class="kn">import</span> <span class="nn">matplotlib</span>
     <span class="n">rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">colorConverter</span><span class="o">.</span><span class="n">to_rgb</span><span class="p">(</span><span class="n">color</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s">&#39;colormap&#39;</span><span class="p">,</span>
@@ -328,7 +416,7 @@
 <div class="viewcode-block" id="chromsizes"><a class="viewcode-back" href="../../hubward.html#hubward.utils.chromsizes">[docs]</a><span class="k">def</span> <span class="nf">chromsizes</span><span class="p">(</span><span class="n">assembly</span><span class="p">):</span>
     <span class="n">url</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;http://hgdownload.cse.ucsc.edu/goldenPath/&quot;</span>
            <span class="s">&quot;{0}/bigZips/{0}.chrom.sizes&quot;</span><span class="p">)</span>
-    <span class="n">dest</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">dest</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.chromsizes&#39;</span>
     <span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assembly</span><span class="p">),</span> <span class="n">dest</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dest</span>
 
@@ -354,6 +442,8 @@
 
 <span class="sd">    Assumes that a recent version of bedToBigBed from UCSC is on the path.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">fn</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     <span class="n">chromsizes_file</span> <span class="o">=</span> <span class="n">chromsizes</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bedtype</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
