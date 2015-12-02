@@ -71,7 +71,7 @@ class Data(object):
         if self._needs_download():
             raise ValueError(
                 "Downloading and unpacking '%s' did not result in '%s'"
-                % (self.source_url, self.source.fn))
+                % (self.source_url, self.source_fn))
 
     def _needs_update(self):
         """
