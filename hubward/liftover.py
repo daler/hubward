@@ -55,12 +55,18 @@ def _liftover_bigbed(source_assembly, target_assembly, infile, outfile):
         outfile + '.bed']
     p = subprocess.check_call(cmds)
 
+    unmapped = pybedtools.BedTool._tmp()
+
+    # There seems to be a bug in crossmap where a BED9 file's thickStart and
+    # thickEnd are not lifted over. So use UCSC's liftover directly. Might as
+    # well, since it was designed for BED files anyway.
     cmds = [
-        'CrossMap.py',
-        'bed',
-        chainfile,
+        'liftOver',
         outfile + '.bed',
-        outfile + '.converted']
+        chainfile,
+        outfile + '.converted',
+        unmapped,
+    ]
     p = subprocess.check_call(cmds)
 
     tmp = pybedtools.BedTool(outfile + '.converted').sort()
