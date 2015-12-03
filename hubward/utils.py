@@ -5,7 +5,6 @@ import pkg_resources
 import tempfile
 from docutils.core import publish_string
 import bleach
-from wget import download
 import pycurl
 import pybedtools
 import string
