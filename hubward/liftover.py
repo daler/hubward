@@ -7,6 +7,7 @@ import subprocess
 import os
 import shutil
 import pybedtools
+from hubward.log import log
 
 
 def download_chainfile(source_assembly, target_assembly):
@@ -21,7 +22,9 @@ def download_chainfile(source_assembly, target_assembly):
     utils.makedirs(cache_dir)
     url = chainfile_url(source_assembly, target_assembly)
     dest = os.path.join(cache_dir, os.path.basename(url))
-    utils.download(url, dest)
+    if not os.path.exists(dest):
+        log('Downloading {0} to {1}'.format(url, dest))
+        utils.download(url, dest)
     return dest
 
 
