@@ -6,6 +6,7 @@ import tempfile
 from docutils.core import publish_string
 import bleach
 from wget import download
+import pycurl
 import pybedtools
 import string
 
@@ -48,6 +49,13 @@ import string
 # versioneer.py is Public Domain
 # ----------------------------------------------------------------------------
 
+def download(url, outfile):
+    with open(outfile, 'wb') as f:
+        c = pycurl.Curl()
+        c.setopt(c.URL, url)
+        c.setopt(c.WRITEDATA, f)
+        c.perform()
+        c.close()
 
 
 def _tar_xf(tarball, dir_path, mode='r:*'):
