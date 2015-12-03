@@ -129,7 +129,6 @@ properties:
                 default: hubward example
 
             short_label:
-                type: string
                 description: |
                     Optional short label for this study. It will be shown in
                     blue link text in the browser. If not provided, the value
@@ -137,7 +136,6 @@ properties:
                 default: Hubward example hub
 
             long_label:
-                type: string
                 description: |
                     Long-form label for this study. This is shown as a title on
                     the study's configuration page. If not provided, the value
@@ -145,7 +143,6 @@ properties:
                 default: Example track hub for demonstrating hubward
 
             reference:
-                type: string
                 description: |
                     Optional reference to study, often copied from reference
                     manager.  This will be included in the HTML documentation
@@ -153,14 +150,15 @@ properties:
                 default: See https://github.com/daler/hubward
 
             PMID:
-                type: string
+                type:
+                  - string
+                  - number
                 description: |
                     Optional PubMed ID, e.g. "0001110" or "PMID:001110". If it
                     is present, HTML documentation will create a link to this
                     PubMed entry.
 
             description:
-                type: string
                 description: |
                     Description of the study to be included in the HTML
                     documentation. This is assumed to be in ReStructured Text
