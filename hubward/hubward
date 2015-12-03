@@ -15,6 +15,7 @@ description = """
 Command-line interface for hubward.
 """
 
+
 @arg('items', help='Path to directory containing metadata.yaml file or '
      'metadata-builder.yaml file, or path to a group config YAML file. Can '
      'specify multiple.',
@@ -122,6 +123,12 @@ def liftover(dirname, newdir, from_assembly=None, to_assembly=None):
     # First process everything into a temporary directory
     tmpdir = tempfile.mkdtemp()
     for d in _study.tracks:
+        if d.genome != from_assembly:
+            hubward.log(
+                'Skipping {0} because its configured genome is {1}'
+                .format(d.short_label, d.genome)
+            )
+            continue
         infile = d.processed
         outfile = d.processed.replace(dirname, newdir)
         d.liftover(from_assembly, to_assembly, outfile)
