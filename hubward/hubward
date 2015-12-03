@@ -150,6 +150,10 @@ def liftover(dirname, newdir, from_assembly=None, to_assembly=None):
         .format(from_assembly, to_assembly)
     )
     with open(os.path.join(newdir, 'metadata.yaml'), 'w') as fout:
+        fout.write(
+            '# This config file was created when lifting over {0} from {1} '
+            'to {2}.\n\n'.format(dirname, from_assembly, to_assembly)
+        )
         hubward.log('Writing new metadata to {0}'.format(fout.name))
         yaml.dump(_study.metadata, fout)
 
