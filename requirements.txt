@@ -9,5 +9,5 @@ numpy
 fabric
 trackhub
 docutils
-wget
+pycurl
 functools32
