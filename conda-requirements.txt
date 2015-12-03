@@ -1,0 +1,8 @@
+ucsc-bedtobigbed
+ucsc-bedgraphtobigwig
+ucsc-wigtobigwig
+ucsc-bigbedtobed
+ucsc-fetchchromsizes
+bedtools
+crossmap
+
