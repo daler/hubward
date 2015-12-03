@@ -284,7 +284,7 @@ class Study(object):
                              .format(metadata, builder))
 
     def process(self, force=False):
-        log('Study: {0.study[description]}, in "{0.dirname}"'.format(self),
+        log('Study: {0.study[label]}, in "{0.dirname}"'.format(self),
             style=Fore.BLUE)
         for d in self.tracks:
             d.process()
