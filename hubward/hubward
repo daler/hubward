@@ -132,6 +132,15 @@ def liftover(dirname, newdir, from_assembly=None, to_assembly=None):
         infile = d.processed
         outfile = d.processed.replace(dirname, newdir)
         d.liftover(from_assembly, to_assembly, outfile)
+        d.obj['genome'] = to_assembly
+        d.obj['source']['fn'] = (
+            'lifted over from {0} to {1}; see {2} for original'
+            .format(from_assembly, to_assembly, dirname)
+        )
+        d.obj['source']['url'] = (
+            'lifted over from {0} to {1}; see {2} for original'
+            .format(from_assembly, to_assembly, dirname)
+        )
 
     with open(os.path.join(newdir, 'metadata.yaml'), 'w') as fout:
         hubward.log('Writing new metadata to {0}'.format(fout.name))
