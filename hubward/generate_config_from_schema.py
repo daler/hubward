@@ -165,7 +165,8 @@ def create_config(schema, fout=None):
             # It's tricky to get arrays to be generated using $ref references;
             # this allows a default to be written into the schema and printed
             # nicely in the generated output.
-            if v['type'] in ['object', 'array']:
+
+            if v.get('type') in ['object', 'array']:
                 default ='\n' + _indent(
                     yaml.safe_dump(default, default_flow_style=False, indent=2, line_break=False),
                     props.level + 2
