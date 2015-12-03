@@ -245,7 +245,7 @@ class Study(object):
 
         self.study.setdefault('short_label', self.label)
         self.study.setdefault('long_label', self.study['short_label'])
-        self.study.setdefault('description', self.study['long_label'])
+        self.study['PMID'] = str(self.study.get('PMID', ''))
         self.tracks = [Data(d, self.dirname) for d in self.metadata['tracks']]
 
     def __str__(self):
