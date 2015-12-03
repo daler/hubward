@@ -431,7 +431,11 @@ def bigbed(filename, genome, output, blockSize=256, itemsPerSlot=512,
         cmds.append('-tab')
     if _as:
         cmds.append('-as=%s' % _as)
-    p = subprocess.check_call(cmds, stderr=subprocess.STDOUT)
+    try:
+        p = subprocess.check_output(cmds, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError:
+        os.system('mv {0} {0}.bak'.format(filename))
+        raise
     return output
 
 
@@ -459,5 +463,5 @@ def bigwig(filename, genome, output, blockSize=256, itemsPerSlot=512,
         chromsizes_file,
         output,
     ]
-    p = subprocess.check_call(cmds, stderr=subprocess.STDOUT)
+    p = subprocess.check_output(cmds, stderr=subprocess.STDOUT)
     return output
