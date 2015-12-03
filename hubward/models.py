@@ -248,6 +248,31 @@ class Study(object):
         self.study['PMID'] = str(self.study.get('PMID', ''))
         self.tracks = [Data(d, self.dirname) for d in self.metadata['tracks']]
 
+        # If description is blank or missing, fill in the contents of the
+        # README.
+        if not self.study.get('description', ''):
+            readme = self._find_readme()
+            if readme:
+                self.study['description'] = open(readme).read()
+
+
+    def _find_readme(self):
+        contents = os.listdir(self.dirname)
+
+        valid_readmes = [
+            'README.rst',
+            'README',
+            'readme.rst',
+            'readme']
+        if 'ORIGINAL-STUDY' in contents:
+            prefix = os.path.join(self.dirname, 'ORIGINAL-STUDY')
+        else:
+            prefix = self.dirname
+
+        for filename in contents:
+            if filename in valid_readmes:
+                return os.path.join(prefix, filename)
+
     def __str__(self):
         return yaml.dump(self.metadata)
 
