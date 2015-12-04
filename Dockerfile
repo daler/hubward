@@ -35,6 +35,9 @@ ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 RUN echo "export PATH=/opt/conda/bin:$PATH" >> /etc/profile
 
+RUN mkdir -p /etc/pki/tls/certs/
+RUN cp /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
+
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
 
