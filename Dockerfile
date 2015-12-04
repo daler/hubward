@@ -20,22 +20,6 @@ RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
     /opt/conda/bin/conda install --yes conda==3.14.1
 ENV PATH /opt/conda/bin:$PATH
 
-RUN conda update conda
-RUN conda install pip
-
-RUN conda install -y -c daler \
-    matplotlib \
-    pybedtools \
-    bedtools \
-    crossmap \
-    ucsc-bedtobigbed \
-    ucsc-bedgraphtobigwig \
-    ucsc-wigtobigwig \
-    ucsc-fetchchromsizes \
-    ucsc-bigbedtobed \
-    trackhub \
-    conda \
-    conda-build
 
 
 RUN git config --global user.email "none@example.com"
@@ -54,7 +38,10 @@ RUN echo "export PATH=/opt/conda/bin:$PATH" >> /etc/profile
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
 
+ADD conda-requirements.txt /tmp/conda-requirements.txt
 ADD requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
+RUN conda update conda
+RUN conda install -y -c bioconda --file /tmp/conda-requirements.txt
+RUN conda install -c bioconda -y --file /tmp/requirements.txt
 
 WORKDIR /opt/hubward

@@ -2,6 +2,7 @@ argh
 colorama
 jsonschema
 PyYAML
+pyaml
 pybedtools
 bleach
 matplotlib
