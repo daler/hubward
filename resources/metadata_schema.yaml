@@ -150,13 +150,11 @@ properties:
                 default: See https://github.com/daler/hubward
 
             PMID:
-                type:
-                  - string
-                  - number
                 description: |
                     Optional PubMed ID, e.g. "0001110" or "PMID:001110". If it
                     is present, HTML documentation will create a link to this
                     PubMed entry.
+                default: ""
 
             description:
                 description: |
