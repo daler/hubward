@@ -6,7 +6,8 @@ set -x
 
 (cd .. && cp -r hubward /tmp/hubward)
 cd /tmp/hubward
-conda install -y -c bioconda --file conda-requirements.txt
+
+conda install -y -c bioconda --file conda-requirements.txt --file requirements.txt
 
 # Install hubward
 python setup.py install
