@@ -3,6 +3,26 @@
 History
 =======
 
+0.2.1 (2015-12-05)
+------------------
+- if the `description` field is empty or missing, fill in the contents of
+  README as documentation.
+- add functools32 to requirements.txt (thanks Titus Brown)
+- fixes to `hubward liftover`:
+    - downloaded chainfiles are cached
+    - skip tracks where assembly of track differs from the requested
+      `--from_assembly`
+    - upon lifting over, add a note to the description of the study's
+      metadata.yaml to reflect this and also as a comment in the YAML file.
+    - workaround for a bug in CrossMap on BED9+ files. The thickStart and
+      thickEnd fields were not being lifted over correctly.
+- use pycurl for downloading for better handling of URL redirects. This
+  happens, for example, when downloading supplemental data from ScienceDirect
+- less verbose bigbed/bigwig conversion
+- allow optional fields in metadata to be blank
+- improvements to testing framework
+
+
 0.2.0 (2015-10-24)
 ------------------
 Streamlining of the code and CLI. This causes some backward
