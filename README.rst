@@ -1,8 +1,12 @@
 ``hubward``
 ===========
 
+
 .. image:: https://travis-ci.org/daler/hubward.svg
     :target: https://travis-ci.org/daler/hubward
+
+.. image:: https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square
+    :target: http://bioconda.github.io
 
 A common question when reading an interesting paper is, "how does relate to my
 favorite gene locus?". To address this question, usually we need to download
