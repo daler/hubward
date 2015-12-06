@@ -105,13 +105,15 @@ def liftover(dirname, newdir, from_assembly=None, to_assembly=None):
     track genome matches <from_assembly> then perform the liftover to
     a temporary directory and then move the result to <newdir> when complete.
 
-    If a track's genome does not match <from_assembly>, then that file is
-    copied as-is to <newdir>.
+    Currently, only studies where all tracks are in the same assembly are
+    supported. If a track is found that is from a different assembly,
+    a ValueError is raised.
 
     The genome field of each track is also edited to reflect the new genome,
     and a symlink called ORIGINAL-STUDY is placed in <newdir>. In the end,
     a complete version of <dirname> is available in <newdir> with appropriate
-    tracks lifted over to the new assembly.
+    tracks lifted over to the new assembly and appropriate metadata edited to
+    reflect the liftover.
 
     Note: this uses CrossMap (http://crossmap.sourceforge.net) which currently
     only runs in Python 2.7.
@@ -124,11 +126,11 @@ def liftover(dirname, newdir, from_assembly=None, to_assembly=None):
     tmpdir = tempfile.mkdtemp()
     for d in _study.tracks:
         if d.genome != from_assembly:
-            hubward.log(
-                'Skipping {0} because its configured genome is {1}'
-                .format(d.short_label, d.genome)
+            raise ValueError(
+                '{0} has a configured genome of {1} but liftover requested '
+                'from {1}.'
+                .format(d.short_label, d.genome, from_assembly)
             )
-            continue
         infile = d.processed
         outfile = d.processed.replace(dirname, newdir)
         d.liftover(from_assembly, to_assembly, outfile)
