@@ -4,10 +4,19 @@
 set -e
 set -x
 
+conda config --add channels r
+conda config --add channels bioconda
+
+git clone https://github.com/daler/hubward-studies.git /tmp/hubward-studies
+conda install -y --file /tmp/hubward-studies/requirements.txt
+
+# make a copy of everything to avoid making changes in the current directory
 (cd .. && cp -r hubward /tmp/hubward)
+
 cd /tmp/hubward
 
-conda install -y -c bioconda --file conda-requirements.txt --file requirements.txt
+# Finally run the example
+conda install -y --file conda-requirements.txt --file requirements.txt
 
 # Install hubward
 python setup.py install
@@ -20,9 +29,7 @@ ssh-keyscan -H localhost >> /root/.ssh/known_hosts
 cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
 
-# Finally run the example
-git clone https://github.com/daler/hubward-studies.git
-cd hubward-studies/test
+cd /tmp/hubward-studies/test
 hubward process yip-2012
 hubward process lieberman-2009
 
