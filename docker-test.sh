@@ -53,6 +53,25 @@ studies:
 EOF
 
 hubward upload --host localhost --user root --hub_remote $(pwd)/uploaded_hub group.yaml
+
+
+# check existence of expected files after "upload"
+for _filename in \
+    lieberman2009.html \
+    lieberman2009Anchor_bin.bigBed \
+    lieberman2009HiC_chr1152000005299999.bigWig \
+    lieberman2009Paired_interactions.bam \
+    lieberman2009Paired_interactions.bam.bai \
+    trackDb.txt \
+    yip2012.html \
+    yip2012K562_DRME.bigBed \
+    yip2012K562_DRMWE.bigBed \
+; do
+    filename="$(pwd)/hg19/$_filename"
+    [[ -f $filename ]] || (echo "$filename not found"; exit 1)
+done
+[[ -f "$(pwd)/uploaded_hub" ]] || (echo "$(pwd)/uploaded_hub not found"; exit 1)
+
 rm group.yaml
 
 
