@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>History &mdash; hubward 0.2.1 documentation</title>
+    <title>History &mdash; hubward 0.2.2 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.1',
+        VERSION:     '0.2.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="hubward 0.2.1 documentation" href="index.html" />
+    <link rel="top" title="hubward 0.2.2 documentation" href="index.html" />
     <link rel="prev" title="Credits" href="authors.html" />
    
   
@@ -40,7 +40,21 @@
   <div class="section" id="history">
 <h1>History<a class="headerlink" href="#history" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>0.2.1 (2015-12-05)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>0.2.2 (2016-01-20)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Support for liftover of BAMs (includes a workaround for Crossmap bug that
+segfaulted on liftovers with a specified output filename in the test
+environment).</li>
+<li>When lifting over between assemblies and the source assembly doesn&#8217;t match
+what is configured for a track, raise a ValueError.</li>
+<li>For lifted-over studies, the <cite>metadata.yaml</cite> config keeps track of the
+liftover history in the new <cite>study/liftover</cite> section</li>
+<li>improved test environment setup</li>
+<li>improved tests (checking for existence of uploaded files)</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>0.2.1 (2015-12-05)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p class="first">if the <cite>description</cite> field is empty or missing, fill in the contents of
 README as documentation.</p>
@@ -72,16 +86,16 @@ happens, for example, when downloading supplemental data from ScienceDirect</p>
 </li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>0.2.0 (2015-10-24)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>0.2.0 (2015-10-24)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <p>Streamlining of the code and CLI. This causes some backward
 incompatibility with <cite>metadata.yaml</cite> config files in version 0.1.0, in
 particular, the &#8220;source&#8221; section is now required. There is now a defined schema
 for the metadata and the grouping files so that future changes can be validated
 and automatically fixed.</p>
 </div>
-<div class="section" id="id3">
-<h2>0.1.0 (2014-01-11)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>0.1.0 (2014-01-11)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>First release on PyPI.</li>
 </ul>
@@ -97,9 +111,10 @@ and automatically fixed.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">History</a><ul>
-<li><a class="reference internal" href="#id1">0.2.1 (2015-12-05)</a></li>
-<li><a class="reference internal" href="#id2">0.2.0 (2015-10-24)</a></li>
-<li><a class="reference internal" href="#id3">0.1.0 (2014-01-11)</a></li>
+<li><a class="reference internal" href="#id1">0.2.2 (2016-01-20)</a></li>
+<li><a class="reference internal" href="#id2">0.2.1 (2015-12-05)</a></li>
+<li><a class="reference internal" href="#id3">0.2.0 (2015-10-24)</a></li>
+<li><a class="reference internal" href="#id4">0.1.0 (2014-01-11)</a></li>
 </ul>
 </li>
 </ul>
