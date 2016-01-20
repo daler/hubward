@@ -3,6 +3,19 @@
 History
 =======
 
+0.2.2 (2016-01-20)
+------------------
+- Support for liftover of BAMs (includes a workaround for Crossmap bug that
+  segfaulted on liftovers with a specified output filename in the test
+  environment).
+- When lifting over between assemblies and the source assembly doesn't match
+  what is configured for a track, raise a ValueError.
+- For lifted-over studies, the `metadata.yaml` config keeps track of the
+  liftover history in the new `study/liftover` section
+- improved test environment setup
+- improved tests (checking for existence of uploaded files)
+
+
 0.2.1 (2015-12-05)
 ------------------
 - if the `description` field is empty or missing, fill in the contents of
