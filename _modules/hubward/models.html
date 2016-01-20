@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>hubward.models &mdash; hubward 0.1.0 documentation</title>
+    <title>hubward.models &mdash; hubward 0.2.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,11 +23,11 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="hubward 0.1.0 documentation" href="../../index.html" />
+    <link rel="top" title="hubward 0.2.1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -111,7 +111,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_download</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s">&quot;Downloading and unpacking &#39;</span><span class="si">%s</span><span class="s">&#39; did not result in &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span>
-                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">fn</span><span class="p">))</span>
+                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_fn</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_needs_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -191,11 +191,13 @@
                 <span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="s">&#39;The following command did not update &#39;</span>
                 <span class="s">&#39;{1}:</span><span class="se">\n\n</span><span class="s">{0}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39; </span><span class="se">\\\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmds</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">processed</span><span class="p">)</span> <span class="o">+</span>
                 <span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span>
-            <span class="p">)</span>
-</div>
-    <span class="k">def</span> <span class="nf">_needs_liftover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_assembly</span><span class="p">,</span> <span class="n">to_assembly</span><span class="p">,</span> <span class="n">newfile</span><span class="p">):</span>
+            <span class="p">)</span></div>
 
-        <span class="c"># Sentinel file encodes</span>
+    <span class="k">def</span> <span class="nf">_needs_liftover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_assembly</span><span class="p">,</span> <span class="n">to_assembly</span><span class="p">,</span> <span class="n">newfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks to see if liftover is needed based on the </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Sentinel file encodes assembly conversion; </span>
         <span class="n">sentinel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_liftover_sentinel</span><span class="p">(</span><span class="n">from_assembly</span><span class="p">,</span> <span class="n">to_assembly</span><span class="p">,</span> <span class="n">newfile</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">sentinel</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">True</span>
@@ -204,6 +206,10 @@
         <span class="k">return</span> <span class="bp">False</span>
 
     <span class="k">def</span> <span class="nf">_liftover_sentinel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_assembly</span><span class="p">,</span> <span class="n">to_assembly</span><span class="p">,</span> <span class="n">newfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the name of a hidden, empty file used to indicate that</span>
+<span class="sd">        a liftover has been performed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">newfile</span><span class="p">),</span>
             <span class="s">&#39;.{0}-to-{1}.&#39;</span> <span class="o">+</span>
@@ -250,6 +256,10 @@
         <span class="n">log</span><span class="p">(</span><span class="s">&quot;Moving {0} to {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">newfile</span><span class="p">))</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">newfile</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;bam&#39;</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">tmp</span> <span class="o">+</span> <span class="s">&#39;.bai&#39;</span><span class="p">,</span> <span class="n">newfile</span> <span class="o">+</span> <span class="s">&#39;.bai&#39;</span><span class="p">)</span>
+
+
         <span class="c"># CrossMap.py seems to `chmod go-rw` on lifted-over file. So we copy</span>
         <span class="c"># permissions from the original one.</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copymode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processed</span><span class="p">,</span> <span class="n">newfile</span><span class="p">)</span>
@@ -257,9 +267,9 @@
         <span class="c"># Write the sentinel file to indicate genome we lifted over to.</span>
         <span class="n">sentinel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_liftover_sentinel</span><span class="p">(</span><span class="n">from_assembly</span><span class="p">,</span> <span class="n">to_assembly</span><span class="p">,</span> <span class="n">newfile</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sentinel</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
-            <span class="k">pass</span>
+            <span class="k">pass</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="Study"><a class="viewcode-back" href="../../hubward.html#hubward.models.Study">[docs]</a><span class="k">class</span> <span class="nc">Study</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -285,8 +295,33 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;short_label&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;long_label&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">study</span><span class="p">[</span><span class="s">&#39;short_label&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">study</span><span class="p">[</span><span class="s">&#39;long_label&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study</span><span class="p">[</span><span class="s">&#39;PMID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PMID&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span> <span class="o">=</span> <span class="p">[</span><span class="n">Data</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s">&#39;tracks&#39;</span><span class="p">]]</span>
+
+        <span class="c"># If description is blank or missing, fill in the contents of the</span>
+        <span class="c"># README.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
+            <span class="n">readme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_readme</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">readme</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">study</span><span class="p">[</span><span class="s">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">readme</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">_find_readme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">)</span>
+
+        <span class="n">valid_readmes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s">&#39;README.rst&#39;</span><span class="p">,</span>
+            <span class="s">&#39;README&#39;</span><span class="p">,</span>
+            <span class="s">&#39;readme.rst&#39;</span><span class="p">,</span>
+            <span class="s">&#39;readme&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&#39;ORIGINAL-STUDY&#39;</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">,</span> <span class="s">&#39;ORIGINAL-STUDY&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dirname</span>
+
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">valid_readmes</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
@@ -324,11 +359,11 @@
                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">builder</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Study.process"><a class="viewcode-back" href="../../hubward.html#hubward.models.Study.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="n">log</span><span class="p">(</span><span class="s">&#39;Study: {0.study[description]}, in &quot;{0.dirname}&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+        <span class="n">log</span><span class="p">(</span><span class="s">&#39;Study: {0.study[label]}, in &quot;{0.dirname}&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
             <span class="n">style</span><span class="o">=</span><span class="n">Fore</span><span class="o">.</span><span class="n">BLUE</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span><span class="p">:</span>
-            <span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-</div>
+            <span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="Study.reference_section"><a class="viewcode-back" href="../../hubward.html#hubward.models.Study.reference_section">[docs]</a>    <span class="k">def</span> <span class="nf">reference_section</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a ReST-formatted reference section to be appended to the end of</span>
@@ -353,8 +388,8 @@
 <span class="sd">            {0}</span>
 
 <span class="sd">            {1}</span>
-<span class="sd">            &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">pmid</span><span class="p">)</span>
-</div>
+<span class="sd">            &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">pmid</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Study.composite_track"><a class="viewcode-back" href="../../hubward.html#hubward.models.Study.composite_track">[docs]</a>    <span class="k">def</span> <span class="nf">composite_track</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a composite track ready to be added to a trackhub.TrackDb</span>
@@ -362,6 +397,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bigwigs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type_</span> <span class="o">==</span> <span class="s">&#39;bigwig&#39;</span><span class="p">]</span>
         <span class="n">bigbeds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type_</span> <span class="o">==</span> <span class="s">&#39;bigbed&#39;</span><span class="p">]</span>
+        <span class="n">bams</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type_</span> <span class="o">==</span> <span class="s">&#39;bam&#39;</span><span class="p">]</span>
+        <span class="n">vcfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type_</span> <span class="o">==</span> <span class="s">&#39;vcf&#39;</span><span class="p">]</span>
 
         <span class="c"># Build the HTML docs</span>
         <span class="n">last_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_section</span><span class="p">()</span>
@@ -425,10 +462,21 @@
             <span class="p">)</span>
             <span class="n">composite</span><span class="o">.</span><span class="n">add_view</span><span class="p">(</span><span class="n">bed_view</span><span class="p">)</span>
             <span class="n">_add_tracks</span><span class="p">(</span><span class="n">bigbeds</span><span class="p">,</span> <span class="n">bed_view</span><span class="p">,</span> <span class="s">&#39;bigBed 9&#39;</span><span class="p">)</span>
+        <span class="c"># and bams</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bams</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">bam_view</span> <span class="o">=</span> <span class="n">ViewTrack</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">sanitized_label</span> <span class="o">+</span> <span class="s">&#39;bamviewtrack&#39;</span><span class="p">,</span>
+                <span class="n">view</span><span class="o">=</span><span class="n">sanitized_label</span> <span class="o">+</span> <span class="s">&#39;bam_view&#39;</span><span class="p">,</span>
+                <span class="n">short_label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">+</span> <span class="s">&#39; bam view&#39;</span><span class="p">,</span>
+                <span class="n">long_label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">+</span> <span class="s">&#39; bam view&#39;</span><span class="p">,</span>
+                <span class="n">visibility</span><span class="o">=</span><span class="s">&#39;dense&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">composite</span><span class="o">.</span><span class="n">add_view</span><span class="p">(</span><span class="n">bam_view</span><span class="p">)</span>
+            <span class="n">_add_tracks</span><span class="p">(</span><span class="n">bams</span><span class="p">,</span> <span class="n">bam_view</span><span class="p">,</span> <span class="s">&#39;bam&#39;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">composite</span>
+        <span class="k">return</span> <span class="n">composite</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="Group"><a class="viewcode-back" href="../../hubward.html#hubward.models.Group">[docs]</a><span class="k">class</span> <span class="nc">Group</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
@@ -465,8 +513,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hub</span> <span class="o">=</span> <span class="n">hub</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">genomes_file</span> <span class="o">=</span> <span class="n">genomes_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">genome_</span> <span class="o">=</span> <span class="n">genome_</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trackdb</span> <span class="o">=</span> <span class="n">trackdb</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trackdb</span> <span class="o">=</span> <span class="n">trackdb</span></div>
+
 <div class="viewcode-block" id="Group.upload"><a class="viewcode-back" href="../../hubward.html#hubward.models.Group.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hub_only</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rsync_options</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="n">hub_remote</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
@@ -529,8 +577,8 @@
       &copy;2014, Ryan Dale.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
     </div>
 

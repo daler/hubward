@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>hubward.utils &mdash; hubward 0.1.0 documentation</title>
+    <title>hubward.utils &mdash; hubward 0.2.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,11 +23,11 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="hubward 0.1.0 documentation" href="../../index.html" />
+    <link rel="top" title="hubward 0.2.1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -45,7 +45,7 @@
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">docutils.core</span> <span class="kn">import</span> <span class="n">publish_string</span>
 <span class="kn">import</span> <span class="nn">bleach</span>
-<span class="kn">from</span> <span class="nn">wget</span> <span class="kn">import</span> <span class="n">download</span>
+<span class="kn">import</span> <span class="nn">pycurl</span>
 <span class="kn">import</span> <span class="nn">pybedtools</span>
 <span class="kn">import</span> <span class="nn">string</span>
 
@@ -88,6 +88,13 @@
 <span class="c"># versioneer.py is Public Domain</span>
 <span class="c"># ----------------------------------------------------------------------------</span>
 
+<div class="viewcode-block" id="download"><a class="viewcode-back" href="../../hubward.html#hubward.utils.download">[docs]</a><span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">outfile</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">pycurl</span><span class="o">.</span><span class="n">Curl</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">setopt</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">URL</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">setopt</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">WRITEDATA</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">perform</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
 <span class="k">def</span> <span class="nf">_tar_xf</span><span class="p">(</span><span class="n">tarball</span><span class="p">,</span> <span class="n">dir_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;r:*&#39;</span><span class="p">):</span>
@@ -132,9 +139,9 @@
 <div class="viewcode-block" id="make_executable"><a class="viewcode-back" href="../../hubward.html#hubward.utils.make_executable">[docs]</a><span class="k">def</span> <span class="nf">make_executable</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="n">mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">st_mode</span>
     <span class="n">mode</span> <span class="o">|=</span> <span class="p">(</span><span class="n">mode</span> <span class="o">&amp;</span> <span class="mi">292</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="makedirs"><a class="viewcode-back" href="../../hubward.html#hubward.utils.makedirs">[docs]</a><span class="k">def</span> <span class="nf">makedirs</span><span class="p">(</span><span class="n">dirnames</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Recursively create the given directory or directories without reporting</span>
@@ -144,26 +151,26 @@
         <span class="n">dirnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">dirnames</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">dirname</span> <span class="ow">in</span> <span class="n">dirnames</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="unpack"><a class="viewcode-back" href="../../hubward.html#hubward.utils.unpack">[docs]</a><span class="k">def</span> <span class="nf">unpack</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span>
         <span class="p">(</span><span class="s">&#39;.tar.gz&#39;</span><span class="p">,</span> <span class="s">&#39;.tar.bz2&#39;</span><span class="p">,</span> <span class="s">&#39;.tgz&#39;</span><span class="p">,</span> <span class="s">&#39;.tar.xz&#39;</span><span class="p">,</span> <span class="s">&#39;.tar&#39;</span><span class="p">,</span> <span class="s">&#39;tar.z&#39;</span><span class="p">)</span>
     <span class="p">):</span>
         <span class="n">_tar_xf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.zip&#39;</span><span class="p">):</span>
-        <span class="n">_unzip</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="n">_unzip</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="link_is_newer"><a class="viewcode-back" href="../../hubward.html#hubward.utils.link_is_newer">[docs]</a><span class="k">def</span> <span class="nf">link_is_newer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span> <span class="o">&gt;</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span> <span class="o">&gt;</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span></div>
 
-</div>
+
 <div class="viewcode-block" id="is_newer"><a class="viewcode-back" href="../../hubward.html#hubward.utils.is_newer">[docs]</a><span class="k">def</span> <span class="nf">is_newer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span> <span class="o">&gt;</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span> <span class="o">&gt;</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_resource"><a class="viewcode-back" href="../../hubward.html#hubward.utils.get_resource">[docs]</a><span class="k">def</span> <span class="nf">get_resource</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">as_tempfile</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Retrieve an installed resource.</span>
@@ -186,9 +193,9 @@
     <span class="n">tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
         <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tmp</span>
+    <span class="k">return</span> <span class="n">tmp</span></div>
 
-</div>
+
 <div class="viewcode-block" id="reST_to_html"><a class="viewcode-back" href="../../hubward.html#hubward.utils.reST_to_html">[docs]</a><span class="k">def</span> <span class="nf">reST_to_html</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert ReST-formatted string `s` into HTML.</span>
@@ -211,9 +218,9 @@
         <span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">],</span>
     <span class="p">}</span>
 
-    <span class="k">return</span> <span class="n">bleach</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">safe</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="n">attributes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bleach</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">safe</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="n">attributes</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="sanitize"><a class="viewcode-back" href="../../hubward.html#hubward.utils.sanitize">[docs]</a><span class="k">def</span> <span class="nf">sanitize</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    If strict, only allow letters and digits -- spaces will be stripped.</span>
@@ -224,11 +231,11 @@
         <span class="n">allowed</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">letters</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">allowed</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">letters</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="s">&#39; &#39;</span>
-    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span> <span class="s">&#39;_&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span> <span class="s">&#39;_&#39;</span><span class="p">)</span></div>
 
 
 <span class="c"># copied over from metaseq.colormap_adjust to avoid pulling in all of</span>
-<span class="c"># metaseq...</span></div>
+<span class="c"># metaseq...</span>
 <div class="viewcode-block" id="smart_colormap"><a class="viewcode-back" href="../../hubward.html#hubward.utils.smart_colormap">[docs]</a><span class="k">def</span> <span class="nf">smart_colormap</span><span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">color_high</span><span class="o">=</span><span class="s">&#39;#b11902&#39;</span><span class="p">,</span> <span class="n">hue_low</span><span class="o">=</span><span class="mf">0.6</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a &quot;smart&quot; colormap that is centered on zero, and accounts for</span>
@@ -281,9 +288,9 @@
         <span class="s">&#39;test&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">new_rgb</span><span class="p">),</span> <span class="p">(</span><span class="n">zeropoint</span><span class="p">,</span> <span class="s">&#39;#FFFFFF&#39;</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">color_high</span><span class="p">)],</span>
         <span class="n">N</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">new_cmap</span>
+    <span class="k">return</span> <span class="n">new_cmap</span></div>
 
-</div>
+
 <div class="viewcode-block" id="fix_macs_wig"><a class="viewcode-back" href="../../hubward.html#hubward.utils.fix_macs_wig">[docs]</a><span class="k">def</span> <span class="nf">fix_macs_wig</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">genome</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">add_chr</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">to_ignore</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    wig files created by MACS often are extended outside the chromsome ranges.</span>
@@ -338,9 +345,9 @@
             <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="o">+</span> <span class="n">span</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">genome</span><span class="p">[</span><span class="n">chrom</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="k">continue</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">output</span>
+    <span class="k">return</span> <span class="n">output</span></div>
 
-</div>
+
 <div class="viewcode-block" id="colored_bigbed"><a class="viewcode-back" href="../../hubward.html#hubward.utils.colored_bigbed">[docs]</a><span class="k">def</span> <span class="nf">colored_bigbed</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">genome</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">autosql</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">bedtype</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    if color is &quot;smart&quot;, then use metaseq&#39;s smart colormap centered on zero.</span>
@@ -366,9 +373,9 @@
         <span class="o">.</span><span class="n">sort</span><span class="p">()</span>\
         <span class="o">.</span><span class="n">each</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>\
         <span class="o">.</span><span class="n">saveas</span><span class="p">()</span>
-    <span class="n">bigbed</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">genome</span><span class="o">=</span><span class="n">genome</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">_as</span><span class="o">=</span><span class="n">autosql</span><span class="p">,</span> <span class="n">bedtype</span><span class="o">=</span><span class="n">bedtype</span><span class="p">)</span>
+    <span class="n">bigbed</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">genome</span><span class="o">=</span><span class="n">genome</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">_as</span><span class="o">=</span><span class="n">autosql</span><span class="p">,</span> <span class="n">bedtype</span><span class="o">=</span><span class="n">bedtype</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="singlecolormap"><a class="viewcode-back" href="../../hubward.html#hubward.utils.singlecolormap">[docs]</a><span class="k">def</span> <span class="nf">singlecolormap</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a linear colormap where `color` is the top, and func(color) is the</span>
@@ -390,9 +397,9 @@
         <span class="n">name</span><span class="o">=</span><span class="s">&#39;colormap&#39;</span><span class="p">,</span>
         <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="n">func</span><span class="p">(</span><span class="n">rgb</span><span class="p">),</span> <span class="n">rgb</span><span class="p">],</span>
         <span class="n">N</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="colortuple"><a class="viewcode-back" href="../../hubward.html#hubward.utils.colortuple">[docs]</a><span class="k">def</span> <span class="nf">colortuple</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a color in any format supported by matplotlib, return</span>
@@ -400,9 +407,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">colorConverter</span><span class="o">.</span><span class="n">to_rgb</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
     <span class="n">rgb</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rgb</span><span class="p">]</span>
-    <span class="k">return</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">rgb</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">rgb</span><span class="p">))</span></div>
 
-</div>
+
 <div class="viewcode-block" id="add_chr"><a class="viewcode-back" href="../../hubward.html#hubward.utils.add_chr">[docs]</a><span class="k">def</span> <span class="nf">add_chr</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prepend &quot;chr&quot; to the beginning of chromosome names.</span>
@@ -410,17 +417,17 @@
 <span class="sd">    Useful when passed to pybedtool.BedTool.each().</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">f</span><span class="o">.</span><span class="n">chrom</span> <span class="o">=</span> <span class="s">&#39;chr&#39;</span> <span class="o">+</span> <span class="n">f</span><span class="o">.</span><span class="n">chrom</span>
-    <span class="k">return</span> <span class="n">f</span>
+    <span class="k">return</span> <span class="n">f</span></div>
 
-</div>
+
 <div class="viewcode-block" id="chromsizes"><a class="viewcode-back" href="../../hubward.html#hubward.utils.chromsizes">[docs]</a><span class="k">def</span> <span class="nf">chromsizes</span><span class="p">(</span><span class="n">assembly</span><span class="p">):</span>
     <span class="n">url</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;http://hgdownload.cse.ucsc.edu/goldenPath/&quot;</span>
            <span class="s">&quot;{0}/bigZips/{0}.chrom.sizes&quot;</span><span class="p">)</span>
     <span class="n">dest</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.chromsizes&#39;</span>
     <span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assembly</span><span class="p">),</span> <span class="n">dest</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">dest</span>
+    <span class="k">return</span> <span class="n">dest</span></div>
 
-</div>
+
 <div class="viewcode-block" id="bigbed"><a class="viewcode-back" href="../../hubward.html#hubward.utils.bigbed">[docs]</a><span class="k">def</span> <span class="nf">bigbed</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">genome</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">blockSize</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">itemsPerSlot</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
            <span class="n">bedtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_as</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">tab</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -463,10 +470,14 @@
         <span class="n">cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;-tab&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">_as</span><span class="p">:</span>
         <span class="n">cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;-as=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">_as</span><span class="p">)</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">output</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&#39;mv {0} {0}.bak&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+        <span class="k">raise</span>
+    <span class="k">return</span> <span class="n">output</span></div>
 
-</div>
+
 <div class="viewcode-block" id="bigwig"><a class="viewcode-back" href="../../hubward.html#hubward.utils.bigwig">[docs]</a><span class="k">def</span> <span class="nf">bigwig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">genome</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">blockSize</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">itemsPerSlot</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
            <span class="n">bedtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_as</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">tab</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -491,7 +502,7 @@
         <span class="n">chromsizes_file</span><span class="p">,</span>
         <span class="n">output</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">output</span></div>
 </pre></div>
 
@@ -529,8 +540,8 @@
       &copy;2014, Ryan Dale.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
     </div>
 

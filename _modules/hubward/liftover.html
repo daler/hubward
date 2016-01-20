@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>hubward.liftover &mdash; hubward 0.1.0 documentation</title>
+    <title>hubward.liftover &mdash; hubward 0.2.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,11 +23,11 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="hubward 0.1.0 documentation" href="../../index.html" />
+    <link rel="top" title="hubward 0.2.1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -47,6 +47,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">pybedtools</span>
+<span class="kn">from</span> <span class="nn">hubward.log</span> <span class="kn">import</span> <span class="n">log</span>
 
 
 <div class="viewcode-block" id="download_chainfile"><a class="viewcode-back" href="../../hubward.html#hubward.liftover.download_chainfile">[docs]</a><span class="k">def</span> <span class="nf">download_chainfile</span><span class="p">(</span><span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="p">):</span>
@@ -61,16 +62,53 @@
     <span class="n">utils</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
     <span class="n">url</span> <span class="o">=</span> <span class="n">chainfile_url</span><span class="p">(</span><span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="p">)</span>
     <span class="n">dest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
-    <span class="n">utils</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">dest</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="s">&#39;Downloading {0} to {1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">))</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dest</span></div>
 
-</div>
+
 <div class="viewcode-block" id="chainfile_url"><a class="viewcode-back" href="../../hubward.html#hubward.liftover.chainfile_url">[docs]</a><span class="k">def</span> <span class="nf">chainfile_url</span><span class="p">(</span><span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span><span class="s">&quot;http://hgdownload.cse.ucsc.edu/&quot;</span>
             <span class="s">&quot;goldenPath/{0}/liftOver/{0}To{1}.over.chain.gz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="o">.</span><span class="n">title</span><span class="p">()))</span>
+                <span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="o">.</span><span class="n">title</span><span class="p">()))</span></div>
 
-</div>
+
+<span class="k">def</span> <span class="nf">_liftover_bam</span><span class="p">(</span><span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="p">,</span> <span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">):</span>
+    <span class="n">chainfile</span> <span class="o">=</span> <span class="n">download_chainfile</span><span class="p">(</span><span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="p">)</span>
+
+    <span class="c"># In the test environment, CrossMap.py causes segfault if output is not</span>
+    <span class="c"># STDOUT</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfile</span> <span class="o">+</span> <span class="s">&#39;.tmp.bam&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+        <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s">&#39;CrossMap.py&#39;</span><span class="p">,</span>
+            <span class="s">&#39;bam&#39;</span><span class="p">,</span>
+            <span class="n">chainfile</span><span class="p">,</span>
+            <span class="n">infile</span><span class="p">,</span>
+            <span class="s">&#39;STDOUT&#39;</span><span class="p">]</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+        <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s">&#39;samtools&#39;</span><span class="p">,</span>
+            <span class="s">&#39;sort&#39;</span><span class="p">,</span>
+            <span class="s">&#39;-T&#39;</span><span class="p">,</span> <span class="n">outfile</span> <span class="o">+</span> <span class="s">&#39;.sorting&#39;</span><span class="p">,</span>
+            <span class="n">outfile</span> <span class="o">+</span> <span class="s">&#39;.tmp.bam&#39;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+
+    <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">&#39;samtools&#39;</span><span class="p">,</span>
+        <span class="s">&#39;index&#39;</span><span class="p">,</span>
+        <span class="n">outfile</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">outfile</span>
+
+
 <span class="k">def</span> <span class="nf">_liftover_bigwig</span><span class="p">(</span><span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="p">,</span> <span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">):</span>
     <span class="n">chainfile</span> <span class="o">=</span> <span class="n">download_chainfile</span><span class="p">(</span><span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="p">)</span>
     <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span>
@@ -86,18 +124,28 @@
 
 <span class="k">def</span> <span class="nf">_liftover_bigbed</span><span class="p">(</span><span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="p">,</span> <span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">):</span>
     <span class="n">chainfile</span> <span class="o">=</span> <span class="n">download_chainfile</span><span class="p">(</span><span class="n">source_assembly</span><span class="p">,</span> <span class="n">target_assembly</span><span class="p">)</span>
+
+    <span class="c"># Convert bigBed to bed</span>
     <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s">&#39;bigBedToBed&#39;</span><span class="p">,</span>
         <span class="n">infile</span><span class="p">,</span>
         <span class="n">outfile</span> <span class="o">+</span> <span class="s">&#39;.bed&#39;</span><span class="p">]</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
 
+    <span class="c"># get a tempfile for the unmapped; this wil actually not be returned but</span>
+    <span class="c"># needs to be specified for `liftOver`.</span>
+    <span class="n">unmapped</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="o">.</span><span class="n">_tmp</span><span class="p">()</span>
+
+    <span class="c"># There seems to be a bug in crossmap where a BED9 file&#39;s thickStart and</span>
+    <span class="c"># thickEnd are not lifted over. So use UCSC&#39;s liftover directly. Might as</span>
+    <span class="c"># well, since it was designed for BED files anyway.</span>
     <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s">&#39;CrossMap.py&#39;</span><span class="p">,</span>
-        <span class="s">&#39;bed&#39;</span><span class="p">,</span>
-        <span class="n">chainfile</span><span class="p">,</span>
+        <span class="s">&#39;liftOver&#39;</span><span class="p">,</span>
         <span class="n">outfile</span> <span class="o">+</span> <span class="s">&#39;.bed&#39;</span><span class="p">,</span>
-        <span class="n">outfile</span> <span class="o">+</span> <span class="s">&#39;.converted&#39;</span><span class="p">]</span>
+        <span class="n">chainfile</span><span class="p">,</span>
+        <span class="n">outfile</span> <span class="o">+</span> <span class="s">&#39;.converted&#39;</span><span class="p">,</span>
+        <span class="n">unmapped</span><span class="p">,</span>
+    <span class="p">]</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
 
     <span class="n">tmp</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="p">(</span><span class="n">outfile</span> <span class="o">+</span> <span class="s">&#39;.converted&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
@@ -106,11 +154,17 @@
     <span class="k">return</span> <span class="n">outfile</span>
 
 
+<span class="n">_dispatch</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;bigwig&#39;</span><span class="p">:</span> <span class="n">_liftover_bigwig</span><span class="p">,</span>
+    <span class="s">&#39;bigbed&#39;</span><span class="p">:</span> <span class="n">_liftover_bigbed</span><span class="p">,</span>
+    <span class="s">&#39;bam&#39;</span><span class="p">:</span> <span class="n">_liftover_bam</span><span class="p">,</span>
+<span class="p">}</span>
+
 <div class="viewcode-block" id="liftover"><a class="viewcode-back" href="../../hubward.html#hubward.liftover.liftover">[docs]</a><span class="k">def</span> <span class="nf">liftover</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="n">to_</span><span class="p">,</span> <span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">filetype</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">filetype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;bigwig&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_liftover_bigwig</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="n">to_</span><span class="p">,</span> <span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">filetype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;bigbed&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_liftover_bigbed</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="n">to_</span><span class="p">,</span> <span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span></div>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_dispatch</span><span class="p">[</span><span class="n">filetype</span><span class="o">.</span><span class="n">lower</span><span class="p">()](</span><span class="n">from_</span><span class="p">,</span> <span class="n">to_</span><span class="p">,</span> <span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;unsupported filetype (</span><span class="si">%s</span><span class="s">) to lift over&quot;</span> <span class="o">%</span> <span class="n">filetype</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -147,8 +201,8 @@
       &copy;2014, Ryan Dale.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
     </div>
 

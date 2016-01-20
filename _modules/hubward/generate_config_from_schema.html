@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>hubward.generate_config_from_schema &mdash; hubward 0.1.0 documentation</title>
+    <title>hubward.generate_config_from_schema &mdash; hubward 0.2.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,11 +23,11 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="hubward 0.1.0 documentation" href="../../index.html" />
+    <link rel="top" title="hubward 0.2.1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -55,9 +55,9 @@
     <span class="n">OrderedLoader</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span>
         <span class="n">yaml</span><span class="o">.</span><span class="n">resolver</span><span class="o">.</span><span class="n">BaseResolver</span><span class="o">.</span><span class="n">DEFAULT_MAPPING_TAG</span><span class="p">,</span>
         <span class="n">construct_mapping</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">OrderedLoader</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">OrderedLoader</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="represent_odict"><a class="viewcode-back" href="../../hubward.html#hubward.generate_config_from_schema.represent_odict">[docs]</a><span class="k">def</span> <span class="nf">represent_odict</span><span class="p">(</span><span class="n">dump</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">flow_style</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dump an ordered dictionary to YAML, maintaining the key order but making it</span>
@@ -85,8 +85,8 @@
             <span class="n">node</span><span class="o">.</span><span class="n">flow_style</span> <span class="o">=</span> <span class="n">dump</span><span class="o">.</span><span class="n">default_flow_style</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">node</span><span class="o">.</span><span class="n">flow_style</span> <span class="o">=</span> <span class="n">best_style</span>
-    <span class="k">return</span> <span class="n">node</span>
-</div>
+    <span class="k">return</span> <span class="n">node</span></div>
+
 <span class="n">yaml</span><span class="o">.</span><span class="n">SafeDumper</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">,</span>
     <span class="k">lambda</span> <span class="n">dumper</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">represent_odict</span><span class="p">(</span><span class="n">dumper</span><span class="p">,</span> <span class="s">u&#39;tag:yaml.org,2002:map&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
 
@@ -107,18 +107,18 @@
         <span class="n">o</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">o</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span>
-    <span class="k">return</span> <span class="n">o</span>
+    <span class="k">return</span> <span class="n">o</span></div>
 
-</div>
+
 <div class="viewcode-block" id="follow_ref"><a class="viewcode-back" href="../../hubward.html#hubward.generate_config_from_schema.follow_ref">[docs]</a><span class="k">def</span> <span class="nf">follow_ref</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Follow a &quot;$ref&quot; JSON Schema reference</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&#39;#/&#39;</span><span class="p">)</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">access</span><span class="p">(</span><span class="n">dct</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">access</span><span class="p">(</span><span class="n">dct</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span></div>
 
-</div>
+
 <span class="k">def</span> <span class="nf">_indent</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Indents string `s` by `amount` doublespaces.</span>
@@ -205,7 +205,8 @@
             <span class="c"># It&#39;s tricky to get arrays to be generated using $ref references;</span>
             <span class="c"># this allows a default to be written into the schema and printed</span>
             <span class="c"># nicely in the generated output.</span>
-            <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;object&#39;</span><span class="p">,</span> <span class="s">&#39;array&#39;</span><span class="p">]:</span>
+
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;object&#39;</span><span class="p">,</span> <span class="s">&#39;array&#39;</span><span class="p">]:</span>
                 <span class="n">default</span> <span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">_indent</span><span class="p">(</span>
                     <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">line_break</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span>
                     <span class="n">props</span><span class="o">.</span><span class="n">level</span> <span class="o">+</span> <span class="mi">2</span>
@@ -291,8 +292,8 @@
       &copy;2014, Ryan Dale.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
     </div>
 
