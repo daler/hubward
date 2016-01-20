@@ -13,7 +13,7 @@ tools for building isolated environments. It's a very convenient tool.
 The following command will install `hubward` plus all optional dependencies
 into a new `conda` environment called `hubward-test`::
 
-    conda install -n hubward-test -c bioconda hubward-all
+    conda install -n hubward-test -c r -c bioconda hubward-all
 
 This will install:
 
@@ -40,4 +40,3 @@ The tests are run within a Docker container. Inspect the `docker/Dockerfile` to 
     ./docker-test-wrapper.sh
 
 to perform the test.
-
