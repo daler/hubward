@@ -154,8 +154,10 @@ class Data(object):
             )
 
     def _needs_liftover(self, from_assembly, to_assembly, newfile):
-
-        # Sentinel file encodes
+        """
+        Checks to see if liftover is needed based on the 
+        """
+        # Sentinel file encodes assembly conversion; 
         sentinel = self._liftover_sentinel(from_assembly, to_assembly, newfile)
         if not os.path.exists(sentinel):
             return True
@@ -164,6 +166,10 @@ class Data(object):
         return False
 
     def _liftover_sentinel(self, from_assembly, to_assembly, newfile):
+        """
+        Returns the name of a hidden, empty file used to indicate that
+        a liftover has been performed.
+        """
         return os.path.join(
             os.path.dirname(newfile),
             '.{0}-to-{1}.' +

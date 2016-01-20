@@ -49,12 +49,16 @@ def _liftover_bigwig(source_assembly, target_assembly, infile, outfile):
 
 def _liftover_bigbed(source_assembly, target_assembly, infile, outfile):
     chainfile = download_chainfile(source_assembly, target_assembly)
+
+    # Convert bigBed to bed
     cmds = [
         'bigBedToBed',
         infile,
         outfile + '.bed']
     p = subprocess.check_call(cmds)
 
+    # get a tempfile for the unmapped; this wil actually not be returned but
+    # needs to be specified for `liftOver`.
     unmapped = pybedtools.BedTool._tmp()
 
     # There seems to be a bug in crossmap where a BED9 file's thickStart and
