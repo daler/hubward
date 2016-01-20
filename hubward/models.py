@@ -216,6 +216,10 @@ class Data(object):
         log("Moving {0} to {1}".format(tmp, newfile))
         shutil.move(tmp, newfile)
 
+        if self.type_.lower() == 'bam':
+            shutil.move(tmp + '.bai', newfile + '.bai')
+
+
         # CrossMap.py seems to `chmod go-rw` on lifted-over file. So we copy
         # permissions from the original one.
         shutil.copymode(self.processed, newfile)
@@ -353,6 +357,7 @@ class Study(object):
         """
         bigwigs = [i for i in self.tracks if i.type_ == 'bigwig']
         bigbeds = [i for i in self.tracks if i.type_ == 'bigbed']
+        bams = [i for i in self.tracks if i.type_ == 'bam']
 
         # Build the HTML docs
         last_section = self.reference_section()
@@ -416,6 +421,17 @@ class Study(object):
             )
             composite.add_view(bed_view)
             _add_tracks(bigbeds, bed_view, 'bigBed 9')
+        # and bams
+        if len(bams) > 0:
+            bam_view = ViewTrack(
+                name=sanitized_label + 'bamviewtrack',
+                view=sanitized_label + 'bam_view',
+                short_label=self.label + ' bam view',
+                long_label=self.label + ' bam view',
+                visibility='dense',
+            )
+            composite.add_view(bam_view)
+            _add_tracks(bams, bam_view, 'bam')
 
         return composite
 

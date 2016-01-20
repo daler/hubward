@@ -34,6 +34,41 @@ def chainfile_url(source_assembly, target_assembly):
                 source_assembly, target_assembly.title()))
 
 
+def _liftover_bam(source_assembly, target_assembly, infile, outfile):
+    chainfile = download_chainfile(source_assembly, target_assembly)
+
+    # In the test environment, CrossMap.py causes segfault if output is not
+    # STDOUT
+    with open(outfile + '.tmp.bam', 'w') as fout:
+        cmds = [
+            'CrossMap.py',
+            'bam',
+            chainfile,
+            infile,
+            'STDOUT']
+
+        p = subprocess.check_call(cmds, stdout=fout)
+
+    with open(outfile, 'w') as fout:
+        cmds = [
+            'samtools',
+            'sort',
+            '-T', outfile + '.sorting',
+            outfile + '.tmp.bam',
+        ]
+        print(cmds)
+        p = subprocess.check_call(cmds, stdout=fout)
+
+    cmds = [
+        'samtools',
+        'index',
+        outfile]
+    print(cmds)
+    p = subprocess.check_call(cmds)
+
+    return outfile
+
+
 def _liftover_bigwig(source_assembly, target_assembly, infile, outfile):
     chainfile = download_chainfile(source_assembly, target_assembly)
     cmds = [
@@ -79,8 +114,14 @@ def _liftover_bigbed(source_assembly, target_assembly, infile, outfile):
     return outfile
 
 
+_dispatch = {
+    'bigwig': _liftover_bigwig,
+    'bigbed': _liftover_bigbed,
+    'bam': _liftover_bam,
+}
+
 def liftover(from_, to_, infile, outfile, filetype):
-    if filetype.lower() == 'bigwig':
-        return _liftover_bigwig(from_, to_, infile, outfile)
-    if filetype.lower() == 'bigbed':
-        return _liftover_bigbed(from_, to_, infile, outfile)
+    try:
+        return _dispatch[filetype.lower()](from_, to_, infile, outfile)
+    except KeyError:
+        raise ValueError("unsupported filetype (%s) to lift over" % filetype)
