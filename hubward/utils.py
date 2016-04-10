@@ -8,6 +8,7 @@ import bleach
 import pycurl
 import pybedtools
 import string
+import tarfile
 
 
 # The following license is from conda_build. Code from conda_build is used in
@@ -67,7 +68,7 @@ uncompress is required to unarchive .z source files.
 """)
         subprocess.check_call([uncompress, '-f', tarball])
         tarball = tarball[:-2]
-    if not PY3 and tarball.endswith('.tar.xz'):
+    if tarball.endswith('.tar.xz'):
         unxz = external.find_executable('unxz')
         if not unxz:
             sys.exit("""\
